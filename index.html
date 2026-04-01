@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Calendário Olímpico — Centralizamos todas as Olimpíadas Científicas Nacionais para estudantes de alta performance. Filtre, estude e garanta sua vaga.">
+    <title>Calendário Olímpico</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-slate-900 font-inter text-slate-100 antialiased">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- NAVBAR — Fixed, Translucent, Blurred        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <svg class="w-7 h-7 text-yellow-400 group-hover:text-yellow-300 transition-colors duration-200"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="text-lg font-bold text-slate-100 tracking-tight">Calendário Olímpico</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-1">
+                <a href="index.html"
+                    class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-all duration-200">Início</a>
+                <a href="calendario.html"
+                    class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Calendário</a>
+                <a href="provas.html"
+                    class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Provas</a>
+
+
+                <!-- Inactive Tabs -->
+                <span
+                    class="relative px-4 py-2 rounded-lg text-sm font-medium text-slate-500 cursor-default select-none">
+                    Internacionais
+                    <span
+                        class="absolute -top-1 -right-1 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full leading-none">Em
+                        Breve</span>
+                </span>
+                <span
+                    class="relative px-4 py-2 rounded-lg text-sm font-medium text-slate-500 cursor-default select-none">
+                    Eventos Menores
+                    <span
+                        class="absolute -top-1 -right-1 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full leading-none">Em
+                        Breve</span>
+                </span>
+            </div>
+
+            <!-- Mobile Hamburger -->
+            <button id="mobile-menu-btn"
+                class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                aria-label="Abrir menu">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Nav Dropdown -->
+        <div id="mobile-menu" class="md:hidden hidden border-t border-slate-800 bg-slate-900/95 backdrop-blur-md">
+            <div class="px-4 py-3 space-y-1">
+                <a href="index.html"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800">Início</a>
+                <a href="calendario.html"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Calendário</a>
+                <a href="provas.html"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Provas</a>
+
+                <div class="pt-2 border-t border-slate-800 mt-2">
+                    <span class="block px-4 py-2 text-sm text-slate-500">Internacionais <span
+                            class="ml-2 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full">Em
+                            Breve</span></span>
+                    <span class="block px-4 py-2 text-sm text-slate-500">Eventos Menores <span
+                            class="ml-2 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full">Em
+                            Breve</span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HERO SECTION                                -->
+    <!-- ═══════════════════════════════════════════ -->
+    <header id="calendario" class="pt-32 pb-16 px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <!-- Decorative glow -->
+            <div class="absolute inset-x-0 top-20 -z-10 flex justify-center overflow-hidden pointer-events-none">
+                <div class="w-[600px] h-[300px] bg-blue-600/10 rounded-full blur-3xl"></div>
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                Bem-vindo ao <span
+                    class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Calendário
+                    Olímpico!</span>
+            </h1>
+            <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                Centralizamos todas as <strong class="text-slate-300">Olimpíadas Científicas Nacionais</strong> para
+                você não perder nenhum prazo. Filtre, estude e garanta sua vaga.
+            </p>
+            <div class="mt-8 flex justify-center gap-3">
+                <a href="#provas"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 hover:-translate-y-1 transition-all duration-200 shadow-lg shadow-blue-600/25">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Ver Provas
+                </a>
+                <a href="#curiosidade"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-slate-300 font-semibold rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-white hover:-translate-y-1 transition-all duration-200">
+                    Curiosidades
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- MAIN CONTENT — Filters + Card Grid          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <main id="provas" class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+
+        <!-- Section Label -->
+        <div class="flex items-center gap-3 mb-6">
+            <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <h2 class="text-2xl font-bold text-slate-100">Olimpíadas Disponíveis</h2>
+        </div>
+
+        <!-- Filter Pills -->
+        <div id="filtros" class="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filtrar por nível escolar">
+            <button data-filtro="Todas"
+                class="filtro-btn ativo px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-selected="true" role="tab">
+                Todas
+            </button>
+            <button data-filtro="Ensino Fundamental I"
+                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-selected="false" role="tab">
+                Ensino Fundamental I
+            </button>
+            <button data-filtro="Ensino Fundamental II"
+                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-selected="false" role="tab">
+                Ensino Fundamental II
+            </button>
+            <button data-filtro="Ensino Médio"
+                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                aria-selected="false" role="tab">
+                Ensino Médio
+            </button>
+        </div>
+
+        <!-- Cards Grid (populated by JS) -->
+        <div id="lista-olimpiadas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Loading skeleton -->
+            <div class="col-span-full flex items-center justify-center py-20">
+                <div class="flex items-center gap-3 text-slate-500">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+                        </path>
+                    </svg>
+                    Carregando olimpíadas…
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FOOTER — Curiosity Panel                    -->
+    <!-- ═══════════════════════════════════════════ -->
+    <footer id="curiosidade" class="max-w-6xl mx-auto px-4 sm:px-6 pb-12">
+        <div class="bg-slate-800 p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-lg shadow-slate-900/50 mt-12">
+            <div class="flex items-center gap-3 mb-4">
+                <!-- Star/bolt icon -->
+                <svg class="w-6 h-6 text-yellow-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h3 class="text-xl font-bold text-slate-100">Curiosidade Olímpica:</h3>
+            </div>
+            <p id="texto-curiosidade" class="text-slate-400 leading-relaxed text-base">
+                Carregando curiosidade…
+            </p>
+        </div>
+
+        <!-- Bottom credits -->
+        <div class="mt-8 text-center text-sm text-slate-600 space-y-1">
+            <p>&copy; 2026 Calendário Olímpico — Feito com 💙 para estudantes de alta performance.</p>
+            <p><a href="https://linktr.ee/webglossdev" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors">@webglossdev</a></p>
+        </div>
+    </footer>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+
+</html>
