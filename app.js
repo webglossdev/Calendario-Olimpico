@@ -330,8 +330,64 @@
                     transform: translateY(0);
                 }
             }
+            @keyframes marquee {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(-50%); }
+            }
+            .animate-marquee {
+                display: inline-block;
+                animation: marquee 35s linear infinite;
+            }
         `;
         document.head.appendChild(style);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Development Warning Modal
+    // ═══════════════════════════════════════════════════════
+    function initDevWarningModal() {
+        const modal = document.getElementById('dev-warning-modal');
+        const closeBtn = document.getElementById('dev-warning-close-btn');
+        const content = document.getElementById('dev-warning-content');
+        
+        if (!modal || !closeBtn || !content) return;
+        
+        let loads = parseInt(localStorage.getItem('calolimpico_page_loads') || '0', 10);
+        loads++;
+        localStorage.setItem('calolimpico_page_loads', loads.toString());
+        
+        if (loads === 1 || (loads - 1) % 3 === 0) {
+            // Show modal
+            modal.classList.remove('hidden');
+            
+            // Trigger animation frame for transition
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            
+            // Prevent scrolling
+            document.body.style.overflow = 'hidden';
+            
+            // Close logic
+            closeBtn.addEventListener('click', () => {
+                
+                // Animate out
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            });
+        }
     }
 
     // ═══════════════════════════════════════════════════════
@@ -343,6 +399,7 @@
         initFiltros();
         exibirCuriosidade();
         fetchOlimpiadas();
+        initDevWarningModal();
     }
 
     if (document.readyState === 'loading') {
