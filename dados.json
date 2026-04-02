@@ -3,36 +3,85 @@
     "id": "obmep2026",
     "sigla": "OBMEP",
     "nome": "Olimpíada Brasileira de Matemática das Escolas Públicas",
-    "nivel_escolar": ["Ensino Fundamental II", "Ensino Médio"],
-    "materias": ["Matemática"],
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Matemática"
+    ],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-05-15", "descricao": "Prazo final de inscrição pela escola" },
-      { "tipo": "Prova", "data": "2026-06-10", "descricao": "1ª Fase — Prova na escola" },
-      { "tipo": "Prova", "data": "2026-09-20", "descricao": "2ª Fase — Prova regional" },
-      { "tipo": "Prova", "data": "2026-11-08", "descricao": "3ª Fase — Final nacional" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-16",
+        "descricao": "Prazo final de inscrição pela escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-09",
+        "descricao": "1ª Fase — Prova na escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-17",
+        "descricao": "2ª Fase — Prova regional"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Banco de Provas OBMEP", "url": "https://www.obmep.org.br/provas.htm" },
-      { "titulo": "Portal de Matemática OBMEP", "url": "https://portaldaobmep.impa.br/" }
+      {
+        "titulo": "Banco de Provas OBMEP",
+        "url": "https://www.obmep.org.br/provas.htm"
+      },
+      {
+        "titulo": "Portal de Matemática OBMEP",
+        "url": "https://portaldaobmep.impa.br/"
+      }
     ]
   },
   {
     "id": "obf2026",
     "sigla": "OBF",
     "nome": "Olimpíada Brasileira de Física",
-    "nivel_escolar": ["Ensino Médio"],
-    "materias": ["Física"],
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Física"
+    ],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-04-20", "descricao": "Prazo final de inscrição" },
-      { "tipo": "Prova", "data": "2026-05-16", "descricao": "1ª Fase — Prova na escola" },
-      { "tipo": "Prova", "data": "2026-08-15", "descricao": "2ª Fase — Prova presencial" },
-      { "tipo": "Prova", "data": "2026-10-17", "descricao": "3ª Fase — Final" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-06-06",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-13",
+        "descricao": "1ª Fase — Prova na escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-09",
+        "descricao": "2ª Fase — Prova presencial"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-17",
+        "descricao": "3ª Fase — Final"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Provas Anteriores OBF", "url": "https://sec.sbfisica.org.br/olim/provas.asp" },
-      { "titulo": "Roteiro de Estudos de Física", "url": "https://www.sbfisica.org.br/v1/olimpiada/" }
+      {
+        "titulo": "Provas Anteriores OBF",
+        "url": "https://sec.sbfisica.org.br/olim/provas.asp"
+      },
+      {
+        "titulo": "Roteiro de Estudos de Física",
+        "url": "https://www.sbfisica.org.br/v1/olimpiada/"
+      }
     ]
   },
   {
@@ -43,7 +92,25 @@
     "materias": ["Química"],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-04-10", "descricao": "Prazo final de inscrição" },
+      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
+      { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" },
+      { "tipo": "Prova", "data": "2026-08-22", "descricao": "Fase II — Prova analítica" },
+      { "tipo": "Prova", "data": "2026-10-03", "descricao": "Fase III — Preparação IChO" }
+    ],
+    "materiais_estudo": [
+      { "titulo": "Provas e Gabaritos OBQ", "url": "https://www.obquimica.org/provas" },
+      { "titulo": "Material de Estudo Química", "url": "https://www.obquimica.org/preparacao" }
+    ]
+  },
+   {
+    "id": "obqjr2026",
+    "sigla": "OBQjr",
+    "nome": "Olimpíada Brasileira de Química Júnior",
+    "nivel_escolar": ["Ensino Médio"],
+    "materias": ["Química"],
+    "modalidade": "Presencial",
+    "eventos": [
+      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
       { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" },
       { "tipo": "Prova", "data": "2026-08-22", "descricao": "Fase II — Prova analítica" },
       { "tipo": "Prova", "data": "2026-10-03", "descricao": "Fase III — Preparação IChO" }
