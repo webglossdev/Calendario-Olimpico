@@ -1,5 +1,6 @@
 # Calendário Olímpico
-## Feito para juntar todas as olimpíadas nacionais, suas datas, matérias, níveis e referências de estudo em um único só local, assim facilitando a organização da rotina de estudos.
+## Meu objetivo é transformar isso em uma plataforma completa onde o estudante pode achar sua olimpíada desejada com todas as informações necessárias para se preparar, e também incentivar outros estudantes a participarem de olimpíadas científicas. Também já com materiais, simulados, aulas e dicas direto na plataforma em um "caminho de aprendizagem" para que ele consiga estudar para uma olimpíada do melhor jeito e caminho possível.
+### No momento apenas o básico foi feito: Algumas olimpíadas adicionadas junto com suas informações básicas como datas, níveis e matérias. Como não tem como automatizar esse processo, ele é demorado assim mesmo, primeiro vão ser adicionadas as olimpíadas e suas informações básicas e depois mais funcionalidades á plataforma.
 ### Feito apenas com HTML, CSS e Javascript, com ajuda de agentes LLM direto na IDE (Google Antigravity). Para facilitar a modificação das olimpíadas e outras informações sem ter que editar diretamente o HTML, o site usa uma base de dados em um arquivo json, que é estruturado da seguinte maneira:
 ```
 [
