@@ -1,111 +1,749 @@
 [
   {
-    "id": "obecon-2026",
-    "sigla": "OBECON",
-    "nome": "Olimpíada Brasileira de Economia",
-    "nivel_escolar": ["Ensino Médio"],
-    "materias": ["Economia", "Finanças", "Atualidades"],
-    "modalidade": "Online (Fases Iniciais) e Presencial (Final)",
+    "id": "obmep2026",
+    "sigla": "OBMEP",
+    "nome": "Olimpíada Brasileira de Matemática das Escolas Públicas e Privadas",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Matemática"
+    ],
+    "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-04-20", "descricao": "Encerramento das inscrições" },
-      { "tipo": "Prova", "data": "2026-05-02", "descricao": "Prova da 1ª Fase (Online)" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-16",
+        "descricao": "Prazo final de inscrição pela escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-09",
+        "descricao": "1ª Fase — Prova na escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-17",
+        "descricao": "2ª Fase — Prova regional"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Guia de Estudos OBECON", "url": "https://obecon.org/estudar" },
-      { "titulo": "Khan Academy - Macroeconomia", "url": "https://pt.khanacademy.org/economics-finance-domain/macroeconomics" }
+      {
+        "titulo": "Banco de Provas OBMEP",
+        "url": "https://www.obmep.org.br/provas.htm"
+      },
+      {
+        "titulo": "Portal de Matemática OBMEP",
+        "url": "https://portaldaobmep.impa.br/"
+      }
     ]
   },
   {
-    "id": "obg-geo-2026",
-    "sigla": "OBG",
-    "nome": "Olimpíada Brasileira de Geografia",
-    "nivel_escolar": ["Ensino Médio", "9º ano Fundamental"],
-    "materias": ["Geografia Geral", "Geopolítica", "Meio Ambiente"],
+    "id": "obf2026",
+    "sigla": "OBF",
+    "nome": "Olimpíada Brasileira de Física",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Física"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-06-06",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-13",
+        "descricao": "1ª Fase — Prova na escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-09",
+        "descricao": "2ª Fase — Prova presencial"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-17",
+        "descricao": "3ª Fase — Final"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores OBF",
+        "url": "https://sec.sbfisica.org.br/olim/provas.asp"
+      },
+      {
+        "titulo": "Roteiro de Estudos de Física",
+        "url": "https://www.sbfisica.org.br/v1/olimpiada/"
+      }
+    ]
+  },
+  {
+    "id": "obq2026",
+    "sigla": "OBQ",
+    "nome": "Olimpíada Brasileira de Química",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Química"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-29",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-09",
+        "descricao": "Fase I — Prova objetiva"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-22",
+        "descricao": "Fase II — Prova analítica"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-03",
+        "descricao": "Fase III — Preparação IChO"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas e Gabaritos OBQ",
+        "url": "https://www.obquimica.org/provas"
+      },
+      {
+        "titulo": "Material de Estudo Química",
+        "url": "https://www.obquimica.org/preparacao"
+      }
+    ]
+  },
+  {
+    "id": "obqjr2026",
+    "sigla": "OBQjr",
+    "nome": "Olimpíada Brasileira de Química Júnior",
+    "nivel_escolar": [
+      "Ensino Fundamental II"
+    ],
+    "materias": [
+      "Química"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-29",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-09",
+        "descricao": "Fase I — Prova objetiva"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-22",
+        "descricao": "Fase II — Prova analítica"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-03",
+        "descricao": "Fase III — Final"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas e Gabaritos OBQjr",
+        "url": "https://www.obquimica.org/provas"
+      },
+      {
+        "titulo": "Material de Estudo Química",
+        "url": "https://www.obquimica.org/preparacao"
+      }
+    ]
+  },
+  {
+    "id": "obi2026",
+    "sigla": "OBI",
+    "nome": "Olimpíada Brasileira de Informática",
+    "nivel_escolar": [
+      "Ensino Fundamental I",
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Informática",
+      "Matemática"
+    ],
     "modalidade": "Online",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-07-10", "descricao": "Prazo final de inscrições" },
-      { "tipo": "Prova", "data": "2026-08-05", "descricao": "Início da 1ª Fase Online" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-01",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-23",
+        "descricao": "Fase Local"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-08",
+        "descricao": "Fase Estadual"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-24",
+        "descricao": "Fase Nacional"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Acervo de Provas OBG", "url": "https://olimpiadadegeografia.org.br/conteudo/provas" },
-      { "titulo": "IBGE - Mapas e Dados", "url": "https://educa.ibge.gov.br/" }
+      {
+        "titulo": "Curso de Introdução à Programação",
+        "url": "https://olimpiada.ic.unicamp.br/inicio/"
+      },
+      {
+        "titulo": "Provas Anteriores OBI",
+        "url": "https://olimpiada.ic.unicamp.br/provas/"
+      }
     ]
   },
   {
-    "id": "sapientia-2026",
+    "id": "oba2026",
+    "sigla": "OBA",
+    "nome": "Olimpíada Brasileira de Astronomia e Astronáutica",
+    "nivel_escolar": [
+      "Ensino Fundamental I",
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Física",
+      "Astronomia"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-20",
+        "descricao": "Prazo final de inscrição pela escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-29",
+        "descricao": "Prova — Fase Única"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores OBA",
+        "url": "https://app.oba.org.br/provas"
+      },
+      {
+        "titulo": "Apostila de Astronomia OBA",
+        "url": "http://www.oba.org.br/site/?p=conteudo&idcat=9"
+      }
+    ]
+  },
+  {
+    "id": "obb2026",
+    "sigla": "OBB",
+    "nome": "Olimpíada Brasileira de Biologia",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Biologia"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-04-05",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-04-25",
+        "descricao": "1ª Fase — Prova teórica"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-07-11",
+        "descricao": "2ª Fase — Prova analítica"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-09-05",
+        "descricao": "3ª Fase — Seleção para IBO"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores OBB",
+        "url": "https://www.olimpiadadebiologia.butantan.gov.br/provas"
+      },
+      {
+        "titulo": "Guia de Estudos Biologia",
+        "url": "https://www.olimpiadadebiologia.butantan.gov.br/materiais"
+      }
+    ]
+  },
+  {
+    "id": "onc2026",
+    "sigla": "ONC",
+    "nome": "Olimpíada Nacional de Ciências",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Física",
+      "Química",
+      "Biologia",
+      "Astronomia"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-06-10",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-15",
+        "descricao": "1ª Fase — Prova na escola"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-10",
+        "descricao": "2ª Fase — Prova regional"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores ONC",
+        "url": "https://www.onciencias.org/provas-anteriores"
+      }
+    ]
+  },
+  {
+    "id": "obr2026",
+    "sigla": "OBR",
+    "nome": "Olimpíada Brasileira de Robótica",
+    "nivel_escolar": [
+      "Ensino Fundamental I",
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Informática",
+      "Física"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-06-01",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-07-18",
+        "descricao": "Etapa Regional"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-09-12",
+        "descricao": "Etapa Estadual"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-11-07",
+        "descricao": "Etapa Nacional"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Material Teórico OBR",
+        "url": "http://www.obr.org.br/preparacao"
+      },
+      {
+        "titulo": "Simulados OBR",
+        "url": "http://www.obr.org.br/provas-anteriores"
+      }
+    ]
+  },
+  {
+    "id": "canguru2026",
+    "sigla": "Canguru",
+    "nome": "Canguru de Matemática Brasil",
+    "nivel_escolar": [
+      "Ensino Fundamental I",
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Matemática"
+    ],
+    "modalidade": "Presencial",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-04-15",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-14",
+        "descricao": "Prova — Fase Única"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores Canguru",
+        "url": "https://www.cangurudematematicabrasil.com.br/provas-anteriores"
+      }
+    ]
+  },
+  {
+    "id": "onia2026",
+    "sigla": "ONIA",
+    "nome": "Olimpíada Nacional de Inteligência Artificial",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Informática",
+      "Matemática"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-07-15",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-20",
+        "descricao": "Fase teórica online"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Documentação ONIA/LNCC",
+        "url": "https://onia.lncc.br/"
+      }
+    ]
+  },
+  {
+    "id": "onhb2026",
+    "sigla": "ONHB",
+    "nome": "Olimpíada Nacional em História do Brasil",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "História"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-04-25",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-04",
+        "descricao": "1ª Fase — Prova online e análise de documentos"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-15",
+        "descricao": "Fase Final — Presencial"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Banco de Provas ONHB",
+        "url": "https://www.olimpiadadehistoria.com.br/provas"
+      },
+      {
+        "titulo": "Orientações de Estudo",
+        "url": "https://www.olimpiadadehistoria.com.br/estudos"
+      }
+    ]
+  },
+  {
+    "id": "obl2026",
+    "sigla": "OBL",
+    "nome": "Olimpíada Brasileira de Linguística",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Linguística"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-10",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-06",
+        "descricao": "1ª Fase — Prova aberta"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-09-19",
+        "descricao": "2ª Fase — Seleção IOL"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Problemas de Linguística",
+        "url": "https://obling.org/problemas"
+      },
+      {
+        "titulo": "Guia para Iniciantes OBL",
+        "url": "https://obling.org/preparacao"
+      }
+    ]
+  },
+  {
+    "id": "obecon2026",
+    "sigla": "OBECON",
+    "nome": "Olimpíada Brasileira de Economia",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Economia",
+      "Matemática"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-04-20",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-02",
+        "descricao": "1ª Fase — Prova online"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-15",
+        "descricao": "2ª Fase — Prova analítica"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Guia de Estudos OBECON",
+        "url": "https://obecon.org/estudar"
+      },
+      {
+        "titulo": "Material de Macroeconomia",
+        "url": "https://pt.khanacademy.org/economics-finance-domain/macroeconomics"
+      }
+    ]
+  },
+  {
+    "id": "obg2026",
+    "sigla": "OBG",
+    "nome": "Olimpíada GeoBrasil - Olimpíada Brasileira de Geografia",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Geografia"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-07-10",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-08-05",
+        "descricao": "1ª Fase — Prova online competitiva"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-15",
+        "descricao": "Fase Final — Presencial"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Provas Anteriores OBG",
+        "url": "https://obgeografia.org/provas"
+      },
+      {
+        "titulo": "Acervo IBGE Educa",
+        "url": "https://educa.ibge.gov.br/"
+      }
+    ]
+  },
+  {
+    "id": "sapientia2026",
     "sigla": "Sapientia",
-    "nome": "Olimpíada do Futuro - Sapientia",
-    "nivel_escolar": ["Fundamental II", "Ensino Médio"],
-    "materias": ["ODS ONU", "Sustentabilidade", "Interdisciplinar"],
-    "modalidade": "Online (Projeto e Prova)",
-    "event": [
-      { "tipo": "Inscrição", "data": "2026-05-15", "descricao": "Encerramento das inscrições" },
-      { "tipo": "Prova", "data": "2026-05-25", "descricao": "Aplicação da Prova de Múltipla Escolha" }
+    "nome": "Olimpíada do Futuro",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Geografia",
+      "Biologia"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data": "2026-05-15",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-25",
+        "descricao": "1ª Fase — Prova objetiva online"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-06-20",
+        "descricao": "2ª Fase — Envio de projeto de inovação"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Objetivos de Desenvolvimento Sustentável (ONU)", "url": "https://brasil.un.org/pt-br/sdgs" },
-      { "titulo": "Manual Sapientia", "url": "https://www.olimpiadadosapientia.com.br/" }
+      {
+        "titulo": "Guia de ODS da ONU",
+        "url": "https://brasil.un.org/pt-br/sdgs"
+      },
+      {
+        "titulo": "Materiais Sapientia",
+        "url": "https://www.olimpiadadosapientia.com.br/materiais"
+      }
     ]
   },
   {
-    "id": "iypt-br-2026",
-    "sigla": "IYPT Brasil",
+    "id": "iypt2026",
+    "sigla": "IYPT",
     "nome": "Torneio Internacional de Jovens Físicos (Etapa Nacional)",
-    "nivel_escolar": ["Ensino Médio"],
-    "materias": ["Física Experimental", "Debates", "Inglês"],
-    "modalidade": "Presencial (Fase Final)",
+    "nivel_escolar": [
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Física"
+    ],
+    "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-04-10", "descricao": "Data limite para envio de relatórios de problemas" },
-      { "tipo": "Evento", "data": "2026-05-12", "descricao": "Physics Fights (Finais Nacionais)" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-04-10",
+        "descricao": "Prazo final para envio do relatório"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-05-12",
+        "descricao": "Fase Nacional — Debates (Physics Fights)"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Problemas IYPT 2026", "url": "https://iypt.org/problems/" },
-      { "titulo": "Guia de Preparação IYPT Brasil", "url": "https://iypt.com.br/como-participar/" }
+      {
+        "titulo": "Problemas IYPT 2026",
+        "url": "https://iypt.org/problems/"
+      },
+      {
+        "titulo": "Guia IYPT Brasil",
+        "url": "https://iypt.com.br/como-participar/"
+      }
     ]
   },
   {
-    "id": "obf-filo-2026",
-    "sigla": "OBF",
-    "nome": "Olimpíada Brasileira de Filosofia",
-    "nivel_escolar": ["Ensino Médio"],
-    "materias": ["Filosofia", "Ética", "Lógica Clássica"],
-    "modalidade": "Presencial/Híbrida",
-    "eventos": [
-      { "tipo": "Inscrição", "data": "2026-08-30", "descricao": "Prazo final de inscrições pelas escolas" },
-      { "tipo": "Prova", "data": "2026-09-15", "descricao": "Aplicação da Prova Estadual" }
-    ],
-    "materiais_estudo": [
-      { "titulo": "Diretrizes e Temas OBF", "url": "https://www.obfilosofia.org/" }
-    ]
-  },
-  {
-    "id": "onee-2026",
+    "id": "onee2026",
     "sigla": "ONEE",
     "nome": "Olimpíada Nacional de Eficiência Energética",
-    "nivel_escolar": ["8º e 9º ano Fundamental"],
-    "materias": ["Energia", "Física", "Sustentabilidade"],
-    "modalidade": "Online (Gamificada)",
+    "nivel_escolar": [
+      "Ensino Fundamental II"
+    ],
+    "materias": [
+      "Física",
+      "Geografia"
+    ],
+    "modalidade": "Online",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-09-20", "descricao": "Fim das inscrições de alunos" },
-      { "tipo": "Prova", "data": "2026-10-05", "descricao": "Início da semana de provas online" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-09-20",
+        "descricao": "Prazo final de inscrição"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-10-05",
+        "descricao": "Semana de Desafios Gamificados"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Curso de Eficiência Energética (ONEE)", "url": "https://www.onee.org.br/estudar" }
+      {
+        "titulo": "Cursos Gamificados ONEE",
+        "url": "https://www.onee.org.br/estudar"
+      }
     ]
   },
   {
-    "id": "obsma-2026",
+    "id": "obsma2026",
     "sigla": "OBSMA",
-    "nome": "Olimpíada Brasileira de Saúde e Meio Ambiente (Fiocruz)",
-    "nivel_escolar": ["Fundamental II", "Ensino Médio"],
-    "materias": ["Biologia", "Saúde Pública", "Meio Ambiente"],
-    "modalidade": "Envio de Projetos",
+    "nome": "Olimpíada Brasileira de Saúde e Meio Ambiente",
+    "nivel_escolar": [
+      "Ensino Fundamental II",
+      "Ensino Médio"
+    ],
+    "materias": [
+      "Biologia",
+      "Geografia"
+    ],
+    "modalidade": "Online",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-06-30", "descricao": "Prazo final para envio de trabalhos" },
-      { "tipo": "Evento", "data": "2026-11-20", "descricao": "Premiação Nacional no Rio de Janeiro" }
+      {
+        "tipo": "Inscrição",
+        "data": "2026-06-30",
+        "descricao": "Prazo final para submissão do projeto"
+      },
+      {
+        "tipo": "Prova",
+        "data": "2026-11-20",
+        "descricao": "Premiação Nacional"
+      }
     ],
     "materiais_estudo": [
-      { "titulo": "Materiais Pedagógicos Fiocruz", "url": "https://olimpiada.fiocruz.br/materiais/" }
+      {
+        "titulo": "Materiais Pedagógicos Fiocruz",
+        "url": "https://olimpiada.fiocruz.br/materiais/"
+      }
     ]
   }
 ]
