@@ -48,3 +48,5 @@
 ```
 ## Nessa estrutura é fácil e rápido editar informações sem alterar o código do site e sem precisar outro serviço como supabase para isso. 
 ## O código é Open-Source e utiliza a licença GNU GPL V3, favor leia-a antes de fazer algo com esse código. Qualquer um pode fazer um Pull Request para melhorias no site, serei grato por qualquer ajuda com esse projeto.
+
+<img width="1759" height="917" alt="image" src="https://github.com/user-attachments/assets/21423d69-f19f-4076-b86f-3168f79e595d" />
