@@ -30,6 +30,7 @@
     // ─── Init ────────────────────────────────────────────
     async function init() {
         initMobileMenu();
+        initLicenseModal();
         injectStyles();
 
         try {
@@ -295,6 +296,51 @@
         mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        });
+    }
+
+    // ─── License Modal ───────────────────────────────────
+    function initLicenseModal() {
+        const modal = document.getElementById('license-modal');
+        const openBtn = document.getElementById('license-btn');
+        const closeBtn = document.getElementById('license-close-btn');
+        const content = document.getElementById('license-content');
+
+        if (!modal || !openBtn || !closeBtn || !content) return;
+
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeModal = () => {
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        };
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
         });
     }
 
