@@ -76,8 +76,11 @@
         const meses = new Set();
         olimpiadas.forEach(o => {
             o.eventos.forEach(ev => {
-                const month = parseInt(ev.data.split('-')[1], 10);
-                meses.add(month);
+                const dataRef = ev.data || ev['data-f'] || ev['data-i'];
+                if (dataRef) {
+                    const month = parseInt(dataRef.split('-')[1], 10);
+                    meses.add(month);
+                }
             });
         });
         [...meses].sort((a, b) => a - b).forEach(m => {
@@ -101,7 +104,10 @@
             if (modalidade !== 'Todas' && o.modalidade !== modalidade) return false;
             if (mes !== 'Todos') {
                 const mesNum = parseInt(mes, 10);
-                const hasMonth = o.eventos.some(ev => parseInt(ev.data.split('-')[1], 10) === mesNum);
+                const hasMonth = o.eventos.some(ev => {
+                    const d = ev.data || ev['data-f'] || ev['data-i'];
+                    return d && parseInt(d.split('-')[1], 10) === mesNum;
+                });
                 if (!hasMonth) return false;
             }
             return true;
@@ -124,9 +130,11 @@
 
         // Sort by earliest event date
         filtered.sort((a, b) => {
-            const aMin = a.eventos.reduce((min, ev) => ev.data < min ? ev.data : min, 'z');
-            const bMin = b.eventos.reduce((min, ev) => ev.data < min ? ev.data : min, 'z');
-            return aMin.localeCompare(bMin);
+            const getMin = evs => evs.reduce((min, ev) => {
+                const d = ev.data || ev['data-f'] || ev['data-i'] || 'z';
+                return d < min ? d : min;
+            }, 'z');
+            return getMin(a.eventos).localeCompare(getMin(b.eventos));
         });
 
         listaEl.innerHTML = filtered.map((o, i) => criarAccordion(o, i)).join('');
@@ -140,7 +148,8 @@
         const inscricaoEv = o.eventos.find(ev => ev.tipo === 'Inscrição');
         let statusBadge = '';
         if (inscricaoEv) {
-            const inscDate = new Date(inscricaoEv.data + 'T00:00:00');
+            const d = inscricaoEv.data || inscricaoEv['data-f'] || inscricaoEv['data-i'];
+            const inscDate = new Date(d + 'T00:00:00');
             const diff = Math.ceil((inscDate - hoje) / (1000 * 60 * 60 * 24));
             if (diff < 0) {
                 statusBadge = '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-500">Inscrições encerradas</span>';
@@ -168,9 +177,19 @@
 
         // Events HTML
         const eventosHtml = o.eventos.map(ev => {
-            const evDate = new Date(ev.data + 'T00:00:00');
+            const refDate = ev.data || ev['data-f'] || ev['data-i'];
+            const evDate = new Date(refDate + 'T00:00:00');
             const passado = evDate < hoje;
-            const dateStr = evDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            let dateStr = '';
+            if (ev['data-i'] && ev['data-f']) {
+                const di = new Date(ev['data-i'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const df = new Date(ev['data-f'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                dateStr = `${di} a ${df}`;
+            } else {
+                dateStr = evDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            }
+            
             const tipoCor = ev.tipo === 'Inscrição' ? 'text-blue-400' : 'text-amber-400';
             return `
                 <div class="flex items-center gap-3 py-2 ${passado ? 'opacity-40' : ''}">
