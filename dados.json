@@ -205,11 +205,11 @@
     "materias": ["Economia", "Finanças", "Negócios"],
     "modalidade": "Híbrida",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-04-20", "descricao": "Prazo final de inscrição" },
-      { "tipo": "Prova", "data": "2026-05-02", "descricao": "1ª Fase — Prova online" }
+      { "tipo": "Inscrição", "data-i": "2026-04-08", "data-f": "2026-05-10", "descricao": "Prazo de inscrição" },
+      { "tipo": "Prova", "data-i": "2026-05-04", "data-f": "2026-05-10", "descricao": "1ª Fase — Prova online" }
     ],
     "materiais_estudo": [
-      { "titulo": "Guia de Estudos OBECON", "url": "https://obecon.org/estudar" }
+      { "titulo": "Website Oficial", "url": "https://www.obecon.org.br/" }
     ]
   },
   {
