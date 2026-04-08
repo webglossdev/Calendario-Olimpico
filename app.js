@@ -119,7 +119,8 @@
 
     function getInscricaoDate(o) {
         const inscEv = o.eventos.find(ev => ev.tipo === 'Inscrição');
-        return inscEv ? inscEv.data : 'z';
+        if (!inscEv) return 'z';
+        return inscEv.data || inscEv['data-f'] || inscEv['data-i'] || 'z';
     }
 
     function renderCards() {
@@ -189,15 +190,27 @@
         ).join('');
 
         // Next event
-        const nextEvent = o.eventos.find(ev => new Date(ev.data + 'T00:00:00') >= hoje);
-        const nextEventHtml = nextEvent
-            ? `<div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+        const nextEvent = o.eventos.find(ev => {
+            const evDate = ev.data || ev['data-f'] || ev['data-i'];
+            return evDate && new Date(evDate + 'T00:00:00') >= hoje;
+        });
+        
+        let nextEventHtml = '';
+        if (nextEvent) {
+            let dateStr = '';
+            if (nextEvent['data-i'] && nextEvent['data-f']) {
+                dateStr = `${formatDate(nextEvent['data-i'])} a ${formatDate(nextEvent['data-f'])}`;
+            } else {
+                dateStr = formatDate(nextEvent.data || nextEvent['data-f'] || nextEvent['data-i']);
+            }
+            
+            nextEventHtml = `<div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Próximo: <span class="text-slate-300 font-medium">${nextEvent.descricao}</span> — ${formatDate(nextEvent.data)}
-               </div>`
-            : '';
+                    Próximo: <span class="text-slate-300 font-medium">${nextEvent.descricao}</span> — ${dateStr}
+               </div>`;
+        }
 
         const animDelay = `animation-delay: ${index * 60}ms`;
 
