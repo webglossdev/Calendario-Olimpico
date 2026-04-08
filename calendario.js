@@ -57,8 +57,11 @@
         const flat = [];
         data.forEach(o => {
             o.eventos.forEach(ev => {
+                const mainDate = ev.data || ev['data-f'] || ev['data-i'] || '';
                 flat.push({
-                    data: ev.data,
+                    data: mainDate,
+                    data_i: ev['data-i'],
+                    data_f: ev['data-f'],
                     descricao: ev.descricao,
                     tipo: ev.tipo,
                     sigla: o.sigla,
@@ -163,9 +166,17 @@
             : 'bg-amber-500/20 text-amber-400 border-amber-500/30';
 
         // Date formatting
-        const dateFormatted = new Date(ev.data + 'T00:00:00').toLocaleDateString('pt-BR', {
-            weekday: 'short', day: '2-digit', month: 'short'
-        });
+        let dateFormatted = '';
+        if (ev.data_i && ev.data_f) {
+            const di = new Date(ev.data_i + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            const df = new Date(ev.data_f + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+            dateFormatted = `${di} a ${df}`;
+        } else if (ev.data_i || ev.data_f) {
+            const d = ev.data_i || ev.data_f;
+            dateFormatted = new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+        } else {
+            dateFormatted = new Date(ev.data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+        }
 
         // Urgency text
         let urgencyHtml = '';
