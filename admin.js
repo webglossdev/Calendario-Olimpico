@@ -137,7 +137,8 @@
                 passwordInput.value = '';
                 passwordInput.focus();
             }
-        } catch (_) {
+        } catch (err) {
+            console.error('Auth error:', err);
             loginError.classList.remove('hidden');
         } finally {
             loginBtnText.textContent = 'Entrar';
