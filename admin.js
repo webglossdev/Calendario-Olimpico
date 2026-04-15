@@ -21,7 +21,11 @@
     // Default: "CalOlimpico@Admin"
     const ADMIN_PASSWORD_HASH = '6a9c61abbaec567b607eb9ddb9940ca8eecff4f11178041ae844b79c1a90e18e';
 
-    const SESSION_KEY = 'calolimpico_admin_auth';
+    const SESSION_KEY  = 'calolimpico_admin_auth';
+    const ATTEMPTS_KEY = 'calolimpico_admin_attempts';
+    const LOCKOUT_KEY  = 'calolimpico_admin_lockout';
+    const MAX_ATTEMPTS       = 5;
+    const LOCKOUT_DURATION_MS = 60_000; // 60 seconds
 
     // ─── State ───────────────────────────────────────────────────
     let olimpiadas = [];
@@ -33,6 +37,9 @@
     const loginForm      = document.getElementById('login-form');
     const passwordInput  = document.getElementById('password-input');
     const loginError     = document.getElementById('login-error');
+    const loginErrorText = document.getElementById('login-error-text');
+    const loginLockout   = document.getElementById('login-lockout');
+    const lockoutCountdown = document.getElementById('lockout-countdown');
     const loginBtnText   = document.getElementById('login-btn-text');
     const loginSpinner   = document.getElementById('login-spinner');
     const logoutBtn      = document.getElementById('logout-btn');
@@ -90,25 +97,106 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Auth
+    // Auth — session validation, rate limiting, guard
     // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Stores the actual password hash (not just '1') so that the session
+     * cannot be forged by simply setting the key to an arbitrary value
+     * from the browser console.
+     */
     function isAuthenticated() {
-        return sessionStorage.getItem(SESSION_KEY) === '1';
+        return sessionStorage.getItem(SESSION_KEY) === ADMIN_PASSWORD_HASH;
     }
 
     function setAuth(value) {
         if (value) {
-            sessionStorage.setItem(SESSION_KEY, '1');
+            sessionStorage.setItem(SESSION_KEY, ADMIN_PASSWORD_HASH);
         } else {
             sessionStorage.removeItem(SESSION_KEY);
         }
     }
 
+    // ─── Rate limiting ────────────────────────────────────────
+    function isLockedOut() {
+        const until = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+        return Date.now() < until;
+    }
+
+    function lockoutRemainingSeconds() {
+        const until = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
+        return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+    }
+
+    function recordFailedAttempt() {
+        const attempts = parseInt(sessionStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+        if (attempts >= MAX_ATTEMPTS) {
+            sessionStorage.setItem(LOCKOUT_KEY, String(Date.now() + LOCKOUT_DURATION_MS));
+            sessionStorage.setItem(ATTEMPTS_KEY, '0');
+            startLockoutCountdown();
+        } else {
+            sessionStorage.setItem(ATTEMPTS_KEY, String(attempts));
+            const remaining = MAX_ATTEMPTS - attempts;
+            showLoginError(`Senha incorreta. ${remaining} tentativa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);
+        }
+    }
+
+    function clearRateLimitState() {
+        sessionStorage.removeItem(ATTEMPTS_KEY);
+        sessionStorage.removeItem(LOCKOUT_KEY);
+    }
+
+    let lockoutTimer = null;
+
+    function startLockoutCountdown() {
+        const loginBtn = document.getElementById('login-btn');
+        loginError.classList.add('hidden');
+        loginLockout.classList.remove('hidden');
+        passwordInput.disabled = true;
+        loginBtn.disabled = true;
+
+        function tick() {
+            const secs = lockoutRemainingSeconds();
+            lockoutCountdown.textContent = secs;
+            if (secs <= 0) {
+                loginLockout.classList.add('hidden');
+                passwordInput.disabled = false;
+                loginBtn.disabled = false;
+                passwordInput.focus();
+                lockoutTimer = null;
+            } else {
+                lockoutTimer = setTimeout(tick, 1000);
+            }
+        }
+        tick();
+    }
+
+    // ─── Guard — called before every privileged action ───────
+    function guardAdmin() {
+        if (!isAuthenticated()) {
+            handleLogout();
+            return false;
+        }
+        return true;
+    }
+
+    function showLoginError(msg) {
+        loginErrorText.textContent = msg;
+        loginError.classList.remove('hidden');
+    }
+
     function showLoginScreen() {
         loginScreen.classList.remove('hidden');
         adminScreen.classList.add('hidden');
+        // Close any open dialogs/modals so they don't remain visible
+        modal.classList.add('hidden');
+        confirmDialog.classList.add('hidden');
+        document.body.style.overflow = '';
         passwordInput.value = '';
         loginError.classList.add('hidden');
+        loginLockout.classList.add('hidden');
+        // Restore lockout countdown if still active
+        if (isLockedOut()) startLockoutCountdown();
     }
 
     function showAdminScreen() {
@@ -118,6 +206,9 @@
 
     async function handleLogin(e) {
         e.preventDefault();
+
+        if (isLockedOut()) return; // blocked — shouldn't be reachable with button disabled
+
         const pwd = passwordInput.value.trim();
         if (!pwd) return;
 
@@ -129,17 +220,18 @@
         try {
             const hash = await sha256(pwd);
             if (hash === ADMIN_PASSWORD_HASH) {
+                clearRateLimitState();
                 setAuth(true);
                 showAdminScreen();
                 await loadData();
             } else {
-                loginError.classList.remove('hidden');
                 passwordInput.value = '';
                 passwordInput.focus();
+                recordFailedAttempt();
             }
         } catch (err) {
             console.error('Auth error:', err);
-            loginError.classList.remove('hidden');
+            showLoginError('Erro ao verificar a senha. Tente novamente.');
         } finally {
             loginBtnText.textContent = 'Entrar';
             loginSpinner.classList.add('hidden');
@@ -149,8 +241,19 @@
     function handleLogout() {
         setAuth(false);
         olimpiadas = [];
+        if (lockoutTimer) { clearTimeout(lockoutTimer); lockoutTimer = null; }
         showLoginScreen();
     }
+
+    // Re-validate auth whenever the tab becomes visible again (guards against
+    // session being cleared in another tab or via DevTools while away)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && !adminScreen.classList.contains('hidden')) {
+            if (!isAuthenticated()) {
+                handleLogout();
+            }
+        }
+    });
 
     // ═══════════════════════════════════════════════════════════
     // Data Loading
@@ -290,6 +393,7 @@
     }
 
     function openModal(idx) {
+        if (!guardAdmin()) return;
         editingIndex = (idx === undefined) ? null : idx;
         const o = (editingIndex !== null) ? olimpiadas[editingIndex] : null;
 
@@ -527,6 +631,7 @@
     // Save Modal
     // ═══════════════════════════════════════════════════════════
     function saveModal() {
+        if (!guardAdmin()) return;
         hideModalError();
 
         // Collect sub-editors
@@ -582,6 +687,7 @@
     let deleteTargetIdx = null;
 
     function openConfirmDelete(idx) {
+        if (!guardAdmin()) return;
         deleteTargetIdx = idx;
         const o = olimpiadas[idx];
         confirmText.textContent = `Tem certeza que deseja remover "${o.nome}" (${o.sigla})? Esta ação não pode ser desfeita nesta sessão.`;
@@ -597,6 +703,7 @@
 
     function handleDelete() {
         if (deleteTargetIdx === null) return;
+        if (!guardAdmin()) return;
         const removed = olimpiadas.splice(deleteTargetIdx, 1)[0];
         closeConfirmDialog();
         renderList();
@@ -607,6 +714,7 @@
     // Export JSON
     // ═══════════════════════════════════════════════════════════
     function exportJSON() {
+        if (!guardAdmin()) return;
         const json = JSON.stringify(olimpiadas, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url  = URL.createObjectURL(blob);

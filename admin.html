@@ -56,13 +56,18 @@
 
                     <!-- Error message -->
                     <div id="login-error" class="hidden mb-4 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
-                        Senha incorreta. Tente novamente.
+                        <span id="login-error-text">Senha incorreta. Tente novamente.</span>
+                    </div>
+
+                    <!-- Lockout message -->
+                    <div id="login-lockout" class="hidden mb-4 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-sm text-orange-400">
+                        Muitas tentativas incorretas. Aguarde <span id="lockout-countdown" class="font-bold">60</span>s para tentar novamente.
                     </div>
 
                     <button
                         id="login-btn"
                         type="submit"
-                        class="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                        class="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <span id="login-btn-text">Entrar</span>
                         <svg id="login-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
