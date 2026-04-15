@@ -21,10 +21,10 @@
     // Default: "CalOlimpico@Admin"
     const ADMIN_PASSWORD_HASH = '6a9c61abbaec567b607eb9ddb9940ca8eecff4f11178041ae844b79c1a90e18e';
 
-    const SESSION_KEY  = 'calolimpico_admin_auth';
-    const ATTEMPTS_KEY = 'calolimpico_admin_attempts';
-    const LOCKOUT_KEY  = 'calolimpico_admin_lockout';
-    const MAX_ATTEMPTS       = 5;
+    const SESSION_KEY         = 'calolimpico_admin_auth';
+    const ATTEMPTS_KEY        = 'calolimpico_admin_attempts';
+    const LOCKOUT_KEY         = 'calolimpico_admin_lockout';
+    const MAX_ATTEMPTS        = 5;
     const LOCKOUT_DURATION_MS = 60_000; // 60 seconds
 
     // ─── State ───────────────────────────────────────────────────
@@ -137,7 +137,8 @@
         } else {
             sessionStorage.setItem(ATTEMPTS_KEY, String(attempts));
             const remaining = MAX_ATTEMPTS - attempts;
-            showLoginError(`Senha incorreta. ${remaining} tentativa${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}.`);
+            const plural = remaining !== 1;
+            showLoginError(`Senha incorreta. ${remaining} tentativa${plural ? 's' : ''} restante${plural ? 's' : ''}.`);
         }
     }
 
@@ -241,7 +242,10 @@
     function handleLogout() {
         setAuth(false);
         olimpiadas = [];
-        if (lockoutTimer) { clearTimeout(lockoutTimer); lockoutTimer = null; }
+        if (lockoutTimer) {
+            clearTimeout(lockoutTimer);
+            lockoutTimer = null;
+        }
         showLoginScreen();
     }
 
