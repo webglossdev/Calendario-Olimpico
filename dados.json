@@ -12,6 +12,7 @@
       { "tipo": "Prova", "data": "2026-10-17", "descricao": "2ª Fase — Prova regional" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBMEP", "url": "https://www.obmep.org.br/" },
       { "titulo": "Banco de Provas OBMEP", "url": "https://www.obmep.org.br/provas.htm" },
       { "titulo": "Portal de Matemática", "url": "https://portaldaobmep.impa.br/" }
     ]
@@ -30,6 +31,7 @@
       { "tipo": "Prova", "data": "2026-11-07", "descricao": "Prova da 3ª Fase (Presencial)" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBF", "url": "https://sec.sbfisica.org.br/olim/" },
       { "titulo": "Provas Anteriores OBF", "url": "https://sec.sbfisica.org.br/olim/provas.asp" }
     ]
   },
@@ -41,10 +43,11 @@
     "materias": ["Química"],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
-      { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" }
+      { "tipo": "Inscrição", "data": "2026-05-09", "descricao": "Prazo final de inscrição" },
+      { "tipo": "Prova", "data": "2026-05-29", "descricao": "Fase I — Prova objetiva" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBQ", "url": "https://www.obquimica.org/" },
       { "titulo": "Provas e Gabaritos OBQ", "url": "https://www.obquimica.org/provas" }
     ]
   },
@@ -56,10 +59,11 @@
     "materias": ["Química"],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
-      { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" }
+      { "tipo": "Inscrição", "data": "2026-05-09", "descricao": "Prazo final de inscrição" },
+      { "tipo": "Prova", "data": "2026-05-29", "descricao": "Fase I — Prova objetiva" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBQJR", "url": "https://www.obquimica.org/" },
       { "titulo": "Provas e Gabaritos OBQjr", "url": "https://www.obquimica.org/provas" }
     ]
   },
@@ -75,6 +79,7 @@
       { "tipo": "Prova", "data": "2026-05-23", "descricao": "Fase Local" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBI", "url": "https://olimpiada.ic.unicamp.br/" },
       { "titulo": "Provas Anteriores OBI", "url": "https://olimpiada.ic.unicamp.br/provas/" }
     ]
   },
@@ -105,6 +110,7 @@
       { "tipo": "Prova", "data": "2026-04-25", "descricao": "1ª Fase — Prova teórica" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBB", "url": "https://www.olimpiadadebiologia.butantan.gov.br/" },
       { "titulo": "Provas Anteriores OBB", "url": "https://www.olimpiadadebiologia.butantan.gov.br/provas" }
     ]
   },
@@ -150,6 +156,7 @@
       { "tipo": "Prova", "data": "2026-05-14", "descricao": "Prova — Fase Única" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial Canguru", "url": "https://www.cangurudematematicabrasil.com.br/" },
       { "titulo": "Provas Anteriores Canguru", "url": "https://www.cangurudematematicabrasil.com.br/provas-anteriores" }
     ]
   },
@@ -194,6 +201,7 @@
       { "tipo": "Prova", "data": "2026-06-06", "descricao": "1ª Fase — Prova aberta" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBL", "url": "https://obling.org/" },
       { "titulo": "Problemas de Linguística", "url": "https://obling.org/problemas" }
     ]
   },
@@ -268,6 +276,7 @@
       { "tipo": "Inscrição", "data": "2026-09-20", "descricao": "Prazo final de inscrição" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial ONEE", "url": "https://www.onee.org.br/" },
       { "titulo": "Cursos ONEE", "url": "https://www.onee.org.br/estudar" }
     ]
   },
@@ -282,6 +291,7 @@
       { "tipo": "Inscrição", "data": "2026-06-30", "descricao": "Prazo final para submissão do projeto" }
     ],
     "materiais_estudo": [
+      { "titulo": "Site Oficial OBSMA", "url": "https://olimpiada.fiocruz.br/" },
       { "titulo": "Materiais Pedagógicos Fiocruz", "url": "https://olimpiada.fiocruz.br/materiais/" }
     ]
   },
