@@ -41,7 +41,6 @@
     "materias": ["Química"],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
       { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" }
     ],
     "materiais_estudo": [
@@ -56,7 +55,6 @@
     "materias": ["Química"],
     "modalidade": "Presencial",
     "eventos": [
-      { "tipo": "Inscrição", "data": "2026-05-29", "descricao": "Prazo final de inscrição" },
       { "tipo": "Prova", "data": "2026-05-09", "descricao": "Fase I — Prova objetiva" }
     ],
     "materiais_estudo": [
@@ -135,7 +133,7 @@
       { "tipo": "Prova", "data": "2026-07-18", "descricao": "Etapa Regional" }
     ],
     "materiais_estudo": [
-      { "titulo": "Material Teórico OBR", "url": "http://www.obr.org.br/preparacao" }
+      { "titulo": "Material Teórico OBR", "url": "https://www.obr.org.br/preparacao" }
     ]
   },
   {
