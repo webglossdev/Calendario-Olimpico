@@ -1,17 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════
-// Admin — Calendário Olímpico
-// ───────────────────────────────────────────────────────────────────
-// Authentication: SHA-256 hash comparison (Web Crypto API).
-//
-// To change the admin password:
-//   1. Compute SHA-256 of your new password. Example in Node.js:
-//        const crypto = require('crypto');
-//        console.log(crypto.createHash('sha256').update('YourPassword').digest('hex'));
-//      Or use any online SHA-256 tool (e.g. https://emn178.github.io/online-tools/sha256.html).
-//   2. Replace the value of ADMIN_PASSWORD_HASH below with your new hash.
-//
-// Default password: "CalOlimpico@Admin"
-// ═══════════════════════════════════════════════════════════════════
 
 (function () {
     'use strict';
@@ -19,7 +5,7 @@
     // ─── Auth Config ─────────────────────────────────────────────
     // SHA-256 of the admin password.
     // Default: "CalOlimpico@Admin"
-    const ADMIN_PASSWORD_HASH = '6a9c61abbaec567b607eb9ddb9940ca8eecff4f11178041ae844b79c1a90e18e';
+    const ADMIN_PASSWORD_HASH = '315b0921c11ccc2c5066cb1459de9fe0b221ea29bf08682653a74a16e95c894a';
 
     const SESSION_KEY         = 'calolimpico_admin_auth';
     const ATTEMPTS_KEY        = 'calolimpico_admin_attempts';
