@@ -1,10 +1,8 @@
-
 (function () {
     'use strict';
 
     // ─── Auth Config ─────────────────────────────────────────────
-    // SHA-256 of the admin password.
-    // Default: "CalOlimpico@Admin"
+    // SHA-256 hash of the admin password (do not store plaintext here).
     const ADMIN_PASSWORD_HASH = '315b0921c11ccc2c5066cb1459de9fe0b221ea29bf08682653a74a16e95c894a';
 
     const SESSION_KEY         = 'calolimpico_admin_auth';
@@ -16,8 +14,6 @@
     // ─── State ───────────────────────────────────────────────────
     let olimpiadas = [];
     let editingIndex = null; // null = adding new, number = editing existing
-    let quickFilter = 'all';
-    let modalDirty = false;
 
     // ─── DOM ─────────────────────────────────────────────────────
     const loginScreen    = document.getElementById('login-screen');
@@ -38,11 +34,6 @@
     const olimpiadasList = document.getElementById('olimpiadas-list');
     const emptyState     = document.getElementById('empty-state');
     const countLabel     = document.getElementById('count-label');
-    const quickFiltersEl = document.getElementById('quick-filters');
-    const metricTotal = document.getElementById('metric-total');
-    const metricOpenSoon = document.getElementById('metric-open-soon');
-    const metricMissingEvents = document.getElementById('metric-missing-events');
-    const metricMissingMaterials = document.getElementById('metric-missing-materials');
 
     const modal          = document.getElementById('modal');
     const modalBackdrop  = document.getElementById('modal-backdrop');
@@ -64,16 +55,26 @@
     const fNome         = document.getElementById('f-nome');
     const fModalidade   = document.getElementById('f-modalidade');
     const fMaterias     = document.getElementById('f-materias');
-    const fSiteOficial  = document.getElementById('f-site-oficial');
     const fDescricao    = document.getElementById('f-descricao');
+    const fSiteOficial  = document.getElementById('f-site-oficial');
     const eventosListEl = document.getElementById('eventos-list');
     const eventosEmpty  = document.getElementById('eventos-empty');
     const materiaisListEl = document.getElementById('materiais-list');
     const materiaisEmpty  = document.getElementById('materiais-empty');
+    const fontesListEl  = document.getElementById('fontes-list');
+    const fontesEmpty   = document.getElementById('fontes-empty');
     const addEventoBtn  = document.getElementById('add-evento-btn');
     const addMaterialBtn = document.getElementById('add-material-btn');
+    const addFonteBtn   = document.getElementById('add-fonte-btn');
     const nivelCheckboxes = document.getElementById('nivel-checkboxes');
-    const modalDirtyIndicator = document.getElementById('modal-dirty-indicator');
+    const tabButtons    = document.querySelectorAll('.modal-tab-btn');
+    const tabPanels     = document.querySelectorAll('.modal-tab-panel');
+
+    // Stats DOM
+    const statTotal     = document.getElementById('stat-total');
+    const statInscricao = document.getElementById('stat-inscricao');
+    const statSemDesc   = document.getElementById('stat-sem-desc');
+    const statSemEvento = document.getElementById('stat-sem-evento');
 
     const NIVEIS = [
         'Ensino Fundamental I',
@@ -81,6 +82,8 @@
         'Ensino Médio',
         'Livre',
     ];
+
+    const EVENTO_TIPOS = ['Inscrição', 'Prova', 'Resultado', 'Premiação', 'Outro'];
 
     // ═══════════════════════════════════════════════════════════
     // Crypto Helpers
@@ -95,12 +98,6 @@
     // ═══════════════════════════════════════════════════════════
     // Auth — session validation, rate limiting, guard
     // ═══════════════════════════════════════════════════════════
-
-    /**
-     * Stores the actual password hash (not just '1') so that the session
-     * cannot be forged by simply setting the key to an arbitrary value
-     * from the browser console.
-     */
     function isAuthenticated() {
         return sessionStorage.getItem(SESSION_KEY) === ADMIN_PASSWORD_HASH;
     }
@@ -168,7 +165,6 @@
         tick();
     }
 
-    // ─── Guard — called before every privileged action ───────
     function guardAdmin() {
         if (!isAuthenticated()) {
             handleLogout();
@@ -185,14 +181,12 @@
     function showLoginScreen() {
         loginScreen.classList.remove('hidden');
         adminScreen.classList.add('hidden');
-        // Close any open dialogs/modals so they don't remain visible
         modal.classList.add('hidden');
         confirmDialog.classList.add('hidden');
         document.body.style.overflow = '';
         passwordInput.value = '';
         loginError.classList.add('hidden');
         loginLockout.classList.add('hidden');
-        // Restore lockout countdown if still active
         if (isLockedOut()) startLockoutCountdown();
     }
 
@@ -204,12 +198,11 @@
     async function handleLogin(e) {
         e.preventDefault();
 
-        if (isLockedOut()) return; // blocked — shouldn't be reachable with button disabled
+        if (isLockedOut()) return;
 
         const pwd = passwordInput.value.trim();
         if (!pwd) return;
 
-        // Show spinner
         loginBtnText.textContent = 'Verificando...';
         loginSpinner.classList.remove('hidden');
         loginError.classList.add('hidden');
@@ -230,7 +223,7 @@
             console.error('Auth error:', err);
             showLoginError('Erro ao verificar a senha. Tente novamente.');
         } finally {
-            loginBtnText.textContent = 'Entrar';
+            loginBtnText.textContent = 'Autenticar Sessão';
             loginSpinner.classList.add('hidden');
         }
     }
@@ -245,8 +238,6 @@
         showLoginScreen();
     }
 
-    // Re-validate auth whenever the tab becomes visible again (guards against
-    // session being cleared in another tab or via DevTools while away)
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden && !adminScreen.classList.contains('hidden')) {
             if (!isAuthenticated()) {
@@ -271,88 +262,45 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Render List
+    // Stats Dashboard
     // ═══════════════════════════════════════════════════════════
-    function getEventReferenceDate(ev) {
-        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
-    }
-
-    function getInscricaoDate(o) {
-        const ev = (o.eventos || []).find(e => e.tipo === 'Inscrição');
-        return getEventReferenceDate(ev);
-    }
-
-    function daysUntil(dateStr) {
-        if (!dateStr) return null;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const [year, month, day] = dateStr.split('-').map(Number);
-        const target = new Date(year, (month || 1) - 1, day || 1);
-        return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-    }
-
-    function getOlimpiadaFlags(o) {
-        const hasEvents = (o.eventos || []).length > 0;
-        const hasMaterials = (o.materiais_estudo || []).length > 0;
-        const hasSite = !!String(o.site_oficial || '').trim();
-        const hasDescription = !!String(o.descricao || '').trim();
-        const inscricaoDays = daysUntil(getInscricaoDate(o));
-        const openSoon = inscricaoDays !== null && inscricaoDays >= 0 && inscricaoDays <= 30;
-        const incomplete = !hasEvents || !hasMaterials || !hasSite || !hasDescription;
-        return { hasEvents, hasMaterials, hasSite, hasDescription, openSoon, incomplete };
-    }
-
-    function matchesQuickFilter(o) {
-        const flags = getOlimpiadaFlags(o);
-        if (quickFilter === 'needs-events') return !flags.hasEvents;
-        if (quickFilter === 'needs-materials') return !flags.hasMaterials;
-        if (quickFilter === 'open-soon') return flags.openSoon;
-        if (quickFilter === 'incomplete') return flags.incomplete;
-        return true;
-    }
-
-    function updateQuickFilterUI() {
-        if (!quickFiltersEl) return;
-        quickFiltersEl.querySelectorAll('.admin-filter-btn').forEach(btn => {
-            const active = btn.dataset.filter === quickFilter;
-            if (active) {
-                btn.classList.remove('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
-                btn.classList.add('bg-yellow-400', 'text-slate-900');
-            } else {
-                btn.classList.remove('bg-yellow-400', 'text-slate-900');
-                btn.classList.add('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
+    function updateStats() {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const total = olimpiadas.length;
+        let inscAberta = 0, semDesc = 0, semEvento = 0;
+        olimpiadas.forEach(o => {
+            if (!o.descricao) semDesc++;
+            if (!o.eventos || o.eventos.length === 0) { semEvento++; return; }
+            const inscEv = o.eventos.find(e => e.tipo === 'Inscrição');
+            if (inscEv) {
+                const fim = inscEv['data-f'] || inscEv.data || '';
+                if (fim && new Date(fim + 'T23:59:59') >= hoje) inscAberta++;
             }
         });
+        statTotal.textContent = total;
+        statInscricao.textContent = inscAberta;
+        statSemDesc.textContent = semDesc;
+        statSemEvento.textContent = semEvento;
     }
 
-    function updateMetrics() {
-        const openSoonCount = olimpiadas.filter(o => getOlimpiadaFlags(o).openSoon).length;
-        const missingEventsCount = olimpiadas.filter(o => !getOlimpiadaFlags(o).hasEvents).length;
-        const missingMaterialsCount = olimpiadas.filter(o => !getOlimpiadaFlags(o).hasMaterials).length;
-        metricTotal.textContent = String(olimpiadas.length);
-        metricOpenSoon.textContent = String(openSoonCount);
-        metricMissingEvents.textContent = String(missingEventsCount);
-        metricMissingMaterials.textContent = String(missingMaterialsCount);
-    }
-
+    // ═══════════════════════════════════════════════════════════
+    // Render List
+    // ═══════════════════════════════════════════════════════════
     function renderList(filter) {
         const query = (filter ?? searchInput.value).toLowerCase().trim();
         const filtered = olimpiadas.filter(o => {
-            if (!matchesQuickFilter(o)) return false;
             if (!query) return true;
             return (
                 o.sigla.toLowerCase().includes(query) ||
                 o.nome.toLowerCase().includes(query) ||
                 (o.materias || []).some(m => m.toLowerCase().includes(query)) ||
                 (o.nivel_escolar || []).some(n => n.toLowerCase().includes(query)) ||
-                String(o.descricao || '').toLowerCase().includes(query)
+                (o.modalidade || '').toLowerCase().includes(query)
             );
         });
 
-        updateMetrics();
-        updateQuickFilterUI();
-
-        countLabel.textContent = `${filtered.length} de ${olimpiadas.length} olimpíada${olimpiadas.length !== 1 ? 's' : ''}`;
+        countLabel.textContent = `${filtered.length} de ${olimpiadas.length} cadastrada${olimpiadas.length !== 1 ? 's' : ''}`;
 
         if (filtered.length === 0) {
             olimpiadasList.innerHTML = '';
@@ -361,74 +309,110 @@
         }
         emptyState.classList.add('hidden');
 
-        olimpiadasList.innerHTML = filtered.map((o, visIdx) => {
+        olimpiadasList.innerHTML = filtered.map((o) => {
             const realIdx = olimpiadas.indexOf(o);
             const eventCount = (o.eventos || []).length;
             const matCount   = (o.materiais_estudo || []).length;
+            const hasDesc    = !!o.descricao;
+            const hasSite    = !!o.site_oficial;
+
             const nivelBadges = (o.nivel_escolar || [])
-                .map(n => `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-700 text-slate-300">${escHtml(n)}</span>`)
+                .map(n => `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-950/50 border border-slate-800 text-slate-300">${escHtml(n)}</span>`)
                 .join('');
             const materiaBadges = (o.materias || [])
-                .map(m => `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-900/40 text-blue-300">${escHtml(m)}</span>`)
+                .map(m => `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-950/60 border border-blue-900/40 text-blue-300">${escHtml(m)}</span>`)
                 .join('');
             const modalidadeColor = {
-                'Presencial': 'bg-green-900/40 text-green-300',
-                'Online':     'bg-blue-900/40 text-blue-300',
-                'Híbrida':    'bg-purple-900/40 text-purple-300',
-            }[o.modalidade] || 'bg-slate-700 text-slate-300';
-
-            const flags = getOlimpiadaFlags(o);
-            const statusBadges = [
-                !flags.hasEvents ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">Sem cronograma</span>' : '',
-                !flags.hasMaterials ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">Sem materiais</span>' : '',
-                flags.openSoon ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Inscrição próxima</span>' : '',
-            ].filter(Boolean).join('');
+                'Presencial': 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+                'Online':     'bg-violet-500/10 border-violet-500/20 text-violet-400',
+                'Híbrida':    'bg-amber-500/10 border-amber-500/20 text-amber-400',
+            }[o.modalidade] || 'bg-slate-800 border-slate-700 text-slate-400';
 
             return `
-            <div class="group flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-4 bg-slate-800 hover:bg-slate-800/80 transition-colors" data-idx="${realIdx}">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-xs font-bold text-yellow-400 font-mono">${escHtml(o.sigla)}</span>
-                        <span class="hidden sm:block text-slate-600">·</span>
-                        <span class="text-sm font-medium text-slate-100 truncate">${escHtml(o.nome)}</span>
-                        <span class="px-1.5 py-0.5 rounded text-[10px] font-medium ${modalidadeColor}">${escHtml(o.modalidade || '—')}</span>
+            <div class="group p-5 hover:bg-slate-800/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/40 last:border-none" data-idx="${realIdx}">
+                <div class="flex-1 min-w-0 space-y-2">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span class="text-sm font-extrabold text-yellow-400 tracking-tight">${escHtml(o.sigla)}</span>
+                        <span class="text-slate-600">•</span>
+                        <span class="text-sm font-bold text-white truncate">${escHtml(o.nome)}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${modalidadeColor}">${escHtml(o.modalidade || '—')}</span>
                     </div>
-                    <div class="flex flex-wrap gap-1 mt-1.5">
+                    <div class="flex flex-wrap gap-1.5">
                         ${nivelBadges}
                         ${materiaBadges}
                     </div>
-                    <div class="mt-1 text-xs text-slate-500">
-                        ${eventCount} evento${eventCount !== 1 ? 's' : ''} · ${matCount} material${matCount !== 1 ? 'is' : ''} · ID: <code class="text-slate-400">${escHtml(o.id)}</code>
+                    <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 pt-0.5">
+                        <span><strong>${eventCount}</strong> evento${eventCount !== 1 ? 's' : ''}</span>
+                        <span>•</span>
+                        <span><strong>${matCount}</strong> material${matCount !== 1 ? 'is' : ''}</span>
+                        <span>•</span>
+                        <span class="${hasDesc ? 'text-emerald-400/80 font-medium' : 'text-slate-600'}">${hasDesc ? '✓ Descrição' : '✗ Sem Descrição'}</span>
+                        <span>•</span>
+                        <span class="${hasSite ? 'text-blue-400/80 font-medium' : 'text-slate-600'}">${hasSite ? '✓ Link Oficial' : '✗ Sem Link'}</span>
+                        <span>•</span>
+                        <span class="text-slate-600 font-mono">ID: ${escHtml(o.id)}</span>
                     </div>
-                    ${statusBadges ? `<div class="mt-2 flex flex-wrap gap-1">${statusBadges}</div>` : ''}
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <button
-                        class="edit-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 transition-colors"
+                        class="edit-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 transition-all shadow-sm"
                         data-idx="${realIdx}"
+                        title="Editar detalhes e datas"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <svg class="w-3.5 h-3.5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Editar
                     </button>
                     <button
-                        class="delete-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 bg-red-900/20 hover:bg-red-900/40 transition-colors"
+                        class="delete-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 border border-red-500/20 transition-all shadow-sm"
                         data-idx="${realIdx}"
+                        title="Remover permanentemente"
                     >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Remover
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Excluir
                     </button>
                 </div>
             </div>`;
         }).join('');
 
-        // Bind row buttons
         olimpiadasList.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', () => openModal(parseInt(btn.dataset.idx, 10)));
         });
         olimpiadasList.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => openConfirmDelete(parseInt(btn.dataset.idx, 10)));
         });
+
+        updateStats();
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // Modal Tabs Navigation Logic
+    // ═══════════════════════════════════════════════════════════
+    function switchTab(targetTabId) {
+        tabButtons.forEach(btn => {
+            const isTarget = btn.dataset.tab === targetTabId;
+            if (isTarget) {
+                btn.classList.add('active', 'border-yellow-400', 'text-yellow-400');
+                btn.classList.remove('border-transparent', 'text-slate-400');
+            } else {
+                btn.classList.remove('active', 'border-yellow-400', 'text-yellow-400');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            }
+        });
+
+        tabPanels.forEach(panel => {
+            if (panel.id === targetTabId) {
+                panel.classList.remove('hidden');
+                panel.classList.add('block');
+            } else {
+                panel.classList.remove('block');
+                panel.classList.add('hidden');
+            }
+        });
+    }
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
 
     // ═══════════════════════════════════════════════════════════
     // Modal — open / close
@@ -441,11 +425,10 @@
             <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" id="${id}" value="${escAttr(n)}" ${checked ? 'checked' : ''}
                     class="nivel-checkbox sr-only">
-                <span class="nivel-label inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border border-slate-600 text-slate-300 hover:border-yellow-400/40 transition-all cursor-pointer select-none">${escHtml(n)}</span>
+                <span class="nivel-label inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700/80 bg-slate-950/40 text-slate-300 hover:border-yellow-400/40 transition-all select-none">${escHtml(n)}</span>
             </label>`;
         }).join('');
 
-        // Toggle visual style on change
         nivelCheckboxes.querySelectorAll('.nivel-checkbox').forEach(cb => {
             const label = cb.nextElementSibling;
             cb.addEventListener('change', () => syncNivelLabel(cb, label));
@@ -456,10 +439,10 @@
     function syncNivelLabel(cb, label) {
         if (cb.checked) {
             label.classList.add('bg-yellow-400/15', 'border-yellow-400/50', 'text-yellow-300');
-            label.classList.remove('text-slate-300', 'border-slate-600');
+            label.classList.remove('text-slate-300', 'border-slate-700/80', 'bg-slate-950/40');
         } else {
             label.classList.remove('bg-yellow-400/15', 'border-yellow-400/50', 'text-yellow-300');
-            label.classList.add('text-slate-300', 'border-slate-600');
+            label.classList.add('text-slate-300', 'border-slate-700/80', 'bg-slate-950/40');
         }
     }
 
@@ -472,23 +455,28 @@
         editingIndex = (idx === undefined) ? null : idx;
         const o = (editingIndex !== null) ? olimpiadas[editingIndex] : null;
 
-        modalTitle.textContent = o ? 'Editar Olimpíada' : 'Adicionar Olimpíada';
+        modalTitle.textContent = o ? `Editar: ${o.sigla}` : 'Cadastrar Nova Olimpíada';
         hideModalError();
+        
+        // Always reset modal to the first tab for consistent UX
+        switchTab('tab-geral');
 
-        // Populate fields
-        fSigla.value     = o ? o.sigla      : '';
-        fId.value        = o ? o.id         : '';
-        fNome.value      = o ? o.nome       : '';
+        // Populate basic fields
+        fSigla.value      = o ? o.sigla      : '';
+        fId.value         = o ? o.id         : '';
+        fNome.value       = o ? o.nome       : '';
         fModalidade.value = o ? (o.modalidade || '') : '';
-        fMaterias.value  = o ? (o.materias || []).join(', ') : '';
+        fMaterias.value   = o ? (o.materias || []).join(', ') : '';
+        
+        // Populate new native fields
+        fDescricao.value   = o ? (o.descricao || '') : '';
         fSiteOficial.value = o ? (o.site_oficial || '') : '';
-        fDescricao.value = o ? (o.descricao || '') : '';
 
         buildNivelCheckboxes(o ? o.nivel_escolar : []);
         renderEventos(o ? (o.eventos || []) : []);
         renderMateriais(o ? (o.materiais_estudo || []) : []);
+        renderFontes(o ? (o.fontes_oficiais || []) : []);
 
-        // Auto-generate ID from sigla (only when adding new)
         if (!o) {
             fSigla.addEventListener('input', autoGenerateId, { once: false });
         } else {
@@ -497,7 +485,6 @@
 
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        setModalDirty(false);
         fSigla.focus();
     }
 
@@ -508,29 +495,12 @@
         }
     }
 
-    function setModalDirty(value) {
-        modalDirty = !!value;
-        if (modalDirty) modalDirtyIndicator.classList.remove('hidden');
-        else modalDirtyIndicator.classList.add('hidden');
-    }
-
-    function closeModal(forceClose = false) {
-        const force = forceClose === true;
-        if (modalDirty && !force) {
-            openGenericConfirmDialog(
-                'Você tem alterações não salvas. Deseja descartar essas alterações?',
-                'Descartar',
-                'bg-amber-500 hover:bg-amber-400 text-slate-900',
-                () => closeModal(true)
-            );
-            return;
-        }
+    function closeModal() {
         modal.classList.add('hidden');
         document.body.style.overflow = '';
         fSigla.removeEventListener('input', autoGenerateId);
         fId.dataset.manual = '';
         editingIndex = null;
-        setModalDirty(false);
     }
 
     function showModalError(msg) {
@@ -564,55 +534,68 @@
 
         eventosListEl.innerHTML = eventosBuffer.map((e, i) => {
             const isRange = ('data-i' in e) || ('data-f' in e);
+            const tipoOptions = EVENTO_TIPOS.map(t =>
+                `<option value="${escAttr(t)}" ${(e.tipo || '') === t ? 'selected' : ''}>${escHtml(t)}</option>`
+            ).join('');
+            const tipoIsCustom = e.tipo && !EVENTO_TIPOS.includes(e.tipo);
             return `
-            <div class="evento-row bg-slate-900/60 border border-slate-700 rounded-xl p-3 space-y-2" data-ei="${i}">
+            <div class="evento-row backdrop-blur-md bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3 transition-all hover:border-slate-700" data-ei="${i}">
                 <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1 grid grid-cols-2 gap-2">
+                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-[10px] font-medium text-slate-400 mb-1">Tipo</label>
-                            <input type="text" class="evento-tipo admin-input w-full text-xs" value="${escAttr(e.tipo || '')}" placeholder="Ex: Inscrição, Prova">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Evento</label>
+                            <select class="evento-tipo admin-input w-full text-xs font-semibold text-yellow-400">
+                                ${tipoOptions}
+                                ${tipoIsCustom ? `<option value="${escAttr(e.tipo)}" selected>${escHtml(e.tipo)}</option>` : ''}
+                            </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-medium text-slate-400 mb-1">Tipo de data</label>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Formato de Data</label>
                             <select class="evento-date-type admin-input w-full text-xs">
-                                <option value="single" ${!isRange ? 'selected' : ''}>Data única</option>
-                                <option value="range"  ${isRange  ? 'selected' : ''}>Intervalo</option>
+                                <option value="single" ${!isRange ? 'selected' : ''}>Data Específica</option>
+                                <option value="range"  ${isRange  ? 'selected' : ''}>Período / Intervalo</option>
                             </select>
                         </div>
                     </div>
-                    <button class="evento-remove mt-5 p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-900/20 transition-colors shrink-0">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+                    <div class="flex flex-col gap-1 mt-4 shrink-0">
+                        <button class="evento-up p-1 rounded-lg text-slate-500 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors ${i === 0 ? 'opacity-30 pointer-events-none' : ''}" title="Mover para cima">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                        </button>
+                        <button class="evento-down p-1 rounded-lg text-slate-500 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors ${i === eventosBuffer.length - 1 ? 'opacity-30 pointer-events-none' : ''}" title="Mover para baixo">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <button class="evento-remove p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Excluir evento">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="evento-date-fields grid gap-2 ${isRange ? 'grid-cols-2' : 'grid-cols-1'}">
+                <div class="evento-date-fields grid gap-3 ${isRange ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} pt-1 border-t border-slate-900">
                     ${isRange
-                        ? `<div><label class="block text-[10px] font-medium text-slate-400 mb-1">Data início</label>
-                           <input type="date" class="evento-date-i admin-input w-full text-xs" value="${escAttr(e['data-i'] || '')}"></div>
-                           <div><label class="block text-[10px] font-medium text-slate-400 mb-1">Data fim</label>
-                           <input type="date" class="evento-date-f admin-input w-full text-xs" value="${escAttr(e['data-f'] || '')}"></div>`
-                        : `<div><label class="block text-[10px] font-medium text-slate-400 mb-1">Data</label>
-                           <input type="date" class="evento-date admin-input w-full text-xs" value="${escAttr(e.data || '')}"></div>`
+                        ? `<div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Inicial</label>
+                           <input type="date" class="evento-date-i admin-input w-full text-xs font-mono" value="${escAttr(e['data-i'] || '')}"></div>
+                           <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Final</label>
+                           <input type="date" class="evento-date-f admin-input w-full text-xs font-mono" value="${escAttr(e['data-f'] || '')}"></div>`
+                        : `<div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data do Evento</label>
+                           <input type="date" class="evento-date admin-input w-full text-xs font-mono" value="${escAttr(e.data || '')}"></div>`
                     }
                 </div>
                 <div>
-                    <label class="block text-[10px] font-medium text-slate-400 mb-1">Descrição</label>
-                    <input type="text" class="evento-desc admin-input w-full text-xs" value="${escAttr(e.descricao || '')}" placeholder="Descrição do evento">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição / Contexto</label>
+                    <input type="text" class="evento-desc admin-input w-full text-xs" value="${escAttr(e.descricao || '')}" placeholder="Ex: Prazo final para cadastro na plataforma oficial">
                 </div>
             </div>`;
         }).join('');
 
-        // Bind remove buttons
         eventosListEl.querySelectorAll('.evento-remove').forEach((btn, i) => {
-            btn.addEventListener('click', () => {
-                eventosBuffer.splice(i, 1);
-                _redrawEventos();
-                setModalDirty(true);
-            });
+            btn.addEventListener('click', () => { collectEventosFromDOM(); eventosBuffer.splice(i, 1); _redrawEventos(); });
+        });
+        eventosListEl.querySelectorAll('.evento-up').forEach((btn, i) => {
+            btn.addEventListener('click', () => { collectEventosFromDOM(); [eventosBuffer[i-1], eventosBuffer[i]] = [eventosBuffer[i], eventosBuffer[i-1]]; _redrawEventos(); });
+        });
+        eventosListEl.querySelectorAll('.evento-down').forEach((btn, i) => {
+            btn.addEventListener('click', () => { collectEventosFromDOM(); [eventosBuffer[i], eventosBuffer[i+1]] = [eventosBuffer[i+1], eventosBuffer[i]]; _redrawEventos(); });
         });
 
-        // Bind date type switches
         eventosListEl.querySelectorAll('.evento-date-type').forEach((sel, i) => {
             sel.addEventListener('change', () => {
                 collectEventosFromDOM();
@@ -626,7 +609,6 @@
                     delete eventosBuffer[i]['data-f'];
                 }
                 _redrawEventos();
-                setModalDirty(true);
             });
         });
     }
@@ -645,19 +627,22 @@
                 eventosBuffer[i]['data-i'] = row.querySelector('.evento-date-i')?.value || '';
                 eventosBuffer[i]['data-f'] = row.querySelector('.evento-date-f')?.value || '';
                 delete eventosBuffer[i].data;
+                // Clean empty string definitions to maintain highly optimal schema structure
+                if (!eventosBuffer[i]['data-i']) delete eventosBuffer[i]['data-i'];
+                if (!eventosBuffer[i]['data-f']) delete eventosBuffer[i]['data-f'];
             } else {
                 eventosBuffer[i].data = row.querySelector('.evento-date')?.value || '';
                 delete eventosBuffer[i]['data-i'];
                 delete eventosBuffer[i]['data-f'];
+                if (!eventosBuffer[i].data) delete eventosBuffer[i].data;
             }
         });
     }
 
     function addEvento() {
-        eventosBuffer.push({ tipo: '', data: '', descricao: '' });
+        collectEventosFromDOM();
+        eventosBuffer.push({ tipo: 'Prova', data: '', descricao: '' });
         _redrawEventos();
-        setModalDirty(true);
-        // Scroll to new event
         const rows = eventosListEl.querySelectorAll('.evento-row');
         if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -681,19 +666,19 @@
         materiaisEmpty.classList.add('hidden');
 
         materiaisListEl.innerHTML = materiaisBuffer.map((m, i) => `
-            <div class="material-row bg-slate-900/60 border border-slate-700 rounded-xl p-3" data-mi="${i}">
-                <div class="flex items-start gap-2">
-                    <div class="flex-1 grid grid-cols-1 gap-2">
+            <div class="material-row backdrop-blur-md bg-slate-950/60 border border-slate-800 rounded-xl p-4 transition-all hover:border-slate-700" data-mi="${i}">
+                <div class="flex items-start gap-3">
+                    <div class="flex-1 space-y-3">
                         <div>
-                            <label class="block text-[10px] font-medium text-slate-400 mb-1">Título</label>
-                            <input type="text" class="material-titulo admin-input w-full text-xs" value="${escAttr(m.titulo || '')}" placeholder="Nome do material">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título do Recurso</label>
+                            <input type="text" class="material-titulo admin-input w-full text-xs font-semibold text-white" value="${escAttr(m.titulo || '')}" placeholder="Ex: Provas Anteriores e Gabaritos Oficiais">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-medium text-slate-400 mb-1">URL</label>
-                            <input type="url" class="material-url admin-input w-full text-xs" value="${escAttr(m.url || '')}" placeholder="https://...">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">URL de Destino</label>
+                            <input type="url" class="material-url admin-input w-full text-xs font-mono text-blue-300" value="${escAttr(m.url || '')}" placeholder="https://...">
                         </div>
                     </div>
-                    <button class="material-remove mt-5 p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-900/20 transition-colors shrink-0">
+                    <button class="material-remove mt-5 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0" title="Remover material">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -706,7 +691,6 @@
             btn.addEventListener('click', () => {
                 materiaisBuffer.splice(i, 1);
                 _redrawMateriais();
-                setModalDirty(true);
             });
         });
     }
@@ -720,10 +704,71 @@
     }
 
     function addMaterial() {
+        collectMateriaisFromDOM();
         materiaisBuffer.push({ titulo: '', url: '' });
         _redrawMateriais();
-        setModalDirty(true);
         const rows = materiaisListEl.querySelectorAll('.material-row');
+        if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Fontes Oficiais sub-editor
+    // ═══════════════════════════════════════════════════════════
+    let fontesBuffer = [];
+
+    function renderFontes(fontes) {
+        fontesBuffer = (fontes || []).map(f => ({ ...f }));
+        _redrawFontes();
+    }
+
+    function _redrawFontes() {
+        if (fontesBuffer.length === 0) {
+            fontesListEl.innerHTML = '';
+            fontesEmpty.classList.remove('hidden');
+            return;
+        }
+        fontesEmpty.classList.add('hidden');
+
+        fontesListEl.innerHTML = fontesBuffer.map((f, i) => `
+            <div class="fonte-row backdrop-blur-md bg-slate-950/60 border border-blue-900/30 rounded-xl p-4 transition-all hover:border-blue-800/50" data-fi="${i}">
+                <div class="flex items-start gap-3">
+                    <div class="flex-1 space-y-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título da Fonte</label>
+                            <input type="text" class="fonte-titulo admin-input w-full text-xs font-semibold text-white" value="${escAttr(f.titulo || '')}" placeholder="Ex: Edital Oficial 2026">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">URL</label>
+                            <input type="url" class="fonte-url admin-input w-full text-xs font-mono text-blue-300" value="${escAttr(f.url || '')}" placeholder="https://...">
+                        </div>
+                    </div>
+                    <button class="fonte-remove mt-5 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0" title="Remover fonte">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        fontesListEl.querySelectorAll('.fonte-remove').forEach((btn, i) => {
+            btn.addEventListener('click', () => { fontesBuffer.splice(i, 1); _redrawFontes(); });
+        });
+    }
+
+    function collectFontesFromDOM() {
+        fontesListEl.querySelectorAll('.fonte-row').forEach((row, i) => {
+            if (!fontesBuffer[i]) return;
+            fontesBuffer[i].titulo = row.querySelector('.fonte-titulo').value.trim();
+            fontesBuffer[i].url    = row.querySelector('.fonte-url').value.trim();
+        });
+    }
+
+    function addFonte() {
+        collectFontesFromDOM();
+        fontesBuffer.push({ titulo: '', url: '' });
+        _redrawFontes();
+        const rows = fontesListEl.querySelectorAll('.fonte-row');
         if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -734,88 +779,94 @@
         if (!guardAdmin()) return;
         hideModalError();
 
-        // Collect sub-editors
         collectEventosFromDOM();
         collectMateriaisFromDOM();
+        collectFontesFromDOM();
 
-        // Validate
-        const sigla = fSigla.value.trim();
-        const id    = fId.value.trim();
-        const nome  = fNome.value.trim();
+        const sigla      = fSigla.value.trim();
+        const id         = fId.value.trim();
+        const nome       = fNome.value.trim();
         const modalidade = fModalidade.value;
+        const descricao  = fDescricao.value.trim();
         const siteOficial = fSiteOficial.value.trim();
-        const descricao = fDescricao.value.trim();
 
-        if (!sigla) return showModalError('A sigla é obrigatória.');
-        if (!id)    return showModalError('O ID é obrigatório.');
-        if (!nome)  return showModalError('O nome é obrigatório.');
-        if (!modalidade) return showModalError('Selecione a modalidade.');
-        if (siteOficial && !isValidHttpUrl(siteOficial)) {
-            return showModalError('O site oficial deve começar com http:// ou https://');
+        if (!sigla) {
+            switchTab('tab-geral');
+            return showModalError('A sigla da olimpíada é obrigatória.');
+        }
+        if (!id) {
+            switchTab('tab-geral');
+            return showModalError('O identificador (ID) é obrigatório.');
+        }
+        if (!nome) {
+            switchTab('tab-geral');
+            return showModalError('O nome completo da competição é obrigatório.');
+        }
+        if (!modalidade) {
+            switchTab('tab-geral');
+            return showModalError('Selecione a modalidade da olimpíada.');
         }
 
-        // Check for duplicate ID (when adding, or when editing and ID changed)
         const existingIdx = olimpiadas.findIndex(o => o.id === id);
         if (existingIdx !== -1 && existingIdx !== editingIndex) {
-            return showModalError(`ID "${id}" já está em uso por "${olimpiadas[existingIdx].sigla}".`);
+            switchTab('tab-geral');
+            return showModalError(`O ID "${id}" já se encontra em uso pela competição "${olimpiadas[existingIdx].sigla}".`);
         }
 
         const materias = fMaterias.value.split(',').map(s => s.trim()).filter(Boolean);
         const niveis   = getSelectedNiveis();
 
         const knownKeys = new Set([
-            'id',
-            'sigla',
-            'nome',
-            'nivel_escolar',
-            'materias',
-            'modalidade',
-            'descricao',
-            'site_oficial',
-            'eventos',
-            'materiais_estudo',
+            'id', 'sigla', 'nome', 'nivel_escolar', 'materias', 'modalidade',
+            'eventos', 'materiais_estudo', 'fontes_oficiais', 'descricao', 'site_oficial',
         ]);
         const existing = editingIndex !== null ? olimpiadas[editingIndex] : null;
         const preservedFields = existing
             ? Object.fromEntries(Object.entries(existing).filter(([key]) => !knownKeys.has(key)))
             : {};
 
+        const finalEventos = eventosBuffer.filter(e => e.tipo || e.data || e['data-i'] || e['data-f'] || e.descricao);
+        const finalMateriais = materiaisBuffer.filter(m => m.titulo || m.url);
+        const finalFontes = fontesBuffer.filter(f => f.titulo || f.url);
+
         const obj = {
             ...preservedFields,
-            id,
-            sigla,
-            nome,
+            id, sigla, nome,
+            descricao: descricao || undefined,
+            site_oficial: siteOficial || undefined,
             nivel_escolar: niveis,
-            materias,
-            modalidade,
-            descricao,
-            site_oficial: siteOficial,
-            eventos: eventosBuffer.filter(e => e.tipo || e.data || e['data-i'] || e['data-f'] || e.descricao),
-            materiais_estudo: materiaisBuffer.filter(m => m.titulo || m.url),
+            materias, modalidade,
+            eventos: finalEventos,
+            materiais_estudo: finalMateriais,
+            fontes_oficiais: finalFontes.length > 0 ? finalFontes : undefined,
         };
+
+        if (!obj.descricao) delete obj.descricao;
+        if (!obj.site_oficial) delete obj.site_oficial;
+        if (!obj.fontes_oficiais) delete obj.fontes_oficiais;
 
         if (editingIndex !== null) {
             olimpiadas[editingIndex] = obj;
-            showToast(`"${sigla}" atualizado com sucesso.`, 'success');
+            showToast(`"${sigla}" atualizada com sucesso.`, 'success');
         } else {
             olimpiadas.push(obj);
-            showToast(`"${sigla}" adicionado com sucesso.`, 'success');
+            showToast(`"${sigla}" cadastrada com sucesso.`, 'success');
         }
 
-        closeModal(true);
+        closeModal();
         renderList();
     }
 
     // ═══════════════════════════════════════════════════════════
     // Delete
     // ═══════════════════════════════════════════════════════════
-    let confirmCallback = null;
+    let deleteTargetIdx = null;
 
-    function openGenericConfirmDialog(message, actionLabel, actionClass, onConfirm) {
-        confirmText.textContent = message;
-        confirmDelete.textContent = actionLabel || 'Confirmar';
-        confirmDelete.className = `flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${actionClass || 'bg-red-600 hover:bg-red-500 text-white'}`;
-        confirmCallback = typeof onConfirm === 'function' ? onConfirm : null;
+    function openConfirmDelete(idx) {
+        if (!guardAdmin()) return;
+        deleteTargetIdx = idx;
+        const o = olimpiadas[idx];
+        confirmText.textContent = `Tem certeza de que deseja remover permanentemente "${o.nome}" (${o.sigla}) do sistema?`;
         confirmDialog.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -823,28 +874,16 @@
     function closeConfirmDialog() {
         confirmDialog.classList.add('hidden');
         document.body.style.overflow = '';
-        confirmCallback = null;
-        confirmDelete.className = 'flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors';
-        confirmDelete.textContent = 'Remover';
+        deleteTargetIdx = null;
     }
 
-    function openConfirmDelete(idx) {
+    function handleDelete() {
+        if (deleteTargetIdx === null) return;
         if (!guardAdmin()) return;
-        const o = olimpiadas[idx];
-        openGenericConfirmDialog(
-            `Tem certeza que deseja remover "${o.nome}" (${o.sigla})? Esta ação não pode ser desfeita nesta sessão.`,
-            'Remover',
-            'bg-red-600 hover:bg-red-500 text-white',
-            () => handleDelete(idx)
-        );
-    }
-
-    function handleDelete(idx) {
-        if (!guardAdmin()) return;
-        const removed = olimpiadas.splice(idx, 1)[0];
+        const removed = olimpiadas.splice(deleteTargetIdx, 1)[0];
         closeConfirmDialog();
         renderList();
-        showToast(`"${removed.sigla}" removido.`, 'info');
+        showToast(`"${removed.sigla}" foi excluída.`, 'info');
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -862,7 +901,7 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast('dados.json exportado. Substitua o arquivo no repositório para salvar.', 'success');
+        showToast('Arquivo exportado com sucesso. Substitua dados.json no repositório.', 'success');
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -883,7 +922,7 @@
         toastMsg.textContent  = msg;
         toast.classList.remove('hidden');
         if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.add('hidden'), 4000);
+        toastTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -901,16 +940,6 @@
         return String(str).replace(/"/g, '&quot;');
     }
 
-    function isValidHttpUrl(value) {
-        try {
-            const parsed = new URL(value);
-            const validProtocol = parsed.protocol === 'http:' || parsed.protocol === 'https:';
-            return validProtocol && !!parsed.hostname;
-        } catch (_) {
-            return false;
-        }
-    }
-
     // ═══════════════════════════════════════════════════════════
     // Event Bindings
     // ═══════════════════════════════════════════════════════════
@@ -922,36 +951,23 @@
     exportBtnMobile.addEventListener('click', exportJSON);
 
     searchInput.addEventListener('input', () => renderList());
-    if (quickFiltersEl) {
-        quickFiltersEl.querySelectorAll('.admin-filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                quickFilter = btn.dataset.filter || 'all';
-                renderList();
-            });
-        });
-    }
 
-    // Modal
+    // Modal bindings
     modalClose.addEventListener('click', closeModal);
     modalCancel.addEventListener('click', closeModal);
     modalBackdrop.addEventListener('click', closeModal);
     modalSave.addEventListener('click', saveModal);
     addEventoBtn.addEventListener('click', addEvento);
     addMaterialBtn.addEventListener('click', addMaterial);
-    modal.addEventListener('input', () => {
-        if (!modal.classList.contains('hidden')) setModalDirty(true);
-    });
+    addFonteBtn.addEventListener('click', addFonte);
 
-    // Mark ID as manually edited so auto-generate doesn't override
     fId.addEventListener('input', () => { fId.dataset.manual = '1'; });
 
-    // Confirm dialog
+    // Confirm dialog bindings
     confirmCancel.addEventListener('click', closeConfirmDialog);
-    confirmDelete.addEventListener('click', () => {
-        if (confirmCallback) confirmCallback();
-    });
+    confirmDelete.addEventListener('click', handleDelete);
 
-    // Keyboard shortcuts
+    // Keyboard navigation shortcuts
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             if (!confirmDialog.classList.contains('hidden')) closeConfirmDialog();
@@ -960,7 +976,7 @@
     });
 
     // ═══════════════════════════════════════════════════════════
-    // Init
+    // Init Boot
     // ═══════════════════════════════════════════════════════════
     if (isAuthenticated()) {
         showAdminScreen();

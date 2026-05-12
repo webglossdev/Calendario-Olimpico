@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,257 +18,364 @@
             theme: {
                 extend: {
                     fontFamily: { inter: ['Inter', 'sans-serif'] },
+                    colors: {
+                        glass: {
+                            bg: 'rgba(15, 23, 42, 0.65)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                        }
+                    }
                 },
             },
         }
     </script>
 </head>
-<body class="bg-slate-900 font-inter text-slate-100 antialiased min-h-screen">
+
+<body class="bg-slate-950 font-inter text-slate-100 antialiased min-h-screen relative overflow-x-hidden">
+
+    <!-- Ambient background gradient orbs for Premium Glassmorphism look -->
+    <div
+        class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none -z-10">
+    </div>
+    <div
+        class="absolute bottom-1/3 right-10 w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[100px] pointer-events-none -z-10">
+    </div>
+    <div
+        class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none -z-10">
+    </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- LOGIN SCREEN                                        -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
-        <div class="w-full max-w-sm">
-            <!-- Logo -->
-            <div class="flex flex-col items-center mb-8">
-                <div class="w-14 h-14 rounded-2xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center mb-4">
-                    <svg class="w-7 h-7 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-bold text-slate-100">Área Administrativa</h1>
-                <p class="text-sm text-slate-400 mt-1">Calendário Olímpico</p>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md relative">
+
+            <!-- Glow ring behind card -->
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50">
             </div>
 
-            <!-- Login Form -->
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+            <!-- Main Login Glass Card -->
+            <div
+                class="relative backdrop-blur-xl bg-slate-900/80 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
+
+                <!-- Logo -->
+                <div class="flex flex-col items-center mb-8 text-center">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-yellow-500/20 to-yellow-300/5 border border-yellow-500/30 flex items-center justify-center mb-4 shadow-inner">
+                        <svg class="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Área Administrativa</h1>
+                    <p class="text-xs text-slate-400 mt-1.5 font-medium tracking-wide uppercase">Calendário Olímpico —
+                        Web Gloss 2.0</p>
+                </div>
+
+                <!-- Login Form -->
                 <form id="login-form" novalidate>
-                    <div class="mb-4">
-                        <label for="password-input" class="block text-sm font-medium text-slate-300 mb-1.5">Senha de Administrador</label>
-                        <input
-                            id="password-input"
-                            type="password"
-                            autocomplete="current-password"
-                            placeholder="••••••••••••"
-                            class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400/50 transition-all"
-                        >
+                    <div class="mb-5">
+                        <label for="password-input"
+                            class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Senha de
+                            Acesso</label>
+                        <div class="relative">
+                            <input id="password-input" type="password" autocomplete="current-password"
+                                placeholder="••••••••••••"
+                                class="w-full bg-slate-950/90 border border-slate-700/80 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400/60 transition-all shadow-inner">
+                            <div
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Error message -->
-                    <div id="login-error" class="hidden mb-4 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+                    <div id="login-error"
+                        class="hidden mb-5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 backdrop-blur-sm flex items-center gap-2.5">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <span id="login-error-text">Senha incorreta. Tente novamente.</span>
                     </div>
 
                     <!-- Lockout message -->
-                    <div id="login-lockout" class="hidden mb-4 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-sm text-orange-400">
-                        Muitas tentativas incorretas. Aguarde <span id="lockout-countdown" class="font-bold">60</span>s para tentar novamente.
+                    <div id="login-lockout"
+                        class="hidden mb-5 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-orange-300 backdrop-blur-sm flex items-center gap-2.5">
+                        <svg class="w-4 h-4 shrink-0 text-orange-400" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Muitas tentativas incorretas. Aguarde <strong id="lockout-countdown"
+                                class="font-bold text-orange-400">60</strong>s para tentar novamente.</span>
                     </div>
 
-                    <button
-                        id="login-btn"
-                        type="submit"
-                        class="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <span id="login-btn-text">Entrar</span>
+                    <button id="login-btn" type="submit"
+                        class="w-full bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 font-bold text-sm py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
+                        <span id="login-btn-text">Autenticar Sessão</span>
                         <svg id="login-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 12 6.477 12 12h-4z"></path>
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 12 6.477 12 12h-4z"></path>
                         </svg>
                     </button>
                 </form>
-            </div>
 
-            <p class="text-center text-xs text-slate-500 mt-6">
-                Para alterar a senha, atualize o hash em <code class="text-slate-400">admin.js</code>.
-            </p>
+                <div class="mt-6 pt-5 border-t border-slate-800/80 text-center">
+                    <p class="text-[11px] text-slate-500">
+                        Acesso exclusivo para administradores da escola.<br>O hash seguro SHA-256 é verificado via <code
+                            class="text-slate-400 font-mono">admin.js</code>.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- ADMIN DASHBOARD (hidden until authenticated)       -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <div id="admin-screen" class="hidden min-h-screen">
+    <div id="admin-screen" class="hidden min-h-screen pb-20">
 
-        <!-- Navbar -->
-        <nav class="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-slate-900/90 border-b border-slate-800">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <!-- Translucent Navbar -->
+        <nav class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                    <a href="index.html" class="flex items-center gap-2 group">
-                        <svg class="w-6 h-6 text-yellow-400 group-hover:text-yellow-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span class="text-base font-bold text-slate-100 tracking-tight">Calendário Olímpico</span>
+                    <a href="index.html" class="flex items-center gap-2.5 group" title="Voltar ao site do aluno">
+                        <div
+                            class="p-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 group-hover:bg-yellow-400/20 transition-colors">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span
+                            class="text-base font-bold text-white tracking-tight group-hover:text-yellow-300 transition-colors">Calendário
+                            Olímpico</span>
                     </a>
-                    <span class="hidden sm:block text-slate-600">/</span>
-                    <span class="hidden sm:block text-sm font-medium text-yellow-400">Admin</span>
+                    <span class="text-slate-700">|</span>
+                    <span
+                        class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 tracking-wide uppercase">Painel
+                        de Gestão</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button
-                        id="export-btn"
-                        class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 text-green-400 hover:text-green-300 text-sm font-medium transition-all"
-                    >
+
+                <div class="flex items-center gap-2.5">
+                    <button id="export-btn"
+                        class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-bold transition-all duration-200 shadow-sm"
+                        title="Baixar dados.json atualizado">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Exportar JSON
                     </button>
-                    <button
-                        id="logout-btn"
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-sm transition-all"
-                    >
+                    <button id="logout-btn"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-medium transition-all duration-200 border border-transparent hover:border-red-500/20"
+                        title="Encerrar sessão com segurança">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span class="hidden sm:block">Sair</span>
+                        <span class="hidden sm:inline">Desconectar</span>
                     </button>
                 </div>
             </div>
         </nav>
 
         <!-- Main Content -->
-        <main class="pt-20 pb-16 px-4 sm:px-6 max-w-7xl mx-auto">
+        <main class="pt-8 px-4 sm:px-6 max-w-7xl mx-auto space-y-6">
 
-            <!-- Header -->
-            <div class="py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <!-- Title & Actions Header -->
+            <div
+                class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xl">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-100">Gerenciar Olimpíadas</h1>
-                    <p class="text-sm text-slate-400 mt-1">Adicione, edite ou remova olimpíadas do <code class="text-slate-300">dados.json</code>.</p>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Catálogo de Olimpíadas</h1>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Gerencie de forma centralizada todas as
+                        competições que aparecem para os estudantes.</p>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5 shrink-0">
                     <!-- Mobile export button -->
-                    <button
-                        id="export-btn-mobile"
-                        class="sm:hidden flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 text-green-400 text-sm font-medium transition-all"
-                    >
+                    <button id="export-btn-mobile"
+                        class="sm:hidden flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Exportar
+                        JSON
                     </button>
-                    <button
-                        id="add-btn"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 text-sm font-semibold transition-colors"
-                    >
+                    <button id="add-btn"
+                        class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 text-xs font-bold transition-all duration-200 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/20 transform active:scale-95">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                         </svg>
-                        Adicionar Olimpíada
+                        Nova Olimpíada
                     </button>
                 </div>
             </div>
 
-            <!-- Export info banner -->
-            <div class="mb-6 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-sm text-blue-300 flex items-start gap-3">
-                <svg class="w-5 h-5 mt-0.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>
-                    As alterações são feitas localmente nesta sessão. Clique em <strong>Exportar JSON</strong> para baixar o arquivo atualizado e substitua o <code class="text-blue-200">dados.json</code> no repositório para salvar permanentemente.
-                </span>
-            </div>
-
-            <!-- Quick metrics -->
-            <section class="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div class="rounded-xl border border-slate-700 bg-slate-800/70 p-3">
-                    <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Total</p>
-                    <p id="metric-total" class="mt-1 text-xl font-bold text-slate-100">0</p>
+            <!-- Stats Dashboard -->
+            <div id="stats-panel" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-extrabold text-white" id="stat-total">—</p>
+                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Total Cadastradas</p>
                 </div>
-                <div class="rounded-xl border border-slate-700 bg-slate-800/70 p-3">
-                    <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Inscrição em 30 dias</p>
-                    <p id="metric-open-soon" class="mt-1 text-xl font-bold text-emerald-400">0</p>
+                <div class="backdrop-blur-md bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-extrabold text-emerald-400" id="stat-inscricao">—</p>
+                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Inscrição Aberta</p>
                 </div>
-                <div class="rounded-xl border border-slate-700 bg-slate-800/70 p-3">
-                    <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Sem cronograma</p>
-                    <p id="metric-missing-events" class="mt-1 text-xl font-bold text-amber-400">0</p>
+                <div class="backdrop-blur-md bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-extrabold text-amber-400" id="stat-sem-desc">—</p>
+                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Sem Descrição</p>
                 </div>
-                <div class="rounded-xl border border-slate-700 bg-slate-800/70 p-3">
-                    <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Sem materiais</p>
-                    <p id="metric-missing-materials" class="mt-1 text-xl font-bold text-rose-400">0</p>
-                </div>
-            </section>
-
-            <!-- Search + quick filters -->
-            <div class="mb-4 space-y-3">
-                <div class="relative">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input
-                    id="search-input"
-                    type="search"
-                    placeholder="Buscar por nome, sigla ou matéria..."
-                    class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400/40 transition-all"
-                >
-                </div>
-                <div id="quick-filters" class="flex flex-wrap gap-2">
-                    <button type="button" data-filter="all" class="admin-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-400 text-slate-900">Todas</button>
-                    <button type="button" data-filter="needs-events" class="admin-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">Sem cronograma</button>
-                    <button type="button" data-filter="needs-materials" class="admin-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">Sem materiais</button>
-                    <button type="button" data-filter="open-soon" class="admin-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">Inscrição próxima</button>
-                    <button type="button" data-filter="incomplete" class="admin-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 border border-slate-700 text-slate-300 hover:text-white">Incompletas</button>
+                <div class="backdrop-blur-md bg-red-500/5 border border-red-500/20 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-extrabold text-red-400" id="stat-sem-evento">—</p>
+                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Sem Eventos</p>
                 </div>
             </div>
 
-            <!-- Count -->
-            <p id="count-label" class="text-xs text-slate-500 mb-3"></p>
-
-            <!-- Olimpíadas Table -->
-            <div class="rounded-xl border border-slate-700 overflow-hidden bg-slate-800/40">
-                <div id="olimpiadas-list" class="divide-y divide-slate-700/60">
-                    <!-- Rows injected by JS -->
+            <!-- Export Persistence Banner -->
+            <div
+                class="px-5 py-3.5 rounded-xl backdrop-blur-md bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 flex items-start gap-3 shadow-sm">
+                <svg class="w-4 h-4 mt-0.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="leading-relaxed">
+                    <strong class="text-blue-200">Atenção à persistência:</strong> As alterações criadas ou editadas
+                    nesta sessão são mantidas na memória do navegador. Para efetivar as mudanças permanentemente,
+                    lembre-se de clicar em <strong>Exportar JSON</strong> e substituir o arquivo <code
+                        class="bg-blue-950 px-1 py-0.5 rounded border border-blue-800 text-blue-300 font-mono">dados.json</code>
+                    no seu repositório fonte.
                 </div>
-                <div id="empty-state" class="hidden py-16 text-center text-slate-400">
-                    <svg class="w-12 h-12 mx-auto mb-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+            </div>
+
+            <!-- Toolbar: Search + Count -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="relative flex-1 max-w-md">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <p class="font-medium text-slate-300">Nenhuma olimpíada encontrada</p>
-                    <p class="text-sm mt-1">Tente outro termo de busca ou adicione uma nova olimpíada.</p>
+                    <input id="search-input" type="search" placeholder="Pesquisar por sigla, nome, matéria ou nível..."
+                        class="w-full backdrop-blur-md bg-slate-900/60 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400/60 transition-all shadow-inner">
+                </div>
+                <div class="shrink-0">
+                    <span id="count-label"
+                        class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 inline-block"></span>
+                </div>
+            </div>
+
+            <!-- Olimpíadas Table / List Grid -->
+            <div
+                class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+                <div id="olimpiadas-list" class="divide-y divide-slate-800/60">
+                    <!-- Rows injected dynamically by JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden py-20 text-center px-4">
+                    <div
+                        class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-500">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                        </svg>
+                    </div>
+                    <p class="text-base font-bold text-slate-300">Nenhuma competição corresponde à sua busca</p>
+                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Verifique se digitou corretamente ou
+                        adicione uma nova olimpíada ao sistema utilizando o botão superior.</p>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- EDIT / ADD MODAL                                   -->
+    <!-- PREMIUM TABBED MODAL (ADD / EDIT)                   -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <div id="modal" class="hidden fixed inset-0 z-50 flex items-start justify-center px-4 py-8 overflow-y-auto">
-        <!-- Backdrop -->
-        <div id="modal-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <!-- Blurred Frosted Backdrop -->
+        <div id="modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"></div>
 
-        <!-- Panel -->
-        <div class="relative w-full max-w-2xl bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl my-auto">
+        <!-- Dialog Panel -->
+        <div
+            class="relative w-full max-w-3xl backdrop-blur-xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto animate-[fadeInUp_0.2s_ease_forwards]">
+
             <!-- Modal Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-                <h2 id="modal-title" class="text-lg font-bold text-slate-100">Adicionar Olimpíada</h2>
-                <button id="modal-close" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/40">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                    <h2 id="modal-title" class="text-base font-extrabold text-white tracking-tight">Gerenciar Olimpíada
+                    </h2>
+                </div>
+                <button id="modal-close"
+                    class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <!-- Modal Body -->
-            <div class="px-6 py-5 space-y-5 max-h-[70vh] overflow-y-auto">
+            <!-- Glass Tabs Navigation -->
+            <div class="px-6 pt-3 bg-slate-950/20 border-b border-slate-800/80 flex gap-2 overflow-x-auto select-none">
+                <button type="button" data-tab="tab-geral"
+                    class="modal-tab-btn active px-4 py-2 text-xs font-bold border-b-2 border-yellow-400 text-yellow-400 flex items-center gap-1.5 transition-colors whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Informações Gerais
+                </button>
+                <button type="button" data-tab="tab-eventos"
+                    class="modal-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Cronograma & Eventos
+                </button>
+                <button type="button" data-tab="tab-materiais"
+                    class="modal-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Materiais de Estudo
+                </button>
+            </div>
 
-                <!-- Basic Info -->
-                <section>
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Informações Básicas</h3>
-                    <div class="grid grid-cols-2 gap-3">
+            <!-- Modal Body Panels -->
+            <div class="flex-1 p-6 overflow-y-auto space-y-5 custom-scrollbar">
+
+                <!-- ─── TAB 1: GERAL ─── -->
+                <div id="tab-geral" class="modal-tab-panel block space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Sigla <span class="text-red-400">*</span></label>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Sigla
+                                <span class="text-red-400">*</span></label>
                             <input id="f-sigla" type="text" placeholder="Ex: OBMEP" class="admin-input w-full">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">ID <span class="text-red-400">*</span></label>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Identificador
+                                (ID) <span class="text-red-400">*</span></label>
                             <input id="f-id" type="text" placeholder="Ex: obmep2026" class="admin-input w-full">
                         </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Nome Completo <span class="text-red-400">*</span></label>
-                            <input id="f-nome" type="text" placeholder="Nome completo da olimpíada" class="admin-input w-full">
-                        </div>
                         <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Modalidade <span class="text-red-400">*</span></label>
+                            <label
+                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Modalidade
+                                <span class="text-red-400">*</span></label>
                             <select id="f-modalidade" class="admin-input w-full">
                                 <option value="">Selecione...</option>
                                 <option value="Presencial">Presencial</option>
@@ -276,84 +384,159 @@
                             </select>
                         </div>
                     </div>
-                </section>
 
-                <!-- Nível Escolar -->
-                <section>
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Nível Escolar</h3>
-                    <div class="flex flex-wrap gap-2" id="nivel-checkboxes">
-                        <!-- injected by JS -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Nome
+                            Completo <span class="text-red-400">*</span></label>
+                        <input id="f-nome" type="text"
+                            placeholder="Ex: Olimpíada Brasileira de Matemática das Escolas Públicas"
+                            class="admin-input w-full">
                     </div>
-                </section>
 
-                <!-- Matérias -->
-                <section>
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Matérias</h3>
-                    <input id="f-materias" type="text" placeholder="Ex: Matemática, Física, Química (separadas por vírgula)" class="admin-input w-full">
-                    <p class="text-xs text-slate-500 mt-1">Separe múltiplas matérias com vírgula.</p>
-                </section>
-
-                <!-- Informações públicas -->
-                <section>
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Informações Públicas</h3>
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Site oficial</label>
-                            <input id="f-site-oficial" type="url" placeholder="https://..." class="admin-input w-full">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Descrição</label>
-                            <textarea id="f-descricao" rows="3" placeholder="Resumo objetivo para estudantes e professores..." class="admin-input w-full resize-y"></textarea>
+                    <!-- Nível Escolar -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Níveis
+                            Escolares Suportados</label>
+                        <div class="flex flex-wrap gap-2" id="nivel-checkboxes">
+                            <!-- Checkboxes injected by JS -->
                         </div>
                     </div>
-                </section>
 
-                <!-- Eventos -->
-                <section>
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Eventos</h3>
-                        <button id="add-evento-btn" type="button" class="flex items-center gap-1 text-xs font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    <!-- Matérias -->
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Matérias
+                            Cobertas</label>
+                        <input id="f-materias" type="text"
+                            placeholder="Ex: Matemática, Lógica, Informática (separadas por vírgula)"
+                            class="admin-input w-full">
+                        <p class="text-[10px] text-slate-500 mt-1">Separe múltiplas matérias utilizando vírgulas.</p>
+                    </div>
+
+                    <!-- NEW FIELDS: Descrição e Site Oficial -->
+                    <div class="pt-2 border-t border-slate-800/80 space-y-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-yellow-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                Descrição Geral
+                                <span
+                                    class="text-[9px] px-1.5 py-0.2 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
+                            </label>
+                            <textarea id="f-descricao" rows="3"
+                                placeholder="Insira uma descrição resumida sobre o objetivo e formato desta olimpíada..."
+                                class="admin-input w-full resize-none leading-relaxed"></textarea>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-yellow-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                                Site Oficial
+                                <span
+                                    class="text-[9px] px-1.5 py-0.2 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
+                            </label>
+                            <input id="f-site-oficial" type="url" placeholder="https://www.exemplo.org.br"
+                                class="admin-input w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── TAB 2: EVENTOS ─── -->
+                <div id="tab-eventos" class="modal-tab-panel hidden space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <div>
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Linha do Tempo Cronológica
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Adicione datas de inscrição, fases, exames ou
+                                premiações.</p>
+                        </div>
+                        <button id="add-evento-btn" type="button"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 text-yellow-400 text-xs font-bold transition-all shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
-                            Adicionar Evento
+                            Novo Evento
                         </button>
                     </div>
+
                     <div id="eventos-list" class="space-y-3"></div>
-                    <p id="eventos-empty" class="text-xs text-slate-500 text-center py-4 border border-dashed border-slate-700 rounded-lg">Nenhum evento. Clique em "Adicionar Evento" para começar.</p>
-                </section>
+                    <p id="eventos-empty"
+                        class="text-xs text-slate-500 text-center py-8 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
+                        Nenhum evento configurado. Clique em "Novo Evento" para estabelecer os prazos.
+                    </p>
+                </div>
 
-                <!-- Materiais de Estudo -->
-                <section>
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Materiais de Estudo</h3>
-                        <button id="add-material-btn" type="button" class="flex items-center gap-1 text-xs font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Adicionar Material
-                        </button>
+                <!-- ─── TAB 3: MATERIAIS & FONTES ─── -->
+                <div id="tab-materiais" class="modal-tab-panel hidden space-y-5">
+                    <!-- Materiais de Estudo -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                            <div>
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Materiais de Estudo</h3>
+                                <p class="text-[11px] text-slate-400">Links de portais, apostilas ou bancos de questões.</p>
+                            </div>
+                            <button id="add-material-btn" type="button"
+                                class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 text-yellow-400 text-xs font-bold transition-all shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Novo Material
+                            </button>
+                        </div>
+                        <div id="materiais-list" class="space-y-3"></div>
+                        <p id="materiais-empty"
+                            class="text-xs text-slate-500 text-center py-6 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
+                            Nenhum material de estudo vinculado.
+                        </p>
                     </div>
-                    <div id="materiais-list" class="space-y-3"></div>
-                    <p id="materiais-empty" class="text-xs text-slate-500 text-center py-4 border border-dashed border-slate-700 rounded-lg">Nenhum material. Clique em "Adicionar Material" para começar.</p>
-                </section>
+
+                    <!-- Fontes Oficiais -->
+                    <div class="space-y-3 pt-3 border-t border-slate-800/60">
+                        <div class="flex items-center justify-between pb-2">
+                            <div>
+                                <h3 class="text-xs font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-1">
+                                    Fontes Oficiais
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">URLs de editais, regulamentos e páginas oficiais.</p>
+                            </div>
+                            <button id="add-fonte-btn" type="button"
+                                class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 text-xs font-bold transition-all shrink-0">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                                    stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Nova Fonte
+                            </button>
+                        </div>
+                        <div id="fontes-list" class="space-y-3"></div>
+                        <p id="fontes-empty"
+                            class="text-xs text-slate-500 text-center py-6 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
+                            Nenhuma fonte oficial vinculada.
+                        </p>
+                    </div>
+                </div>
 
             </div>
 
             <!-- Modal Footer -->
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-700">
-                <div id="modal-error" class="hidden flex-1 text-sm text-red-400 flex items-center gap-1.5">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-800 bg-slate-950/40">
+                <div id="modal-error"
+                    class="hidden flex-1 text-xs text-red-400 flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span id="modal-error-text"></span>
                 </div>
-                <p id="modal-dirty-indicator" class="hidden mr-auto text-xs font-medium text-amber-300">Há alterações não salvas</p>
-                <button id="modal-cancel" type="button" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+                <button id="modal-cancel" type="button"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
                     Cancelar
                 </button>
-                <button id="modal-save" type="button" class="px-5 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-slate-900 text-sm font-semibold transition-colors">
-                    Salvar
+                <button id="modal-save" type="button"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 text-xs font-bold transition-all shadow-md shadow-yellow-400/10">
+                    Salvar Alterações
                 </button>
             </div>
         </div>
@@ -362,57 +545,101 @@
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- DELETE CONFIRMATION DIALOG                         -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <div id="confirm-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 text-center">
-            <div class="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    <div id="confirm-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md"></div>
+        <div
+            class="relative w-full max-w-sm backdrop-blur-xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl p-6 text-center animate-[fadeInUp_0.15s_ease_forwards]">
+            <div
+                class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
             </div>
-            <h3 class="text-base font-bold text-slate-100 mb-1">Remover Olimpíada</h3>
-            <p id="confirm-text" class="text-sm text-slate-400 mb-6"></p>
-            <div class="flex gap-3">
-                <button id="confirm-cancel" class="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-colors border border-slate-600">
+            <h3 class="text-base font-bold text-white mb-1">Excluir Competição</h3>
+            <p id="confirm-text" class="text-xs text-slate-400 mb-6 leading-relaxed"></p>
+            <div class="flex gap-2.5">
+                <button id="confirm-cancel"
+                    class="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/80">
                     Cancelar
                 </button>
-                <button id="confirm-delete" class="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors">
+                <button id="confirm-delete"
+                    class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md shadow-red-600/20">
                     Remover
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Toast notification -->
-    <div id="toast" class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-700 border border-slate-600 shadow-2xl text-sm font-medium text-slate-100 transition-all">
-        <span id="toast-icon"></span>
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- TOAST NOTIFICATION                                  -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="toast"
+        class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-xl bg-slate-800/90 border border-slate-700 shadow-2xl text-xs font-semibold text-slate-100 transition-all animate-[fadeInUp_0.2s_ease_forwards]">
+        <span id="toast-icon" class="text-sm"></span>
         <span id="toast-msg"></span>
     </div>
 
+    <!-- Custom CSS Base Helpers for Glass Inputs -->
     <style>
-        .admin-input {
-            background: rgb(15 23 42); /* slate-900 */
-            border: 1px solid rgb(71 85 105); /* slate-600 */
-            border-radius: 0.5rem;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            color: rgb(241 245 249); /* slate-100 */
-            transition: border-color 0.15s, box-shadow 0.15s;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
-        .admin-input::placeholder { color: rgb(100 116 139); }
+
+        .admin-input {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            border-radius: 0.75rem;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.75rem;
+            color: rgb(241, 245, 249);
+            transition: all 0.2s ease;
+        }
+
+        .admin-input::placeholder {
+            color: rgba(100, 116, 139, 0.8);
+        }
+
         .admin-input:focus {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(250 204 21 / 0.3);
-            border-color: rgba(250 204 21 / 0.5);
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(250, 204, 21, 0.6);
+            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
         }
-        .admin-input option { background: rgb(30 41 59); }
-        .nivel-checkbox:checked + .nivel-label {
-            background: rgba(250 204 21 / 0.15);
-            border-color: rgba(250 204 21 / 0.5);
-            color: rgb(253 224 71);
+
+        .admin-input option {
+            background: rgb(15, 23, 42);
+            color: #fff;
+        }
+
+        .nivel-checkbox:checked+.nivel-label {
+            background: rgba(250, 204, 21, 0.15) !important;
+            border-color: rgba(250, 204, 21, 0.5) !important;
+            color: rgb(253, 224, 71) !important;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.6);
         }
     </style>
 
     <script src="admin.js"></script>
 </body>
+
 </html>
