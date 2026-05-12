@@ -53,11 +53,16 @@
     }
 
     // ─── Flatten events ──────────────────────────────────
+    function getEventReferenceDate(ev) {
+        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
+    }
+
     function flattenEventos(data) {
         const flat = [];
         data.forEach(o => {
-            o.eventos.forEach(ev => {
-                const mainDate = ev.data || ev['data-f'] || ev['data-i'] || '';
+            (o.eventos || []).forEach(ev => {
+                const mainDate = getEventReferenceDate(ev);
+                if (!mainDate) return;
                 flat.push({
                     data: mainDate,
                     data_i: ev['data-i'],
@@ -81,7 +86,7 @@
     // ─── Populate matéria filter ─────────────────────────
     function populateMateriaFilter() {
         const materias = new Set();
-        olimpiadas.forEach(o => o.materias.forEach(m => materias.add(m)));
+        olimpiadas.forEach(o => (o.materias || []).forEach(m => materias.add(m)));
         const sorted = [...materias].sort();
         sorted.forEach(m => {
             const opt = document.createElement('option');
@@ -97,8 +102,8 @@
         const materia = filtroMateria.value;
 
         return allEventos.filter(ev => {
-            if (serie !== 'Todas' && !ev.nivel_escolar.includes(serie)) return false;
-            if (materia !== 'Todas' && !ev.materias.includes(materia)) return false;
+            if (serie !== 'Todas' && !(ev.nivel_escolar || []).includes(serie)) return false;
+            if (materia !== 'Todas' && !(ev.materias || []).includes(materia)) return false;
             return true;
         });
     }

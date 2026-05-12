@@ -27,6 +27,23 @@
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
 
+    function getEventReferenceDate(ev) {
+        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
+    }
+
+    function getInscricaoDate(o) {
+        const inscricao = (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
+        return getEventReferenceDate(inscricao);
+    }
+
+    function getEarliestEventDate(o) {
+        return (o.eventos || []).reduce((min, ev) => {
+            const date = getEventReferenceDate(ev);
+            if (!date) return min;
+            return !min || date < min ? date : min;
+        }, '');
+    }
+
     // ─── Init ────────────────────────────────────────────
     async function init() {
         initMobileMenu();
@@ -64,7 +81,7 @@
     function populateFilters() {
         // Matérias
         const materias = new Set();
-        olimpiadas.forEach(o => o.materias.forEach(m => materias.add(m)));
+        olimpiadas.forEach(o => (o.materias || []).forEach(m => materias.add(m)));
         [...materias].sort().forEach(m => {
             const opt = document.createElement('option');
             opt.value = m;
@@ -75,8 +92,8 @@
         // Meses (extract from events)
         const meses = new Set();
         olimpiadas.forEach(o => {
-            o.eventos.forEach(ev => {
-                const dataRef = ev.data || ev['data-f'] || ev['data-i'];
+            (o.eventos || []).forEach(ev => {
+                const dataRef = getEventReferenceDate(ev);
                 if (dataRef) {
                     const month = parseInt(dataRef.split('-')[1], 10);
                     meses.add(month);
@@ -99,13 +116,13 @@
         const modalidade = filtroModalidade.value;
 
         return olimpiadas.filter(o => {
-            if (serie !== 'Todas' && !o.nivel_escolar.includes(serie)) return false;
-            if (materia !== 'Todas' && !o.materias.includes(materia)) return false;
+            if (serie !== 'Todas' && !(o.nivel_escolar || []).includes(serie)) return false;
+            if (materia !== 'Todas' && !(o.materias || []).includes(materia)) return false;
             if (modalidade !== 'Todas' && o.modalidade !== modalidade) return false;
             if (mes !== 'Todos') {
                 const mesNum = parseInt(mes, 10);
-                const hasMonth = o.eventos.some(ev => {
-                    const d = ev.data || ev['data-f'] || ev['data-i'];
+                const hasMonth = (o.eventos || []).some(ev => {
+                    const d = getEventReferenceDate(ev);
                     return d && parseInt(d.split('-')[1], 10) === mesNum;
                 });
                 if (!hasMonth) return false;
@@ -130,11 +147,9 @@
 
         // Sort by earliest event date
         filtered.sort((a, b) => {
-            const getMin = evs => evs.reduce((min, ev) => {
-                const d = ev.data || ev['data-f'] || ev['data-i'] || 'z';
-                return d < min ? d : min;
-            }, 'z');
-            return getMin(a.eventos).localeCompare(getMin(b.eventos));
+            const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || 'z';
+            const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || 'z';
+            return aDate.localeCompare(bDate);
         });
 
         listaEl.innerHTML = filtered.map((o, i) => criarAccordion(o, i)).join('');
@@ -145,11 +160,10 @@
         hoje.setHours(0, 0, 0, 0);
 
         // Find earliest inscription deadline
-        const inscricaoEv = o.eventos.find(ev => ev.tipo === 'Inscrição');
+        const inscricaoDate = getInscricaoDate(o);
         let statusBadge = '';
-        if (inscricaoEv) {
-            const d = inscricaoEv.data || inscricaoEv['data-f'] || inscricaoEv['data-i'];
-            const inscDate = new Date(d + 'T00:00:00');
+        if (inscricaoDate) {
+            const inscDate = new Date(inscricaoDate + 'T00:00:00');
             const diff = Math.ceil((inscDate - hoje) / (1000 * 60 * 60 * 24));
             if (diff < 0) {
                 statusBadge = '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-500">Inscrições encerradas</span>';
@@ -158,6 +172,8 @@
             } else {
                 statusBadge = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">${diff} dias restantes</span>`;
             }
+        } else {
+            statusBadge = '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">Cronograma pendente</span>';
         }
 
         // Modalidade badge
@@ -166,7 +182,7 @@
             : 'bg-teal-500/20 text-teal-400 border-teal-500/30';
 
         // Nivel badges
-        const nivelHtml = o.nivel_escolar.map(n => {
+        const nivelHtml = (o.nivel_escolar || []).map(n => {
             const cores = {
                 'Ensino Fundamental I': 'bg-purple-500/20 text-purple-400',
                 'Ensino Fundamental II': 'bg-amber-500/20 text-amber-400',
@@ -176,18 +192,21 @@
         }).join('');
 
         // Events HTML
-        const eventosHtml = o.eventos.map(ev => {
-            const refDate = ev.data || ev['data-f'] || ev['data-i'];
-            const evDate = new Date(refDate + 'T00:00:00');
-            const passado = evDate < hoje;
+        const eventosHtml = (o.eventos || []).length > 0
+            ? (o.eventos || []).map(ev => {
+            const refDate = getEventReferenceDate(ev);
+            const evDate = refDate ? new Date(refDate + 'T00:00:00') : null;
+            const passado = evDate ? evDate < hoje : false;
             
             let dateStr = '';
             if (ev['data-i'] && ev['data-f']) {
                 const di = new Date(ev['data-i'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
                 const df = new Date(ev['data-f'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
                 dateStr = `${di} a ${df}`;
-            } else {
+            } else if (refDate) {
                 dateStr = evDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+            } else {
+                dateStr = 'Data não publicada';
             }
             
             const tipoCor = ev.tipo === 'Inscrição' ? 'text-blue-400' : 'text-amber-400';
@@ -198,14 +217,60 @@
                         <span class="text-sm ${tipoCor} font-semibold">${ev.tipo}</span>
                         <span class="text-sm text-slate-400 ml-1">— ${ev.descricao}</span>
                     </div>
-                    <span class="text-xs text-slate-500 font-medium whitespace-nowrap ${passado ? 'line-through' : ''}">${dateStr}</span>
-                </div>`;
-        }).join('');
+                     <span class="text-xs text-slate-500 font-medium whitespace-nowrap ${passado ? 'line-through' : ''}">${dateStr}</span>
+                 </div>`;
+        }).join('')
+            : '<p class="text-sm text-slate-500">Cronograma ainda não publicado.</p>';
 
         // Matérias pills
-        const materiasHtml = o.materias.map(m =>
+        const materiasHtml = (o.materias || []).map(m =>
             `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 border border-slate-600">${m}</span>`
         ).join('');
+
+        const descricaoHtml = o.descricao
+            ? `
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Descrição</h4>
+                    <p class="text-sm text-slate-300 leading-relaxed">${o.descricao}</p>
+                </div>`
+            : '';
+
+        const siteOficialHtml = o.site_oficial
+            ? `
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Site Oficial</h4>
+                    <a href="${o.site_oficial}" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                        ${o.site_oficial}
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>`
+            : '';
+
+        const fontes = Array.isArray(o.fontes_oficiais) ? o.fontes_oficiais : [];
+        const fontesHtml = fontes.length > 0
+            ? `
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Fontes Oficiais</h4>
+                    <div class="space-y-2">
+                        ${fontes.map(fonte => {
+                            const titulo = typeof fonte === 'string' ? fonte : (fonte.titulo || fonte.url);
+                            const url = typeof fonte === 'string' ? fonte : fonte.url;
+                            if (!url) return '';
+                            return `
+                                <a href="${url}" target="_blank" rel="noopener noreferrer"
+                                   class="flex items-center gap-2 text-sm text-slate-300 hover:text-blue-300 transition-colors">
+                                    <span>${titulo}</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>`;
+                        }).join('')}
+                    </div>
+                </div>`
+            : '';
 
         // Study materials
         const materiaisHtml = o.materiais_estudo && o.materiais_estudo.length > 0
@@ -257,6 +322,8 @@
                     <div class="flex flex-wrap gap-2">${nivelHtml}</div>
                 </div>
 
+                ${descricaoHtml}
+
                 <!-- Matérias -->
                 <div>
                     <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Matérias</h4>
@@ -274,6 +341,9 @@
                     <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Materiais de Estudo</h4>
                     <div class="space-y-2">${materiaisHtml}</div>
                 </div>
+
+                ${siteOficialHtml}
+                ${fontesHtml}
 
                 <!-- Link to calendar -->
                 <div class="pt-2">
