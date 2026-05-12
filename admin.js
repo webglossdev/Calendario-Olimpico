@@ -16,6 +16,8 @@
     // ─── State ───────────────────────────────────────────────────
     let olimpiadas = [];
     let editingIndex = null; // null = adding new, number = editing existing
+    let quickFilter = 'all';
+    let modalDirty = false;
 
     // ─── DOM ─────────────────────────────────────────────────────
     const loginScreen    = document.getElementById('login-screen');
@@ -36,6 +38,11 @@
     const olimpiadasList = document.getElementById('olimpiadas-list');
     const emptyState     = document.getElementById('empty-state');
     const countLabel     = document.getElementById('count-label');
+    const quickFiltersEl = document.getElementById('quick-filters');
+    const metricTotal = document.getElementById('metric-total');
+    const metricOpenSoon = document.getElementById('metric-open-soon');
+    const metricMissingEvents = document.getElementById('metric-missing-events');
+    const metricMissingMaterials = document.getElementById('metric-missing-materials');
 
     const modal          = document.getElementById('modal');
     const modalBackdrop  = document.getElementById('modal-backdrop');
@@ -57,6 +64,8 @@
     const fNome         = document.getElementById('f-nome');
     const fModalidade   = document.getElementById('f-modalidade');
     const fMaterias     = document.getElementById('f-materias');
+    const fSiteOficial  = document.getElementById('f-site-oficial');
+    const fDescricao    = document.getElementById('f-descricao');
     const eventosListEl = document.getElementById('eventos-list');
     const eventosEmpty  = document.getElementById('eventos-empty');
     const materiaisListEl = document.getElementById('materiais-list');
@@ -64,6 +73,7 @@
     const addEventoBtn  = document.getElementById('add-evento-btn');
     const addMaterialBtn = document.getElementById('add-material-btn');
     const nivelCheckboxes = document.getElementById('nivel-checkboxes');
+    const modalDirtyIndicator = document.getElementById('modal-dirty-indicator');
 
     const NIVEIS = [
         'Ensino Fundamental I',
@@ -263,17 +273,83 @@
     // ═══════════════════════════════════════════════════════════
     // Render List
     // ═══════════════════════════════════════════════════════════
+    function getEventReferenceDate(ev) {
+        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
+    }
+
+    function getInscricaoDate(o) {
+        const ev = (o.eventos || []).find(e => e.tipo === 'Inscrição');
+        return getEventReferenceDate(ev);
+    }
+
+    function daysUntil(dateStr) {
+        if (!dateStr) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const target = new Date(dateStr + 'T00:00:00');
+        return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function getOlimpiadaFlags(o) {
+        const hasEvents = (o.eventos || []).length > 0;
+        const hasMaterials = (o.materiais_estudo || []).length > 0;
+        const hasSite = !!String(o.site_oficial || '').trim();
+        const hasDescription = !!String(o.descricao || '').trim();
+        const inscricaoDays = daysUntil(getInscricaoDate(o));
+        const openSoon = inscricaoDays !== null && inscricaoDays >= 0 && inscricaoDays <= 30;
+        const incomplete = !hasEvents || !hasMaterials || !hasSite || !hasDescription;
+        return { hasEvents, hasMaterials, hasSite, hasDescription, openSoon, incomplete };
+    }
+
+    function matchesQuickFilter(o) {
+        const flags = getOlimpiadaFlags(o);
+        if (quickFilter === 'needs-events') return !flags.hasEvents;
+        if (quickFilter === 'needs-materials') return !flags.hasMaterials;
+        if (quickFilter === 'open-soon') return flags.openSoon;
+        if (quickFilter === 'incomplete') return flags.incomplete;
+        return true;
+    }
+
+    function updateQuickFilterUI() {
+        if (!quickFiltersEl) return;
+        quickFiltersEl.querySelectorAll('.admin-filter-btn').forEach(btn => {
+            const active = btn.dataset.filter === quickFilter;
+            if (active) {
+                btn.classList.remove('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
+                btn.classList.add('bg-yellow-400', 'text-slate-900');
+            } else {
+                btn.classList.remove('bg-yellow-400', 'text-slate-900');
+                btn.classList.add('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
+            }
+        });
+    }
+
+    function updateMetrics() {
+        const openSoonCount = olimpiadas.filter(o => getOlimpiadaFlags(o).openSoon).length;
+        const missingEventsCount = olimpiadas.filter(o => !getOlimpiadaFlags(o).hasEvents).length;
+        const missingMaterialsCount = olimpiadas.filter(o => !getOlimpiadaFlags(o).hasMaterials).length;
+        metricTotal.textContent = String(olimpiadas.length);
+        metricOpenSoon.textContent = String(openSoonCount);
+        metricMissingEvents.textContent = String(missingEventsCount);
+        metricMissingMaterials.textContent = String(missingMaterialsCount);
+    }
+
     function renderList(filter) {
         const query = (filter ?? searchInput.value).toLowerCase().trim();
         const filtered = olimpiadas.filter(o => {
+            if (!matchesQuickFilter(o)) return false;
             if (!query) return true;
             return (
                 o.sigla.toLowerCase().includes(query) ||
                 o.nome.toLowerCase().includes(query) ||
                 (o.materias || []).some(m => m.toLowerCase().includes(query)) ||
-                (o.nivel_escolar || []).some(n => n.toLowerCase().includes(query))
+                (o.nivel_escolar || []).some(n => n.toLowerCase().includes(query)) ||
+                String(o.descricao || '').toLowerCase().includes(query)
             );
         });
+
+        updateMetrics();
+        updateQuickFilterUI();
 
         countLabel.textContent = `${filtered.length} de ${olimpiadas.length} olimpíada${olimpiadas.length !== 1 ? 's' : ''}`;
 
@@ -300,6 +376,13 @@
                 'Híbrida':    'bg-purple-900/40 text-purple-300',
             }[o.modalidade] || 'bg-slate-700 text-slate-300';
 
+            const flags = getOlimpiadaFlags(o);
+            const statusBadges = [
+                !flags.hasEvents ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">Sem cronograma</span>' : '',
+                !flags.hasMaterials ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">Sem materiais</span>' : '',
+                flags.openSoon ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Inscrição próxima</span>' : '',
+            ].filter(Boolean).join('');
+
             return `
             <div class="group flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-4 bg-slate-800 hover:bg-slate-800/80 transition-colors" data-idx="${realIdx}">
                 <div class="flex-1 min-w-0">
@@ -316,6 +399,7 @@
                     <div class="mt-1 text-xs text-slate-500">
                         ${eventCount} evento${eventCount !== 1 ? 's' : ''} · ${matCount} material${matCount !== 1 ? 'is' : ''} · ID: <code class="text-slate-400">${escHtml(o.id)}</code>
                     </div>
+                    ${statusBadges ? `<div class="mt-2 flex flex-wrap gap-1">${statusBadges}</div>` : ''}
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <button
@@ -396,6 +480,8 @@
         fNome.value      = o ? o.nome       : '';
         fModalidade.value = o ? (o.modalidade || '') : '';
         fMaterias.value  = o ? (o.materias || []).join(', ') : '';
+        fSiteOficial.value = o ? (o.site_oficial || '') : '';
+        fDescricao.value = o ? (o.descricao || '') : '';
 
         buildNivelCheckboxes(o ? o.nivel_escolar : []);
         renderEventos(o ? (o.eventos || []) : []);
@@ -410,6 +496,7 @@
 
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        setModalDirty(false);
         fSigla.focus();
     }
 
@@ -420,12 +507,24 @@
         }
     }
 
-    function closeModal() {
+    function setModalDirty(value) {
+        modalDirty = !!value;
+        if (modalDirty) modalDirtyIndicator.classList.remove('hidden');
+        else modalDirtyIndicator.classList.add('hidden');
+    }
+
+    function closeModal(forceClose = false) {
+        const force = forceClose === true;
+        if (modalDirty && !force) {
+            const shouldClose = window.confirm('Existem alterações não salvas. Deseja fechar mesmo assim?');
+            if (!shouldClose) return;
+        }
         modal.classList.add('hidden');
         document.body.style.overflow = '';
         fSigla.removeEventListener('input', autoGenerateId);
         fId.dataset.manual = '';
         editingIndex = null;
+        setModalDirty(false);
     }
 
     function showModalError(msg) {
@@ -503,6 +602,7 @@
             btn.addEventListener('click', () => {
                 eventosBuffer.splice(i, 1);
                 _redrawEventos();
+                setModalDirty(true);
             });
         });
 
@@ -520,6 +620,7 @@
                     delete eventosBuffer[i]['data-f'];
                 }
                 _redrawEventos();
+                setModalDirty(true);
             });
         });
     }
@@ -549,6 +650,7 @@
     function addEvento() {
         eventosBuffer.push({ tipo: '', data: '', descricao: '' });
         _redrawEventos();
+        setModalDirty(true);
         // Scroll to new event
         const rows = eventosListEl.querySelectorAll('.evento-row');
         if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -598,6 +700,7 @@
             btn.addEventListener('click', () => {
                 materiaisBuffer.splice(i, 1);
                 _redrawMateriais();
+                setModalDirty(true);
             });
         });
     }
@@ -613,6 +716,7 @@
     function addMaterial() {
         materiaisBuffer.push({ titulo: '', url: '' });
         _redrawMateriais();
+        setModalDirty(true);
         const rows = materiaisListEl.querySelectorAll('.material-row');
         if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -633,11 +737,16 @@
         const id    = fId.value.trim();
         const nome  = fNome.value.trim();
         const modalidade = fModalidade.value;
+        const siteOficial = fSiteOficial.value.trim();
+        const descricao = fDescricao.value.trim();
 
         if (!sigla) return showModalError('A sigla é obrigatória.');
         if (!id)    return showModalError('O ID é obrigatório.');
         if (!nome)  return showModalError('O nome é obrigatório.');
         if (!modalidade) return showModalError('Selecione a modalidade.');
+        if (siteOficial && !/^https?:\/\/.+/i.test(siteOficial)) {
+            return showModalError('O site oficial deve começar com http:// ou https://');
+        }
 
         // Check for duplicate ID (when adding, or when editing and ID changed)
         const existingIdx = olimpiadas.findIndex(o => o.id === id);
@@ -655,6 +764,8 @@
             'nivel_escolar',
             'materias',
             'modalidade',
+            'descricao',
+            'site_oficial',
             'eventos',
             'materiais_estudo',
         ]);
@@ -671,6 +782,8 @@
             nivel_escolar: niveis,
             materias,
             modalidade,
+            descricao,
+            site_oficial: siteOficial,
             eventos: eventosBuffer.filter(e => e.tipo || e.data || e['data-i'] || e['data-f'] || e.descricao),
             materiais_estudo: materiaisBuffer.filter(m => m.titulo || m.url),
         };
@@ -683,7 +796,7 @@
             showToast(`"${sigla}" adicionado com sucesso.`, 'success');
         }
 
-        closeModal();
+        closeModal(true);
         renderList();
     }
 
@@ -781,6 +894,14 @@
     exportBtnMobile.addEventListener('click', exportJSON);
 
     searchInput.addEventListener('input', () => renderList());
+    if (quickFiltersEl) {
+        quickFiltersEl.querySelectorAll('.admin-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                quickFilter = btn.dataset.filter || 'all';
+                renderList();
+            });
+        });
+    }
 
     // Modal
     modalClose.addEventListener('click', closeModal);
@@ -789,6 +910,9 @@
     modalSave.addEventListener('click', saveModal);
     addEventoBtn.addEventListener('click', addEvento);
     addMaterialBtn.addEventListener('click', addMaterial);
+    modal.addEventListener('input', () => {
+        if (!modal.classList.contains('hidden')) setModalDirty(true);
+    });
 
     // Mark ID as manually edited so auto-generate doesn't override
     fId.addEventListener('input', () => { fId.dataset.manual = '1'; });
