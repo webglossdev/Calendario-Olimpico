@@ -151,13 +151,15 @@
     "nivel_escolar": [
       "Ensino Fundamental I",
       "Ensino Fundamental II",
-      "Ensino Médio"
+      "Ensino Médio",
+      "Livre"
     ],
     "materias": [
       "Informática",
-      "Matemática"
+      "Matemática",
+      "Programação"
     ],
-    "modalidade": "Online",
+    "modalidade": "Híbrida",
     "eventos": [
       {
         "tipo": "Inscrição",
@@ -166,9 +168,26 @@
       },
       {
         "tipo": "Prova",
-        "descricao": "Fase Local",
-        "data-i": "",
-        "data-f": ""
+        "descricao": "Modalidade Iniciação - Prova 1",
+        "data-i": "2026-05-27",
+        "data-f": "2026-05-29"
+      },
+      {
+        "tipo": "Prova",
+        "descricao": "Modalidade Programação - Prova 1",
+        "data-i": "2026-06-10",
+        "data-f": "2026-06-12"
+      },
+      {
+        "tipo": "Prova",
+        "descricao": "Modalidade Iniciação - Prova 2",
+        "data-i": "2026-08-06",
+        "data-f": "2026-08-06"
+      },
+      {
+        "tipo": "Prova",
+        "data": "",
+        "descricao": "Provas 2, 3 e 3 à serem adicionadas aqui no site."
       }
     ],
     "materiais_estudo": [
@@ -179,6 +198,14 @@
       {
         "titulo": "Provas Anteriores OBI",
         "url": "https://olimpiada.ic.unicamp.br/provas/"
+      },
+      {
+        "titulo": "Cursos e Materiais de Estudo",
+        "url": "https://olimpiada.ic.unicamp.br/prepare/estude/"
+      },
+      {
+        "titulo": "Praticar",
+        "url": "https://olimpiada.ic.unicamp.br/pratique/"
       }
     ]
   },
