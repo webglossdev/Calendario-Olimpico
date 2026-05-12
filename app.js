@@ -97,9 +97,9 @@
 
             // Sort by earliest inscription deadline
             olimpiadas.sort((a, b) => {
-                const aInsc = getInscricaoDate(a);
-                const bInsc = getInscricaoDate(b);
-                return aInsc.localeCompare(bInsc);
+                const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || 'z';
+                const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || 'z';
+                return aDate.localeCompare(bDate);
             });
 
             renderCards();
@@ -117,16 +117,27 @@
         }
     }
 
+    function getEventReferenceDate(ev) {
+        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
+    }
+
+    function getEarliestEventDate(o) {
+        return (o.eventos || []).reduce((min, ev) => {
+            const date = getEventReferenceDate(ev);
+            if (!date) return min;
+            return !min || date < min ? date : min;
+        }, '');
+    }
+
     function getInscricaoDate(o) {
-        const inscEv = o.eventos.find(ev => ev.tipo === 'Inscrição');
-        if (!inscEv) return 'z';
-        return inscEv.data || inscEv['data-f'] || inscEv['data-i'] || 'z';
+        const inscEv = (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
+        return getEventReferenceDate(inscEv);
     }
 
     function renderCards() {
         const filtradas = filtroAtual === 'Todas'
             ? olimpiadas
-            : olimpiadas.filter(o => o.nivel_escolar.includes(filtroAtual));
+            : olimpiadas.filter(o => (o.nivel_escolar || []).includes(filtroAtual));
 
         if (filtradas.length === 0) {
             listaEl.innerHTML = `
@@ -146,15 +157,20 @@
 
         // Find inscription event deadline
         const inscDate = getInscricaoDate(o);
-        const inscricaoFim = new Date(inscDate + 'T00:00:00');
-        const diffDias = Math.ceil((inscricaoFim - hoje) / (1000 * 60 * 60 * 24));
+        const inscricaoFim = inscDate ? new Date(inscDate + 'T00:00:00') : null;
+        const diffDias = inscricaoFim
+            ? Math.ceil((inscricaoFim - hoje) / (1000 * 60 * 60 * 24))
+            : null;
 
-        const expirado = diffDias < 0;
-        const urgente = diffDias >= 0 && diffDias <= 14;
+        const expirado = diffDias !== null && diffDias < 0;
+        const urgente = diffDias !== null && diffDias >= 0 && diffDias <= 14;
 
         // Date badge styling
         let dateBadgeClass, dateText;
-        if (expirado) {
+        if (diffDias === null) {
+            dateBadgeClass = 'bg-slate-700 text-slate-400';
+            dateText = 'Cronograma pendente';
+        } else if (expirado) {
             dateBadgeClass = 'bg-slate-700 text-slate-500';
             dateText = 'Inscrições encerradas';
         } else if (urgente) {
@@ -171,7 +187,7 @@
             : 'bg-teal-500/20 text-teal-400 border-teal-500/30';
 
         // Level badges
-        const nivelHtml = o.nivel_escolar.map(n => {
+        const nivelHtml = (o.nivel_escolar || []).map(n => {
             const cores = {
                 'Ensino Fundamental I': 'bg-purple-500/20 text-purple-400',
                 'Ensino Fundamental II': 'bg-amber-500/20 text-amber-400',
@@ -185,13 +201,13 @@
         });
 
         // Matérias as pills
-        const materiasHtml = o.materias.map(m =>
+        const materiasHtml = (o.materias || []).map(m =>
             `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300">${m}</span>`
         ).join('');
 
         // Next event
-        const nextEvent = o.eventos.find(ev => {
-            const evDate = ev.data || ev['data-f'] || ev['data-i'];
+        const nextEvent = (o.eventos || []).find(ev => {
+            const evDate = getEventReferenceDate(ev);
             return evDate && new Date(evDate + 'T00:00:00') >= hoje;
         });
         
@@ -201,7 +217,7 @@
             if (nextEvent['data-i'] && nextEvent['data-f']) {
                 dateStr = `${formatDate(nextEvent['data-i'])} a ${formatDate(nextEvent['data-f'])}`;
             } else {
-                dateStr = formatDate(nextEvent.data || nextEvent['data-f'] || nextEvent['data-i']);
+                dateStr = formatDate(getEventReferenceDate(nextEvent));
             }
             
             nextEventHtml = `<div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
@@ -209,8 +225,40 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     Próximo: <span class="text-slate-300 font-medium">${nextEvent.descricao}</span> — ${dateStr}
-               </div>`;
+                </div>`;
         }
+
+        const descricaoHtml = o.descricao
+            ? `<p class="mt-3 text-sm text-slate-400 leading-relaxed">${o.descricao}</p>`
+            : '';
+
+        const officialSiteHtml = o.site_oficial
+            ? `
+                <a href="${o.site_oficial}" target="_blank" rel="noopener noreferrer"
+                   class="flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-semibold
+                          bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 hover:text-white transition-all duration-200"
+                   title="Abrir site oficial">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-1.5-6H21m0 0v4.5m0-4.5L10.5 15"/>
+                    </svg>
+                </a>`
+            : '';
+
+        const inscricaoHtml = inscDate
+            ? `
+                <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Inscrições até <span class="font-semibold text-slate-300">${formatDate(inscDate)}</span>
+                </div>`
+            : `
+                <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Acompanhe o site oficial para o cronograma
+                </div>`;
 
         const animDelay = `animation-delay: ${index * 60}ms`;
 
@@ -242,16 +290,13 @@
                     ${materiasHtml}
                 </div>
 
+                ${descricaoHtml}
+
                 <!-- Next event -->
                 ${nextEventHtml}
 
                 <!-- Inscription deadline -->
-                <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Inscrições até <span class="font-semibold text-slate-300">${formatDate(inscDate)}</span>
-                </div>
+                ${inscricaoHtml}
             </div>
 
             <!-- Card Footer -->
@@ -261,7 +306,8 @@
                           bg-blue-600 text-white hover:bg-blue-500 hover:-translate-y-0.5 transition-all duration-200 shadow-md shadow-blue-600/20">
                     Ver Detalhes
                 </a>
-                ${!expirado ? `
+                ${officialSiteHtml}
+                ${!expirado && nextEvent ? `
                 <a href="calendario.html"
                    class="flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-semibold
                           bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 hover:text-white transition-all duration-200"

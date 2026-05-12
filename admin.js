@@ -648,7 +648,23 @@
         const materias = fMaterias.value.split(',').map(s => s.trim()).filter(Boolean);
         const niveis   = getSelectedNiveis();
 
+        const knownKeys = new Set([
+            'id',
+            'sigla',
+            'nome',
+            'nivel_escolar',
+            'materias',
+            'modalidade',
+            'eventos',
+            'materiais_estudo',
+        ]);
+        const existing = editingIndex !== null ? olimpiadas[editingIndex] : null;
+        const preservedFields = existing
+            ? Object.fromEntries(Object.entries(existing).filter(([key]) => !knownKeys.has(key)))
+            : {};
+
         const obj = {
+            ...preservedFields,
             id,
             sigla,
             nome,
