@@ -809,13 +809,13 @@
     // ═══════════════════════════════════════════════════════════
     // Delete
     // ═══════════════════════════════════════════════════════════
-    let confirmAction = null;
+    let confirmCallback = null;
 
     function openGenericConfirmDialog(message, actionLabel, actionClass, onConfirm) {
         confirmText.textContent = message;
         confirmDelete.textContent = actionLabel || 'Confirmar';
         confirmDelete.className = `flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${actionClass || 'bg-red-600 hover:bg-red-500 text-white'}`;
-        confirmAction = typeof onConfirm === 'function' ? onConfirm : null;
+        confirmCallback = typeof onConfirm === 'function' ? onConfirm : null;
         confirmDialog.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -823,7 +823,7 @@
     function closeConfirmDialog() {
         confirmDialog.classList.add('hidden');
         document.body.style.overflow = '';
-        confirmAction = null;
+        confirmCallback = null;
         confirmDelete.className = 'flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors';
         confirmDelete.textContent = 'Remover';
     }
@@ -904,7 +904,8 @@
     function isValidHttpUrl(value) {
         try {
             const parsed = new URL(value);
-            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+            const validProtocol = parsed.protocol === 'http:' || parsed.protocol === 'https:';
+            return validProtocol && !!parsed.hostname;
         } catch (_) {
             return false;
         }
@@ -947,7 +948,7 @@
     // Confirm dialog
     confirmCancel.addEventListener('click', closeConfirmDialog);
     confirmDelete.addEventListener('click', () => {
-        if (confirmAction) confirmAction();
+        if (confirmCallback) confirmCallback();
     });
 
     // Keyboard shortcuts
