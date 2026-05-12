@@ -286,7 +286,8 @@
         if (!dateStr) return null;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const target = new Date(dateStr + 'T00:00:00');
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const target = new Date(year, (month || 1) - 1, day || 1);
         return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
     }
 
@@ -516,7 +517,7 @@
     function closeModal(forceClose = false) {
         const force = forceClose === true;
         if (modalDirty && !force) {
-            openConfirmDialog(
+            openGenericConfirmDialog(
                 'Você tem alterações não salvas. Deseja descartar essas alterações?',
                 'Descartar',
                 'bg-amber-500 hover:bg-amber-400 text-slate-900',
@@ -810,7 +811,7 @@
     // ═══════════════════════════════════════════════════════════
     let confirmAction = null;
 
-    function openConfirmDialog(message, actionLabel, actionClass, onConfirm) {
+    function openGenericConfirmDialog(message, actionLabel, actionClass, onConfirm) {
         confirmText.textContent = message;
         confirmDelete.textContent = actionLabel || 'Confirmar';
         confirmDelete.className = `flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${actionClass || 'bg-red-600 hover:bg-red-500 text-white'}`;
@@ -830,7 +831,7 @@
     function openConfirmDelete(idx) {
         if (!guardAdmin()) return;
         const o = olimpiadas[idx];
-        openConfirmDialog(
+        openGenericConfirmDialog(
             `Tem certeza que deseja remover "${o.nome}" (${o.sigla})? Esta ação não pode ser desfeita nesta sessão.`,
             'Remover',
             'bg-red-600 hover:bg-red-500 text-white',

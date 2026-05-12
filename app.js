@@ -389,7 +389,8 @@
         if (!dateStr) return null;
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-        const alvo = new Date(dateStr + 'T00:00:00');
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const alvo = new Date(year, (month || 1) - 1, day || 1);
         return Math.ceil((alvo - hoje) / (1000 * 60 * 60 * 24));
     }
 
