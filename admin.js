@@ -516,8 +516,13 @@
     function closeModal(forceClose = false) {
         const force = forceClose === true;
         if (modalDirty && !force) {
-            const shouldClose = window.confirm('Existem alterações não salvas. Deseja fechar mesmo assim?');
-            if (!shouldClose) return;
+            openConfirmDialog(
+                'Você tem alterações não salvas. Deseja descartar essas alterações?',
+                'Descartar',
+                'bg-amber-500 hover:bg-amber-400 text-slate-900',
+                () => closeModal(true)
+            );
+            return;
         }
         modal.classList.add('hidden');
         document.body.style.overflow = '';
@@ -744,7 +749,7 @@
         if (!id)    return showModalError('O ID é obrigatório.');
         if (!nome)  return showModalError('O nome é obrigatório.');
         if (!modalidade) return showModalError('Selecione a modalidade.');
-        if (siteOficial && !/^https?:\/\/.+/i.test(siteOficial)) {
+        if (siteOficial && !isValidHttpUrl(siteOficial)) {
             return showModalError('O site oficial deve começar com http:// ou https://');
         }
 
@@ -803,13 +808,13 @@
     // ═══════════════════════════════════════════════════════════
     // Delete
     // ═══════════════════════════════════════════════════════════
-    let deleteTargetIdx = null;
+    let confirmAction = null;
 
-    function openConfirmDelete(idx) {
-        if (!guardAdmin()) return;
-        deleteTargetIdx = idx;
-        const o = olimpiadas[idx];
-        confirmText.textContent = `Tem certeza que deseja remover "${o.nome}" (${o.sigla})? Esta ação não pode ser desfeita nesta sessão.`;
+    function openConfirmDialog(message, actionLabel, actionClass, onConfirm) {
+        confirmText.textContent = message;
+        confirmDelete.textContent = actionLabel || 'Confirmar';
+        confirmDelete.className = `flex-1 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${actionClass || 'bg-red-600 hover:bg-red-500 text-white'}`;
+        confirmAction = typeof onConfirm === 'function' ? onConfirm : null;
         confirmDialog.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
@@ -817,13 +822,25 @@
     function closeConfirmDialog() {
         confirmDialog.classList.add('hidden');
         document.body.style.overflow = '';
-        deleteTargetIdx = null;
+        confirmAction = null;
+        confirmDelete.className = 'flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors';
+        confirmDelete.textContent = 'Remover';
     }
 
-    function handleDelete() {
-        if (deleteTargetIdx === null) return;
+    function openConfirmDelete(idx) {
         if (!guardAdmin()) return;
-        const removed = olimpiadas.splice(deleteTargetIdx, 1)[0];
+        const o = olimpiadas[idx];
+        openConfirmDialog(
+            `Tem certeza que deseja remover "${o.nome}" (${o.sigla})? Esta ação não pode ser desfeita nesta sessão.`,
+            'Remover',
+            'bg-red-600 hover:bg-red-500 text-white',
+            () => handleDelete(idx)
+        );
+    }
+
+    function handleDelete(idx) {
+        if (!guardAdmin()) return;
+        const removed = olimpiadas.splice(idx, 1)[0];
         closeConfirmDialog();
         renderList();
         showToast(`"${removed.sigla}" removido.`, 'info');
@@ -883,6 +900,15 @@
         return String(str).replace(/"/g, '&quot;');
     }
 
+    function isValidHttpUrl(value) {
+        try {
+            const parsed = new URL(value);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════
     // Event Bindings
     // ═══════════════════════════════════════════════════════════
@@ -919,7 +945,9 @@
 
     // Confirm dialog
     confirmCancel.addEventListener('click', closeConfirmDialog);
-    confirmDelete.addEventListener('click', handleDelete);
+    confirmDelete.addEventListener('click', () => {
+        if (confirmAction) confirmAction();
+    });
 
     // Keyboard shortcuts
     document.addEventListener('keydown', e => {
