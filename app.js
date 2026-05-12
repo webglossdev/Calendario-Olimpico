@@ -10,10 +10,15 @@
     // ─── State ───────────────────────────────────────────
     let olimpiadas = [];
     let filtroAtual = 'Todas';
+    let objetivoAtual = 'all';
+    let buscaAtual = '';
 
     // ─── DOM References ──────────────────────────────────
     const listaEl = document.getElementById('lista-olimpiadas');
     const filtrosContainer = document.getElementById('filtros');
+    const objetivosContainer = document.getElementById('objetivo-filtros');
+    const buscaInput = document.getElementById('search-olimpiadas');
+    const resultadoContagem = document.getElementById('resultado-contagem');
     const curiosidadeEl = document.getElementById('texto-curiosidade');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -135,14 +140,41 @@
     }
 
     function renderCards() {
-        const filtradas = filtroAtual === 'Todas'
+        const porNivel = filtroAtual === 'Todas'
             ? olimpiadas
             : olimpiadas.filter(o => (o.nivel_escolar || []).includes(filtroAtual));
+
+        const filtradas = porNivel.filter(o => {
+            const termo = buscaAtual.trim().toLowerCase();
+            if (termo) {
+                const match = o.nome.toLowerCase().includes(termo)
+                    || o.sigla.toLowerCase().includes(termo)
+                    || (o.materias || []).some(m => m.toLowerCase().includes(termo))
+                    || String(o.modalidade || '').toLowerCase().includes(termo);
+                if (!match) return false;
+            }
+
+            if (objetivoAtual === 'open-soon') {
+                const diff = daysUntil(getInscricaoDate(o));
+                if (!(diff !== null && diff >= 0 && diff <= 30)) return false;
+            }
+            if (objetivoAtual === 'with-materials' && !(o.materiais_estudo || []).length) return false;
+            if (objetivoAtual === 'fundamental') {
+                const niveis = o.nivel_escolar || [];
+                if (!(niveis.includes('Ensino Fundamental I') || niveis.includes('Ensino Fundamental II'))) return false;
+            }
+            if (objetivoAtual === 'medio' && !(o.nivel_escolar || []).includes('Ensino Médio')) return false;
+            return true;
+        });
+
+        if (resultadoContagem) {
+            resultadoContagem.textContent = `${filtradas.length} resultado${filtradas.length !== 1 ? 's' : ''} de ${olimpiadas.length}`;
+        }
 
         if (filtradas.length === 0) {
             listaEl.innerHTML = `
                 <div class="col-span-full text-center py-16">
-                    <p class="text-slate-500 font-medium">Nenhuma olimpíada encontrada para este filtro.</p>
+                    <p class="text-slate-500 font-medium">Nenhuma olimpíada encontrada para os filtros atuais.</p>
                 </div>
             `;
             return;
@@ -353,6 +385,43 @@
         updateActiveStyles();
     }
 
+    function daysUntil(dateStr) {
+        if (!dateStr) return null;
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const alvo = new Date(year, (month || 1) - 1, day || 1);
+        return Math.ceil((alvo - hoje) / (1000 * 60 * 60 * 24));
+    }
+
+    function initObjetivoFiltros() {
+        if (!objetivosContainer) return;
+        const buttons = objetivosContainer.querySelectorAll('.objetivo-btn');
+
+        const updateStyles = () => {
+            buttons.forEach(btn => {
+                const active = btn.dataset.objetivo === objetivoAtual;
+                if (active) {
+                    btn.classList.remove('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
+                    btn.classList.add('bg-cyan-500', 'text-slate-900');
+                } else {
+                    btn.classList.remove('bg-cyan-500', 'text-slate-900');
+                    btn.classList.add('bg-slate-800', 'border', 'border-slate-700', 'text-slate-300', 'hover:text-white');
+                }
+            });
+        };
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                objetivoAtual = btn.dataset.objetivo || 'all';
+                updateStyles();
+                renderCards();
+            });
+        });
+
+        updateStyles();
+    }
+
     // ═══════════════════════════════════════════════════════
     // Mobile Menu Toggle
     // ═══════════════════════════════════════════════════════
@@ -503,6 +572,13 @@
         injectAnimations();
         initMobileMenu();
         initFiltros();
+        initObjetivoFiltros();
+        if (buscaInput) {
+            buscaInput.addEventListener('input', () => {
+                buscaAtual = buscaInput.value || '';
+                renderCards();
+            });
+        }
         exibirCuriosidade();
         fetchOlimpiadas();
         initDevWarningModal();
