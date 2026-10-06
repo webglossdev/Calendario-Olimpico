@@ -6,6 +6,7 @@
     <meta name="description" content="Calendário Olímpico — Diretório completo de provas com filtros avançados e materiais de estudo.">
     <title>Provas — Calendário Olímpico</title>
 
+    <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -67,23 +68,34 @@
     </nav>
 
     <!-- HEADER -->
-    <header class="pt-28 pb-10 px-4 text-center">
-        <div class="max-w-3xl mx-auto">
-            <div class="absolute inset-x-0 top-20 -z-10 flex justify-center overflow-hidden pointer-events-none">
-                <div class="w-[500px] h-[250px] bg-blue-600/10 rounded-full blur-3xl"></div>
+    <header class="inner-hero directory-hero pt-32 pb-12 px-4">
+        <div class="inner-hero-grid max-w-6xl mx-auto">
+            <div>
+                <p class="eyebrow mb-4">Catálogo de competição / 2026</p>
+                <h1 class="display-title text-4xl sm:text-6xl">Encontre<br><span>sua arena.</span></h1>
+                <p class="mt-6 text-base sm:text-lg muted max-w-xl">
+                    Compare áreas, modalidades e níveis. Abra uma ficha para descobrir o que estudar e onde começar.
+                </p>
             </div>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
-                <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Diretório de Provas</span>
-            </h1>
-            <p class="mt-4 text-base text-slate-400 max-w-xl mx-auto">
-                Todas as olimpíadas em detalhes. Use os filtros para encontrar sua prova ideal.
-            </p>
+            <div class="hero-index directory-index">
+                <span>DIR / 03</span>
+                <strong>∞</strong>
+                <small>possibilidades<br>para explorar</small>
+            </div>
         </div>
     </header>
 
     <!-- FILTERS -->
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 mb-8">
-        <div class="bg-slate-800 rounded-2xl border border-slate-700 p-4 sm:p-5 shadow-lg shadow-slate-900/50">
+    <section class="directory-layout max-w-6xl mx-auto px-4 sm:px-6 mb-8">
+        <aside class="inner-aside">
+            <p class="eyebrow">Modo catálogo</p>
+            <h2>Menos rolagem.<br>Mais escolha.</h2>
+            <p>Use os filtros como uma lente: cada combinação revela uma rota de estudo diferente.</p>
+            <div class="aside-rule"></div>
+            <span class="aside-note">O que você procura?</span>
+            <p class="aside-tip">Uma matéria favorita, uma prova online ou um desafio para sua série.</p>
+        </aside>
+        <div class="filter-panel bg-slate-800 rounded-2xl border border-slate-700 p-4 sm:p-5 shadow-lg shadow-slate-900/50">
             <div class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center gap-2">
                     <label for="filtro-serie" class="text-xs font-semibold uppercase tracking-wider text-slate-500">Série</label>
@@ -122,7 +134,7 @@
     </section>
 
     <!-- ACCORDIONS LIST -->
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+    <main class="directory-main max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <div id="lista-provas" class="space-y-4">
             <div class="flex items-center justify-center py-20">
                 <div class="flex items-center gap-3 text-slate-500">

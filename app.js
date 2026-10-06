@@ -263,7 +263,7 @@
         const animDelay = `animation-delay: ${index * 60}ms`;
 
         return `
-        <article class="group relative backdrop-blur-md bg-slate-900/60 rounded-2xl border border-slate-700/80 shadow-xl shadow-slate-950/50
+        <article class="card-surface group relative backdrop-blur-md bg-slate-900/60 rounded-2xl border border-slate-700/80 shadow-xl shadow-slate-950/50
                         hover:border-yellow-500/40 hover:shadow-2xl hover:shadow-yellow-500/5 hover:-translate-y-1.5
                         transition-all duration-300 flex flex-col overflow-hidden
                         opacity-0 animate-[fadeInUp_0.4s_ease_forwards]"

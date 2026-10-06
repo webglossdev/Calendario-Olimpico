@@ -8,10 +8,7 @@
         content="Calendário Olímpico — Centralizamos todas as Olimpíadas Científicas Nacionais para estudantes de alta performance. Filtre, estude e garanta sua vaga.">
     <title>Calendário Olímpico</title>
 
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,7 +25,7 @@
     </script>
 </head>
 
-<body class="bg-slate-950 font-inter text-slate-100 antialiased relative overflow-x-hidden">
+<body class="antialiased relative overflow-x-hidden">
 
     <!-- Efeitos de fundo Premium Glassmorphism -->
     <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
@@ -38,10 +35,10 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- NAVBAR — Fixed, Translucent, Blurred        -->
     <!-- ═══════════════════════════════════════════ -->
-    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 flex flex-col backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
+    <nav id="navbar" class="site-nav fixed top-0 left-0 right-0 z-50 flex flex-col backdrop-blur-md border-b">
         
         <!-- Marquee Banner -->
-        <div class="relative flex overflow-x-hidden bg-yellow-500/10 text-yellow-500 py-1.5 border-b border-yellow-500/20 w-full group">
+        <div class="relative flex overflow-x-hidden bg-lime-300/10 text-lime-200 py-1.5 border-b border-lime-300/20 w-full group">
             <div class="animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
                 <span class="mx-6 font-semibold text-[11px] tracking-wide uppercase">⚠️ Site em desenvolvimento: Espere por olimpíadas faltando ou informações incorretas!</span>
                 <span class="mx-6 font-semibold text-[11px] tracking-wide uppercase">⚠️ Site em desenvolvimento: Espere por olimpíadas faltando ou informações incorretas!</span>
@@ -58,18 +55,18 @@
 
             <!-- Logo -->
             <a href="#" class="flex items-center gap-2 group">
-                <svg class="w-7 h-7 text-yellow-400 group-hover:text-yellow-300 transition-colors duration-200"
+                <svg class="site-logo-mark w-7 h-7 group-hover:text-white transition-colors duration-200"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span class="text-lg font-bold text-slate-100 tracking-tight">Calendário Olímpico</span>
+                <span class="text-lg font-bold tracking-tight">Calendário <span class="site-logo-dot">/</span> Olímpico</span>
             </a>
 
             <!-- Desktop Nav -->
             <div class="hidden md:flex items-center gap-1">
                 <a href="index.html"
-                    class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-slate-800 transition-all duration-200">Início</a>
+                    class="active px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Início</a>
                 <a href="calendario.html"
                     class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Calendário</a>
                 <a href="provas.html"
@@ -128,35 +125,52 @@
     <!-- ═══════════════════════════════════════════ -->
     <!-- HERO SECTION                                -->
     <!-- ═══════════════════════════════════════════ -->
-    <header id="calendario" class="pt-32 pb-16 px-4 text-center">
-        <div class="max-w-3xl mx-auto">
+    <header id="calendario" class="pt-36 pb-20 px-4">
+        <div class="max-w-6xl mx-auto">
             <!-- Decorative glow -->
             <div class="absolute inset-x-0 top-20 -z-10 flex justify-center overflow-hidden pointer-events-none">
                 <div class="w-[600px] h-[300px] bg-blue-600/10 rounded-full blur-3xl"></div>
             </div>
 
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                Bem-vindo ao <span
-                    class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Calendário
-                    Olímpico!</span>
+            <div class="hero-grid grid grid-cols-[1.15fr_.85fr] gap-12 items-end">
+            <div>
+            <p class="eyebrow mb-5">Arquivo nacional de desafios · edição 2026</p>
+            <h1 class="display-title text-5xl sm:text-6xl lg:text-8xl font-bold leading-[.96]">
+                O próximo<br><span class="accent-text">salto.</span>
             </h1>
-            <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                Centralizamos todas as <strong class="text-slate-300">Olimpíadas Científicas Nacionais</strong> para
-                você não perder nenhum prazo. Filtre, estude e garanta sua vaga.
+            <p class="mt-7 text-lg text-slate-400 max-w-xl leading-relaxed">
+                Não é só uma lista de provas. É o ponto de partida para descobrir uma matéria, testar seus limites e encontrar a competição que combina com você.
             </p>
-            <div class="mt-8 flex justify-center gap-3">
+            <div class="mt-9 flex flex-wrap gap-3">
                 <a href="#provas"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 hover:-translate-y-1 transition-all duration-200 shadow-lg shadow-blue-600/25">
+                    class="lime-button inline-flex items-center gap-2 px-6 py-3 rounded-xl shadow-lg">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     Ver Provas
                 </a>
-                <a href="#curiosidade"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 text-slate-300 font-semibold rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-white hover:-translate-y-1 transition-all duration-200">
-                    Curiosidades
+                <a href="calendario.html"
+                    class="ghost-button inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold">
+                    Ver calendário →
                 </a>
+            </div>
+            </div>
+            <div class="surface-panel rounded-3xl p-6 sm:p-8">
+                <div class="flex justify-between items-start mb-10">
+                    <span class="eyebrow">Painel de bordo</span>
+                    <span class="inline-flex h-3 w-3 rounded-full bg-lime-300 shadow-[0_0_18px_#d8f56b]"></span>
+                </div>
+                <p class="text-sm muted">Olimpíadas nacionais para explorar</p>
+                <div class="flex items-end gap-3 mt-2">
+                    <span class="stat-number text-5xl">2026</span>
+                    <span class="muted mb-2">temporada ativa</span>
+                </div>
+                <div class="mt-8 pt-5 border-t border-white/10 grid grid-cols-2 gap-4">
+                    <div><span class="block text-2xl font-bold">+20</span><span class="text-xs muted">competições</span></div>
+                    <div><span class="block text-2xl font-bold">5</span><span class="text-xs muted">áreas de estudo</span></div>
+                </div>
+            </div>
             </div>
         </div>
     </header>
@@ -167,33 +181,37 @@
     <main id="provas" class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
 
         <!-- Section Label -->
-        <div class="flex items-center gap-3 mb-6">
+        <div class="flex items-end justify-between gap-3 mb-6">
+            <div>
+            <p class="eyebrow mb-2">Explore por etapa</p>
             <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <h2 class="text-2xl font-bold text-slate-100">Olimpíadas Disponíveis</h2>
+            <h2 class="text-3xl font-bold text-slate-100">Encontre seu desafio</h2>
+            </div>
+            <a href="provas.html" class="text-sm font-semibold accent-text hidden sm:block">Ver diretório completo →</a>
         </div>
 
         <!-- Filter Pills -->
         <div id="filtros" class="flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filtrar por nível escolar">
             <button data-filtro="Todas"
-                class="filtro-btn ativo px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                class="filter-button filtro-btn ativo px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
                 aria-selected="true" role="tab">
                 Todas
             </button>
             <button data-filtro="Ensino Fundamental I"
-                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                class="filter-button filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
                 aria-selected="false" role="tab">
                 Ensino Fundamental I
             </button>
             <button data-filtro="Ensino Fundamental II"
-                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                class="filter-button filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
                 aria-selected="false" role="tab">
                 Ensino Fundamental II
             </button>
             <button data-filtro="Ensino Médio"
-                class="filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                class="filter-button filtro-btn px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
                 aria-selected="false" role="tab">
                 Ensino Médio
             </button>
