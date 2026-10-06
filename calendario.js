@@ -254,10 +254,15 @@
     function initMobileMenu() {
         if (!mobileMenuBtn || !mobileMenu) return;
         mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = !mobileMenu.classList.contains('hidden');
             mobileMenu.classList.toggle('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', !isOpen);
         });
         mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            });
         });
     }
 

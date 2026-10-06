@@ -211,14 +211,16 @@
             
             const tipoCor = ev.tipo === 'Inscrição' ? 'text-blue-400' : 'text-amber-400';
             return `
-                <div class="flex items-center gap-3 py-2 ${passado ? 'opacity-40' : ''}">
-                    <div class="w-2 h-2 rounded-full ${ev.tipo === 'Inscrição' ? 'bg-blue-500' : 'bg-amber-500'} flex-shrink-0"></div>
-                    <div class="flex-1 min-w-0">
-                        <span class="text-sm ${tipoCor} font-semibold">${ev.tipo}</span>
-                        <span class="text-sm text-slate-400 ml-1">— ${ev.descricao}</span>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 py-2 ${passado ? 'opacity-40' : ''}">
+                    <div class="flex items-start sm:items-center gap-2 flex-1 min-w-0">
+                        <div class="w-2 h-2 rounded-full ${ev.tipo === 'Inscrição' ? 'bg-blue-500' : 'bg-amber-500'} flex-shrink-0 mt-1.5 sm:mt-0"></div>
+                        <div class="min-w-0">
+                            <span class="text-sm ${tipoCor} font-semibold">${ev.tipo}</span>
+                            <span class="text-sm text-slate-400 ml-1 break-words">— ${ev.descricao}</span>
+                        </div>
                     </div>
-                     <span class="text-xs text-slate-500 font-medium whitespace-nowrap ${passado ? 'line-through' : ''}">${dateStr}</span>
-                 </div>`;
+                    <span class="text-xs text-slate-500 font-medium pl-4 sm:pl-0 sm:whitespace-nowrap ${passado ? 'line-through' : ''}">${dateStr}</span>
+                </div>`;
         }).join('')
             : '<p class="text-sm text-slate-500">Cronograma ainda não publicado.</p>';
 
@@ -382,9 +384,16 @@
     // ─── Mobile menu ─────────────────────────────────────
     function initMobileMenu() {
         if (!mobileMenuBtn || !mobileMenu) return;
-        mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = !mobileMenu.classList.contains('hidden');
+            mobileMenu.classList.toggle('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', !isOpen);
+        });
         mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            });
         });
     }
 
