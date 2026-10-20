@@ -304,6 +304,25 @@
                         <span>Lista</span>
                     </button>
                 </div>
+                <script>
+                    (function(){
+                        try {
+                            var isMob = window.matchMedia('(max-width: 768px)').matches;
+                            var s = isMob ? localStorage.getItem('calolimpico_view_mode_mobile') : localStorage.getItem('calolimpico_view_mode_desktop');
+                            var mode = s || (isMob ? 'list' : 'cards');
+                            if (mode === 'list') {
+                                var bc = document.getElementById('btn-view-cards');
+                                var bl = document.getElementById('btn-view-list');
+                                if (bc && bl) {
+                                    bc.classList.remove('active');
+                                    bc.setAttribute('aria-pressed', 'false');
+                                    bl.classList.add('active');
+                                    bl.setAttribute('aria-pressed', 'true');
+                                }
+                            }
+                        } catch (_) {}
+                    })();
+                </script>
                 <a class="link-more" href="provas.html">Acervo de provas
                     <svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron"/></svg>
                 </a>

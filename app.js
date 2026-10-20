@@ -558,12 +558,24 @@
     const VAGAS_USP_SIGLAS = ['OBMEP', 'OBF', 'OBI', 'OBQ', 'OBB', 'OBA', 'OBM', 'ONC', 'OBR', 'IYPT', 'OBSP'];
     const CNPQ_BOLSA_SIGLAS = ['OBMEP', 'OBM', 'OBF', 'OBI', 'OBQ', 'OBB'];
 
-    let viewMode = 'cards';
-    try {
-        viewMode = localStorage.getItem('calolimpico_view_mode') || 'cards';
-    } catch (_) {
-        viewMode = 'cards';
+    const isMobileViewport = () => window.matchMedia('(max-width: 768px)').matches;
+
+    function getInitialViewMode() {
+        const isMobile = isMobileViewport();
+        const storageKey = isMobile ? 'calolimpico_view_mode_mobile' : 'calolimpico_view_mode_desktop';
+        try {
+            const saved = localStorage.getItem(storageKey);
+            if (saved === 'cards' || saved === 'list') return saved;
+            if (!isMobile) {
+                const legacy = localStorage.getItem('calolimpico_view_mode');
+                if (legacy === 'cards' || legacy === 'list') return legacy;
+            }
+        } catch (_) {}
+        // Padrão: 'list' (compacto) para mobile; 'cards' (fichas) para desktop
+        return isMobile ? 'list' : 'cards';
     }
+
+    let viewMode = getInitialViewMode();
 
     function getDisciplineTheme(o) {
         const mats = (o.materias || []).map(m => m.toLowerCase());
@@ -644,6 +656,15 @@
                 e.preventDefault();
                 const id = btn.dataset.id;
                 openOlympicSheet(id, btn);
+            });
+        });
+
+        // Clique em qualquer área da linha compacta (estilo iOS TableView)
+        listaEl.querySelectorAll('.olympic-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('.btn-fav-toggle') || e.target.closest('a') || e.target.closest('.btn-quick-sheet')) return;
+                const id = row.dataset.id;
+                if (id) openOlympicSheet(id, row);
             });
         });
     }
@@ -942,9 +963,7 @@
         const btnViewCards = document.getElementById('btn-view-cards');
         const btnViewList = document.getElementById('btn-view-list');
 
-        function setViewMode(mode) {
-            viewMode = mode;
-            try { localStorage.setItem('calolimpico_view_mode', mode); } catch (_) {}
+        function updateViewSwitcherUI(mode) {
             if (btnViewCards) {
                 const isActive = mode === 'cards';
                 btnViewCards.classList.toggle('active', isActive);
@@ -955,16 +974,39 @@
                 btnViewList.classList.toggle('active', isActive);
                 btnViewList.setAttribute('aria-pressed', String(isActive));
             }
+        }
+
+        function setViewMode(mode, savePreference = true) {
+            viewMode = mode;
+            if (savePreference) {
+                const isMobile = isMobileViewport();
+                const storageKey = isMobile ? 'calolimpico_view_mode_mobile' : 'calolimpico_view_mode_desktop';
+                try {
+                    localStorage.setItem(storageKey, mode);
+                    if (!isMobile) {
+                        localStorage.setItem('calolimpico_view_mode', mode);
+                    }
+                } catch (_) {}
+            }
+            updateViewSwitcherUI(mode);
             renderCards();
         }
 
-        if (viewMode === 'list') {
-            if (btnViewCards) { btnViewCards.classList.remove('active'); btnViewCards.setAttribute('aria-pressed', 'false'); }
-            if (btnViewList) { btnViewList.classList.add('active'); btnViewList.setAttribute('aria-pressed', 'true'); }
-        }
+        updateViewSwitcherUI(viewMode);
 
         if (btnViewCards) btnViewCards.addEventListener('click', () => setViewMode('cards'));
         if (btnViewList) btnViewList.addEventListener('click', () => setViewMode('list'));
+
+        // Transição suave ao alternar viewport (redimensionamento ou rotação da tela)
+        const mobileMediaQuery = window.matchMedia('(max-width: 768px)');
+        if (mobileMediaQuery.addEventListener) {
+            mobileMediaQuery.addEventListener('change', () => {
+                const newMode = getInitialViewMode();
+                if (newMode !== viewMode) {
+                    setViewMode(newMode, false);
+                }
+            });
+        }
 
         // Subject Chips Quick Filter
         const subjectBar = document.querySelector('.subject-bar');
