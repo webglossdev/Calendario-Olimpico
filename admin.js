@@ -1,9 +1,21 @@
+// ═══════════════════════════════════════════════════════════════
+// Calendário Olímpico — admin.js (Management Panel)
+// Secure session authentication, multi-password support,
+// CRUD for Olympiads, multi-tab modal, dynamic event editors,
+// and JSON export persistence.
+// ═══════════════════════════════════════════════════════════════
+
 (function () {
     'use strict';
 
     // ─── Auth Config ─────────────────────────────────────────────
-    // SHA-256 hash of the admin password (do not store plaintext here).
-    const ADMIN_PASSWORD_HASH = '315b0921c11ccc2c5066cb1459de9fe0b221ea29bf08682653a74a16e95c894a';
+    // Accepted SHA-256 password digests
+    const VALID_HASHES = new Set([
+        '315b0921c11ccc2c5066cb1459de9fe0b221ea29bf08682653a74a16e95c894a',
+        '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
+        '6a9c61abbaec567b607eb9ddb9940ca8eecff4f11178041ae844b79c1a90e18e',
+        '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
+    ]);
 
     const SESSION_KEY         = 'calolimpico_admin_auth';
     const ATTEMPTS_KEY        = 'calolimpico_admin_attempts';
@@ -13,68 +25,70 @@
 
     // ─── State ───────────────────────────────────────────────────
     let olimpiadas = [];
-    let editingIndex = null; // null = adding new, number = editing existing
+    let editingIndex = null;
 
-    // ─── DOM ─────────────────────────────────────────────────────
-    const loginScreen    = document.getElementById('login-screen');
-    const adminScreen    = document.getElementById('admin-screen');
-    const loginForm      = document.getElementById('login-form');
-    const passwordInput  = document.getElementById('password-input');
-    const loginError     = document.getElementById('login-error');
-    const loginErrorText = document.getElementById('login-error-text');
-    const loginLockout   = document.getElementById('login-lockout');
+    // ─── DOM References ──────────────────────────────────────────
+    const loginScreen      = document.getElementById('login-screen');
+    const adminScreen      = document.getElementById('admin-screen');
+    const loginForm        = document.getElementById('login-form');
+    const passwordInput    = document.getElementById('password-input');
+    const togglePasswordBtn = document.getElementById('toggle-password-btn');
+    const loginError       = document.getElementById('login-error');
+    const loginErrorText   = document.getElementById('login-error-text');
+    const loginLockout     = document.getElementById('login-lockout');
     const lockoutCountdown = document.getElementById('lockout-countdown');
-    const loginBtnText   = document.getElementById('login-btn-text');
-    const loginSpinner   = document.getElementById('login-spinner');
-    const logoutBtn      = document.getElementById('logout-btn');
-    const addBtn         = document.getElementById('add-btn');
-    const exportBtn      = document.getElementById('export-btn');
-    const exportBtnMobile = document.getElementById('export-btn-mobile');
-    const searchInput    = document.getElementById('search-input');
-    const olimpiadasList = document.getElementById('olimpiadas-list');
-    const emptyState     = document.getElementById('empty-state');
-    const countLabel     = document.getElementById('count-label');
+    const loginBtn         = document.getElementById('login-btn');
+    const loginBtnText     = document.getElementById('login-btn-text');
+    const loginSpinner     = document.getElementById('login-spinner');
+    const logoutBtn        = document.getElementById('logout-btn');
+    const addBtn           = document.getElementById('add-btn');
+    const exportBtn        = document.getElementById('export-btn');
+    const searchInput      = document.getElementById('search-input');
+    const olimpiadasList   = document.getElementById('olimpiadas-list');
+    const emptyState       = document.getElementById('empty-state');
+    const countLabel       = document.getElementById('count-label');
 
-    const modal          = document.getElementById('modal');
-    const modalBackdrop  = document.getElementById('modal-backdrop');
-    const modalClose     = document.getElementById('modal-close');
-    const modalCancel    = document.getElementById('modal-cancel');
-    const modalSave      = document.getElementById('modal-save');
-    const modalTitle     = document.getElementById('modal-title');
-    const modalError     = document.getElementById('modal-error');
-    const modalErrorText = document.getElementById('modal-error-text');
+    const modal            = document.getElementById('modal');
+    const modalCloseBtn    = document.getElementById('close-modal-btn');
+    const modalCancelBtn   = document.getElementById('cancel-btn');
+    const modalSaveBtn     = document.getElementById('save-btn');
+    const modalForm        = document.getElementById('modal-form');
+    const modalTitle       = document.getElementById('modal-title');
+    const modalError       = document.getElementById('modal-error');
+    const modalErrorText   = document.getElementById('modal-error-text');
 
-    const confirmDialog  = document.getElementById('confirm-dialog');
-    const confirmText    = document.getElementById('confirm-text');
-    const confirmCancel  = document.getElementById('confirm-cancel');
-    const confirmDelete  = document.getElementById('confirm-delete');
+    const confirmDialog    = document.getElementById('confirm-dialog');
+    const confirmDeleteSigla = document.getElementById('confirm-delete-sigla');
+    const cancelDeleteBtn  = document.getElementById('cancel-delete-btn');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
-    // Modal form fields
-    const fId           = document.getElementById('f-id');
-    const fSigla        = document.getElementById('f-sigla');
-    const fNome         = document.getElementById('f-nome');
-    const fModalidade   = document.getElementById('f-modalidade');
-    const fMaterias     = document.getElementById('f-materias');
-    const fDescricao    = document.getElementById('f-descricao');
-    const fSiteOficial  = document.getElementById('f-site-oficial');
-    const eventosListEl = document.getElementById('eventos-list');
-    const eventosEmpty  = document.getElementById('eventos-empty');
-    const materiaisListEl = document.getElementById('materiais-list');
+    // Modal Form Fields
+    const fId             = document.getElementById('f-id');
+    const fSigla          = document.getElementById('f-sigla');
+    const fNome           = document.getElementById('f-nome');
+    const fModalidade     = document.getElementById('f-modalidade');
+    const fMaterias       = document.getElementById('f-materias');
+    const fDescricao      = document.getElementById('f-descricao');
+    const fSiteOficial    = document.getElementById('f-site-oficial');
+    const eventosListEl   = document.getElementById('eventos-container');
+    const eventosEmpty    = document.getElementById('eventos-empty');
+    const materiaisListEl = document.getElementById('materiais-container');
     const materiaisEmpty  = document.getElementById('materiais-empty');
-    const fontesListEl  = document.getElementById('fontes-list');
-    const fontesEmpty   = document.getElementById('fontes-empty');
-    const addEventoBtn  = document.getElementById('add-evento-btn');
-    const addMaterialBtn = document.getElementById('add-material-btn');
-    const addFonteBtn   = document.getElementById('add-fonte-btn');
+    const fontesListEl    = document.getElementById('fontes-container');
+    const fontesEmpty     = document.getElementById('fontes-empty');
+    const addEventoBtn    = document.getElementById('add-evento-btn');
+    const addMaterialBtn  = document.getElementById('add-material-btn');
+    const addFonteBtn     = document.getElementById('add-fonte-btn');
     const nivelCheckboxes = document.getElementById('nivel-checkboxes');
-    const tabButtons    = document.querySelectorAll('.modal-tab-btn');
-    const tabPanels     = document.querySelectorAll('.modal-tab-panel');
+    const tabButtons      = document.querySelectorAll('.tab-btn');
+    const tabPanels       = document.querySelectorAll('.tab-panel');
 
     // Stats DOM
-    const statTotal     = document.getElementById('stat-total');
-    const statInscricao = document.getElementById('stat-inscricao');
-    const statSemDesc   = document.getElementById('stat-sem-desc');
-    const statSemEvento = document.getElementById('stat-sem-evento');
+    const statTotal       = document.getElementById('stat-total');
+    const statInscricao   = document.getElementById('stat-inscricao');
+    const statSemDesc     = document.getElementById('stat-sem-desc');
+    const statSemEvento   = document.getElementById('stat-sem-evento');
+    const toastContainer  = document.getElementById('toast-container');
 
     const NIVEIS = [
         'Ensino Fundamental I',
@@ -96,21 +110,22 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Auth — session validation, rate limiting, guard
+    // Auth & Lockout Engine
     // ═══════════════════════════════════════════════════════════
     function isAuthenticated() {
-        return sessionStorage.getItem(SESSION_KEY) === ADMIN_PASSWORD_HASH;
+        const token = sessionStorage.getItem(SESSION_KEY);
+        return token && VALID_HASHES.has(token);
     }
 
-    function setAuth(value) {
-        if (value) {
-            sessionStorage.setItem(SESSION_KEY, ADMIN_PASSWORD_HASH);
+    function setAuth(hashOrBool) {
+        if (hashOrBool) {
+            const token = typeof hashOrBool === 'string' ? hashOrBool : Array.from(VALID_HASHES)[0];
+            sessionStorage.setItem(SESSION_KEY, token);
         } else {
             sessionStorage.removeItem(SESSION_KEY);
         }
     }
 
-    // ─── Rate limiting ────────────────────────────────────────
     function isLockedOut() {
         const until = parseInt(sessionStorage.getItem(LOCKOUT_KEY) || '0', 10);
         return Date.now() < until;
@@ -143,20 +158,21 @@
     let lockoutTimer = null;
 
     function startLockoutCountdown() {
-        const loginBtn = document.getElementById('login-btn');
-        loginError.classList.add('hidden');
-        loginLockout.classList.remove('hidden');
-        passwordInput.disabled = true;
-        loginBtn.disabled = true;
+        if (loginError) loginError.hidden = true;
+        if (loginLockout) loginLockout.hidden = false;
+        if (passwordInput) passwordInput.disabled = true;
+        if (loginBtn) loginBtn.disabled = true;
 
         function tick() {
             const secs = lockoutRemainingSeconds();
-            lockoutCountdown.textContent = secs;
+            if (lockoutCountdown) lockoutCountdown.textContent = secs;
             if (secs <= 0) {
-                loginLockout.classList.add('hidden');
-                passwordInput.disabled = false;
-                loginBtn.disabled = false;
-                passwordInput.focus();
+                if (loginLockout) loginLockout.hidden = true;
+                if (passwordInput) {
+                    passwordInput.disabled = false;
+                    passwordInput.focus();
+                }
+                if (loginBtn) loginBtn.disabled = false;
                 lockoutTimer = null;
             } else {
                 lockoutTimer = setTimeout(tick, 1000);
@@ -174,57 +190,58 @@
     }
 
     function showLoginError(msg) {
-        loginErrorText.textContent = msg;
-        loginError.classList.remove('hidden');
+        if (loginErrorText) loginErrorText.textContent = msg;
+        if (loginError) loginError.hidden = false;
     }
 
     function showLoginScreen() {
-        loginScreen.classList.remove('hidden');
-        adminScreen.classList.add('hidden');
-        modal.classList.add('hidden');
-        confirmDialog.classList.add('hidden');
-        document.body.style.overflow = '';
-        passwordInput.value = '';
-        loginError.classList.add('hidden');
-        loginLockout.classList.add('hidden');
+        if (loginScreen) loginScreen.hidden = false;
+        if (adminScreen) adminScreen.hidden = true;
+        if (modal) modal.hidden = true;
+        if (confirmDialog) confirmDialog.hidden = true;
+        if (passwordInput) passwordInput.value = '';
+        if (loginError) loginError.hidden = true;
+        if (loginLockout) loginLockout.hidden = true;
         if (isLockedOut()) startLockoutCountdown();
     }
 
     function showAdminScreen() {
-        loginScreen.classList.add('hidden');
-        adminScreen.classList.remove('hidden');
+        if (loginScreen) loginScreen.hidden = true;
+        if (adminScreen) adminScreen.hidden = false;
     }
 
     async function handleLogin(e) {
-        e.preventDefault();
-
+        if (e && e.preventDefault) e.preventDefault();
         if (isLockedOut()) return;
 
-        const pwd = passwordInput.value.trim();
+        const pwd = passwordInput ? passwordInput.value.trim() : '';
         if (!pwd) return;
 
-        loginBtnText.textContent = 'Verificando...';
-        loginSpinner.classList.remove('hidden');
-        loginError.classList.add('hidden');
+        if (loginBtnText) loginBtnText.textContent = 'Verificando…';
+        if (loginSpinner) loginSpinner.hidden = false;
+        if (loginError) loginError.hidden = true;
 
         try {
             const hash = await sha256(pwd);
-            if (hash === ADMIN_PASSWORD_HASH) {
+            if (VALID_HASHES.has(hash)) {
                 clearRateLimitState();
-                setAuth(true);
+                setAuth(hash);
                 showAdminScreen();
                 await loadData();
+                showToast('Sessão administrativa autenticada com sucesso.', 'success');
             } else {
-                passwordInput.value = '';
-                passwordInput.focus();
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
                 recordFailedAttempt();
             }
         } catch (err) {
             console.error('Auth error:', err);
-            showLoginError('Erro ao verificar a senha. Tente novamente.');
+            showLoginError('Erro ao verificar a senha.');
         } finally {
-            loginBtnText.textContent = 'Autenticar Sessão';
-            loginSpinner.classList.add('hidden');
+            if (loginBtnText) loginBtnText.textContent = 'Autenticar Sessão';
+            if (loginSpinner) loginSpinner.hidden = true;
         }
     }
 
@@ -236,39 +253,42 @@
             lockoutTimer = null;
         }
         showLoginScreen();
+        showToast('Sessão encerrada.', 'info');
     }
 
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden && !adminScreen.classList.contains('hidden')) {
-            if (!isAuthenticated()) {
-                handleLogout();
-            }
-        }
-    });
+    // Toggle password visibility
+    if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+        });
+    }
 
     // ═══════════════════════════════════════════════════════════
-    // Data Loading
+    // Data Loading & Stats
     // ═══════════════════════════════════════════════════════════
     async function loadData() {
         try {
-            const res = await fetch('dados.json?_=' + Date.now());
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            olimpiadas = await res.json();
+            if (window.OLIMPIADAS_DATA && Array.isArray(window.OLIMPIADAS_DATA) && window.OLIMPIADAS_DATA.length > 0) {
+                olimpiadas = JSON.parse(JSON.stringify(window.OLIMPIADAS_DATA));
+            } else {
+                const res = await fetch('dados.json?_=' + Date.now());
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                olimpiadas = await res.json();
+            }
         } catch (err) {
             olimpiadas = [];
-            showToast('Erro ao carregar dados.json: ' + err.message, 'error');
+            showToast('Erro ao carregar dados: ' + err.message, 'error');
         }
         renderList();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // Stats Dashboard
-    // ═══════════════════════════════════════════════════════════
     function updateStats() {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
         const total = olimpiadas.length;
         let inscAberta = 0, semDesc = 0, semEvento = 0;
+
         olimpiadas.forEach(o => {
             if (!o.descricao) semDesc++;
             if (!o.eventos || o.eventos.length === 0) { semEvento++; return; }
@@ -278,98 +298,85 @@
                 if (fim && new Date(fim + 'T23:59:59') >= hoje) inscAberta++;
             }
         });
-        statTotal.textContent = total;
-        statInscricao.textContent = inscAberta;
-        statSemDesc.textContent = semDesc;
-        statSemEvento.textContent = semEvento;
+
+        if (statTotal) statTotal.textContent = total;
+        if (statInscricao) statInscricao.textContent = inscAberta;
+        if (statSemDesc) statSemDesc.textContent = semDesc;
+        if (statSemEvento) statSemEvento.textContent = semEvento;
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Render List
+    // Render Admin Cards List
     // ═══════════════════════════════════════════════════════════
     function renderList(filter) {
-        const query = (filter ?? searchInput.value).toLowerCase().trim();
+        if (!olimpiadasList) return;
+        const query = (filter ?? (searchInput ? searchInput.value : '')).toLowerCase().trim();
         const filtered = olimpiadas.filter(o => {
             if (!query) return true;
             return (
-                o.sigla.toLowerCase().includes(query) ||
-                o.nome.toLowerCase().includes(query) ||
+                (o.sigla || '').toLowerCase().includes(query) ||
+                (o.nome || '').toLowerCase().includes(query) ||
                 (o.materias || []).some(m => m.toLowerCase().includes(query)) ||
                 (o.nivel_escolar || []).some(n => n.toLowerCase().includes(query)) ||
                 (o.modalidade || '').toLowerCase().includes(query)
             );
         });
 
-        countLabel.textContent = `${filtered.length} de ${olimpiadas.length} cadastrada${olimpiadas.length !== 1 ? 's' : ''}`;
+        if (countLabel) {
+            countLabel.textContent = `${filtered.length} de ${olimpiadas.length} cadastrada${olimpiadas.length !== 1 ? 's' : ''}`;
+        }
 
         if (filtered.length === 0) {
             olimpiadasList.innerHTML = '';
-            emptyState.classList.remove('hidden');
+            if (emptyState) emptyState.hidden = false;
             return;
         }
-        emptyState.classList.add('hidden');
+        if (emptyState) emptyState.hidden = true;
 
         olimpiadasList.innerHTML = filtered.map((o) => {
             const realIdx = olimpiadas.indexOf(o);
             const eventCount = (o.eventos || []).length;
             const matCount   = (o.materiais_estudo || []).length;
             const hasDesc    = !!o.descricao;
-            const hasSite    = !!o.site_oficial;
 
             const nivelBadges = (o.nivel_escolar || [])
-                .map(n => `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-950/50 border border-slate-800 text-slate-300">${escHtml(n)}</span>`)
-                .join('');
+                .map(n => `<span class="tag">${escHtml(n)}</span>`)
+                .join(' ');
             const materiaBadges = (o.materias || [])
-                .map(m => `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-950/60 border border-blue-900/40 text-blue-300">${escHtml(m)}</span>`)
-                .join('');
-            const modalidadeColor = {
-                'Presencial': 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-                'Online':     'bg-violet-500/10 border-violet-500/20 text-violet-400',
-                'Híbrida':    'bg-amber-500/10 border-amber-500/20 text-amber-400',
-            }[o.modalidade] || 'bg-slate-800 border-slate-700 text-slate-400';
+                .map(m => `<span class="tag">${escHtml(m)}</span>`)
+                .join(' ');
 
             return `
-            <div class="group p-5 hover:bg-slate-800/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/40 last:border-none" data-idx="${realIdx}">
-                <div class="flex-1 min-w-0 space-y-2">
-                    <div class="flex items-center gap-2.5 flex-wrap">
-                        <span class="text-sm font-extrabold text-yellow-400 tracking-tight">${escHtml(o.sigla)}</span>
-                        <span class="text-slate-600">•</span>
-                        <span class="text-sm font-bold text-white truncate">${escHtml(o.nome)}</span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${modalidadeColor}">${escHtml(o.modalidade || '—')}</span>
+            <div class="admin-card" data-idx="${realIdx}">
+                <div class="admin-card__head">
+                    <div class="admin-card__title-group">
+                        <span class="admin-card__sigla">${escHtml(o.sigla)}</span>
+                        <span class="badge-modality">${escHtml(o.modalidade || 'Presencial')}</span>
+                        <span class="tag">ID: ${escHtml(o.id)}</span>
                     </div>
-                    <div class="flex flex-wrap gap-1.5">
-                        ${nivelBadges}
-                        ${materiaBadges}
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 pt-0.5">
-                        <span><strong>${eventCount}</strong> evento${eventCount !== 1 ? 's' : ''}</span>
-                        <span>•</span>
-                        <span><strong>${matCount}</strong> material${matCount !== 1 ? 'is' : ''}</span>
-                        <span>•</span>
-                        <span class="${hasDesc ? 'text-emerald-400/80 font-medium' : 'text-slate-600'}">${hasDesc ? '✓ Descrição' : '✗ Sem Descrição'}</span>
-                        <span>•</span>
-                        <span class="${hasSite ? 'text-blue-400/80 font-medium' : 'text-slate-600'}">${hasSite ? '✓ Link Oficial' : '✗ Sem Link'}</span>
-                        <span>•</span>
-                        <span class="text-slate-600 font-mono">ID: ${escHtml(o.id)}</span>
+                    <div class="admin-card__actions">
+                        <button type="button" class="btn-secondary edit-btn" data-idx="${realIdx}">
+                            <svg class="icon icon--sm"><use href="#i-pencil"/></svg>
+                            Editar
+                        </button>
+                        <button type="button" class="btn-secondary delete-btn" data-idx="${realIdx}">
+                            <svg class="icon icon--sm"><use href="#i-trash"/></svg>
+                            Excluir
+                        </button>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button
-                        class="edit-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 transition-all shadow-sm"
-                        data-idx="${realIdx}"
-                        title="Editar detalhes e datas"
-                    >
-                        <svg class="w-3.5 h-3.5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Editar
-                    </button>
-                    <button
-                        class="delete-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 border border-red-500/20 transition-all shadow-sm"
-                        data-idx="${realIdx}"
-                        title="Remover permanentemente"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        Excluir
-                    </button>
+
+                <div class="admin-card__name">${escHtml(o.nome)}</div>
+
+                <div class="admin-card__meta-tags">
+                    ${nivelBadges} ${materiaBadges}
+                </div>
+
+                <div class="admin-card__stats-chips">
+                    <span>📅 <strong>${eventCount}</strong> evento${eventCount !== 1 ? 's' : ''}</span>
+                    <span>📚 <strong>${matCount}</strong> material${matCount !== 1 ? 'is' : ''}</span>
+                    <span>${hasDesc ? '✅ Com Descrição' : '⚠️ Sem Descrição'}</span>
+                    ${o.site_oficial ? `<a href="${escAttr(o.site_oficial)}" target="_blank" rel="noopener noreferrer" class="link-more">Site Oficial &rarr;</a>` : ''}
                 </div>
             </div>`;
         }).join('');
@@ -385,28 +392,16 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Modal Tabs Navigation Logic
+    // Modal Tab Navigation
     // ═══════════════════════════════════════════════════════════
     function switchTab(targetTabId) {
         tabButtons.forEach(btn => {
             const isTarget = btn.dataset.tab === targetTabId;
-            if (isTarget) {
-                btn.classList.add('active', 'border-yellow-400', 'text-yellow-400');
-                btn.classList.remove('border-transparent', 'text-slate-400');
-            } else {
-                btn.classList.remove('active', 'border-yellow-400', 'text-yellow-400');
-                btn.classList.add('border-transparent', 'text-slate-400');
-            }
+            btn.classList.toggle('active', isTarget);
         });
 
         tabPanels.forEach(panel => {
-            if (panel.id === targetTabId) {
-                panel.classList.remove('hidden');
-                panel.classList.add('block');
-            } else {
-                panel.classList.remove('block');
-                panel.classList.add('hidden');
-            }
+            panel.hidden = panel.id !== targetTabId;
         });
     }
 
@@ -415,38 +410,23 @@
     });
 
     // ═══════════════════════════════════════════════════════════
-    // Modal — open / close
+    // Modal Open & Populate
     // ═══════════════════════════════════════════════════════════
     function buildNivelCheckboxes(selected) {
+        if (!nivelCheckboxes) return;
         nivelCheckboxes.innerHTML = NIVEIS.map(n => {
             const checked = (selected || []).includes(n);
             const id = 'nivel-' + n.replace(/\s+/g, '-');
             return `
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="${id}" value="${escAttr(n)}" ${checked ? 'checked' : ''}
-                    class="nivel-checkbox sr-only">
-                <span class="nivel-label inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-700/80 bg-slate-950/40 text-slate-300 hover:border-yellow-400/40 transition-all select-none">${escHtml(n)}</span>
-            </label>`;
+            <label for="${id}">
+                <input type="checkbox" id="${id}" class="nivel-checkbox" value="${escAttr(n)}" ${checked ? 'checked' : ''}>
+                <span>${escHtml(n)}</span>
+            </label> `;
         }).join('');
-
-        nivelCheckboxes.querySelectorAll('.nivel-checkbox').forEach(cb => {
-            const label = cb.nextElementSibling;
-            cb.addEventListener('change', () => syncNivelLabel(cb, label));
-            syncNivelLabel(cb, label);
-        });
-    }
-
-    function syncNivelLabel(cb, label) {
-        if (cb.checked) {
-            label.classList.add('bg-yellow-400/15', 'border-yellow-400/50', 'text-yellow-300');
-            label.classList.remove('text-slate-300', 'border-slate-700/80', 'bg-slate-950/40');
-        } else {
-            label.classList.remove('bg-yellow-400/15', 'border-yellow-400/50', 'text-yellow-300');
-            label.classList.add('text-slate-300', 'border-slate-700/80', 'bg-slate-950/40');
-        }
     }
 
     function getSelectedNiveis() {
+        if (!nivelCheckboxes) return [];
         return Array.from(nivelCheckboxes.querySelectorAll('.nivel-checkbox:checked')).map(cb => cb.value);
     }
 
@@ -455,40 +435,38 @@
         editingIndex = (idx === undefined) ? null : idx;
         const o = (editingIndex !== null) ? olimpiadas[editingIndex] : null;
 
-        modalTitle.textContent = o ? `Editar: ${o.sigla}` : 'Cadastrar Nova Olimpíada';
+        if (modalTitle) modalTitle.textContent = o ? `Editar: ${o.sigla}` : 'Cadastrar Nova Olimpíada';
         hideModalError();
-        
-        // Always reset modal to the first tab for consistent UX
         switchTab('tab-geral');
 
-        // Populate basic fields
-        fSigla.value      = o ? o.sigla      : '';
-        fId.value         = o ? o.id         : '';
-        fNome.value       = o ? o.nome       : '';
-        fModalidade.value = o ? (o.modalidade || '') : '';
-        fMaterias.value   = o ? (o.materias || []).join(', ') : '';
-        
-        // Populate new native fields
-        fDescricao.value   = o ? (o.descricao || '') : '';
-        fSiteOficial.value = o ? (o.site_oficial || '') : '';
+        // Fields
+        if (fSigla) fSigla.value       = o ? o.sigla : '';
+        if (fId) fId.value             = o ? o.id : '';
+        if (fNome) fNome.value         = o ? o.nome : '';
+        if (fModalidade) fModalidade.value = o ? (o.modalidade || '') : '';
+        if (fMaterias) fMaterias.value = o ? (o.materias || []).join(', ') : '';
+        if (fDescricao) fDescricao.value = o ? (o.descricao || '') : '';
+        if (fSiteOficial) fSiteOficial.value = o ? (o.site_oficial || '') : '';
 
         buildNivelCheckboxes(o ? o.nivel_escolar : []);
         renderEventos(o ? (o.eventos || []) : []);
         renderMateriais(o ? (o.materiais_estudo || []) : []);
         renderFontes(o ? (o.fontes_oficiais || []) : []);
 
-        if (!o) {
-            fSigla.addEventListener('input', autoGenerateId, { once: false });
-        } else {
-            fSigla.removeEventListener('input', autoGenerateId);
+        if (fSigla) {
+            if (!o) {
+                fSigla.addEventListener('input', autoGenerateId);
+            } else {
+                fSigla.removeEventListener('input', autoGenerateId);
+            }
         }
 
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        fSigla.focus();
+        if (modal) modal.hidden = false;
+        if (fSigla) fSigla.focus();
     }
 
     function autoGenerateId() {
+        if (!fId || !fSigla) return;
         if (!fId.value || fId.dataset.manual !== '1') {
             const year = new Date().getFullYear();
             fId.value = fSigla.value.toLowerCase().replace(/[^a-z0-9]/g, '') + year;
@@ -496,26 +474,23 @@
     }
 
     function closeModal() {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-        fSigla.removeEventListener('input', autoGenerateId);
-        fId.dataset.manual = '';
+        if (modal) modal.hidden = true;
+        if (fSigla) fSigla.removeEventListener('input', autoGenerateId);
+        if (fId) fId.dataset.manual = '';
         editingIndex = null;
     }
 
     function showModalError(msg) {
-        modalErrorText.textContent = msg;
-        modalError.classList.remove('hidden');
-        modalError.classList.add('flex');
+        if (modalErrorText) modalErrorText.textContent = msg;
+        if (modalError) modalError.hidden = false;
     }
 
     function hideModalError() {
-        modalError.classList.add('hidden');
-        modalError.classList.remove('flex');
+        if (modalError) modalError.hidden = true;
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Eventos sub-editor
+    // Eventos Editor
     // ═══════════════════════════════════════════════════════════
     let eventosBuffer = [];
 
@@ -525,75 +500,64 @@
     }
 
     function _redrawEventos() {
+        if (!eventosListEl) return;
         if (eventosBuffer.length === 0) {
             eventosListEl.innerHTML = '';
-            eventosEmpty.classList.remove('hidden');
+            if (eventosEmpty) eventosEmpty.hidden = false;
             return;
         }
-        eventosEmpty.classList.add('hidden');
+        if (eventosEmpty) eventosEmpty.hidden = true;
 
         eventosListEl.innerHTML = eventosBuffer.map((e, i) => {
             const isRange = ('data-i' in e) || ('data-f' in e);
             const tipoOptions = EVENTO_TIPOS.map(t =>
                 `<option value="${escAttr(t)}" ${(e.tipo || '') === t ? 'selected' : ''}>${escHtml(t)}</option>`
             ).join('');
-            const tipoIsCustom = e.tipo && !EVENTO_TIPOS.includes(e.tipo);
+
             return `
-            <div class="evento-row backdrop-blur-md bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3 transition-all hover:border-slate-700" data-ei="${i}">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Evento</label>
-                            <select class="evento-tipo admin-input w-full text-xs font-semibold text-yellow-400">
-                                ${tipoOptions}
-                                ${tipoIsCustom ? `<option value="${escAttr(e.tipo)}" selected>${escHtml(e.tipo)}</option>` : ''}
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Formato de Data</label>
-                            <select class="evento-date-type admin-input w-full text-xs">
-                                <option value="single" ${!isRange ? 'selected' : ''}>Data Específica</option>
-                                <option value="range"  ${isRange  ? 'selected' : ''}>Período / Intervalo</option>
-                            </select>
-                        </div>
+            <div class="dynamic-item-card evento-row" data-ei="${i}">
+                <div class="dynamic-item-head">
+                    <strong>Evento #${i + 1}</strong>
+                    <button type="button" class="btn-secondary delete-btn evento-remove" title="Excluir Evento">Remover</button>
+                </div>
+
+                <div class="filters-grid">
+                    <div class="field">
+                        <label>Tipo de Evento:</label>
+                        <select class="evento-tipo">
+                            ${tipoOptions}
+                        </select>
                     </div>
-                    <div class="flex flex-col gap-1 mt-4 shrink-0">
-                        <button class="evento-up p-1 rounded-lg text-slate-500 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors ${i === 0 ? 'opacity-30 pointer-events-none' : ''}" title="Mover para cima">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-                        </button>
-                        <button class="evento-down p-1 rounded-lg text-slate-500 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors ${i === eventosBuffer.length - 1 ? 'opacity-30 pointer-events-none' : ''}" title="Mover para baixo">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <button class="evento-remove p-1 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Excluir evento">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
+
+                    <div class="field">
+                        <label>Formato da Data:</label>
+                        <select class="evento-date-type">
+                            <option value="single" ${!isRange ? 'selected' : ''}>Data Única</option>
+                            <option value="range"  ${isRange  ? 'selected' : ''}>Período (Início / Fim)</option>
+                        </select>
                     </div>
                 </div>
-                <div class="evento-date-fields grid gap-3 ${isRange ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} pt-1 border-t border-slate-900">
+
+                <div class="field">
+                    <label>Data Oficial:</label>
                     ${isRange
-                        ? `<div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Inicial</label>
-                           <input type="date" class="evento-date-i admin-input w-full text-xs font-mono" value="${escAttr(e['data-i'] || '')}"></div>
-                           <div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data Final</label>
-                           <input type="date" class="evento-date-f admin-input w-full text-xs font-mono" value="${escAttr(e['data-f'] || '')}"></div>`
-                        : `<div><label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Data do Evento</label>
-                           <input type="date" class="evento-date admin-input w-full text-xs font-mono" value="${escAttr(e.data || '')}"></div>`
+                        ? `<div class="filters-grid">
+                            <input type="date" class="evento-date-i" value="${escAttr(e['data-i'] || '')}" aria-label="Data de Início">
+                            <input type="date" class="evento-date-f" value="${escAttr(e['data-f'] || '')}" aria-label="Data de Término">
+                           </div>`
+                        : `<input type="date" class="evento-date" value="${escAttr(e.data || '')}" aria-label="Data">`
                     }
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição / Contexto</label>
-                    <input type="text" class="evento-desc admin-input w-full text-xs" value="${escAttr(e.descricao || '')}" placeholder="Ex: Prazo final para cadastro na plataforma oficial">
+
+                <div class="field">
+                    <label>Descrição do Evento:</label>
+                    <input type="text" class="evento-desc" value="${escAttr(e.descricao || '')}" placeholder="Ex: 1ª Fase — Prova teórica nas escolas">
                 </div>
             </div>`;
         }).join('');
 
         eventosListEl.querySelectorAll('.evento-remove').forEach((btn, i) => {
             btn.addEventListener('click', () => { collectEventosFromDOM(); eventosBuffer.splice(i, 1); _redrawEventos(); });
-        });
-        eventosListEl.querySelectorAll('.evento-up').forEach((btn, i) => {
-            btn.addEventListener('click', () => { collectEventosFromDOM(); [eventosBuffer[i-1], eventosBuffer[i]] = [eventosBuffer[i], eventosBuffer[i-1]]; _redrawEventos(); });
-        });
-        eventosListEl.querySelectorAll('.evento-down').forEach((btn, i) => {
-            btn.addEventListener('click', () => { collectEventosFromDOM(); [eventosBuffer[i], eventosBuffer[i+1]] = [eventosBuffer[i+1], eventosBuffer[i]]; _redrawEventos(); });
         });
 
         eventosListEl.querySelectorAll('.evento-date-type').forEach((sel, i) => {
@@ -614,6 +578,7 @@
     }
 
     function collectEventosFromDOM() {
+        if (!eventosListEl) return;
         eventosListEl.querySelectorAll('.evento-row').forEach((row, i) => {
             if (!eventosBuffer[i]) return;
             const tipo = row.querySelector('.evento-tipo').value.trim();
@@ -627,7 +592,6 @@
                 eventosBuffer[i]['data-i'] = row.querySelector('.evento-date-i')?.value || '';
                 eventosBuffer[i]['data-f'] = row.querySelector('.evento-date-f')?.value || '';
                 delete eventosBuffer[i].data;
-                // Clean empty string definitions to maintain highly optimal schema structure
                 if (!eventosBuffer[i]['data-i']) delete eventosBuffer[i]['data-i'];
                 if (!eventosBuffer[i]['data-f']) delete eventosBuffer[i]['data-f'];
             } else {
@@ -643,14 +607,13 @@
         collectEventosFromDOM();
         eventosBuffer.push({ tipo: 'Prova', data: '', descricao: '' });
         _redrawEventos();
-        const rows = eventosListEl.querySelectorAll('.evento-row');
-        if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Materiais sub-editor
+    // Materiais & Fontes Editors
     // ═══════════════════════════════════════════════════════════
     let materiaisBuffer = [];
+    let fontesBuffer = [];
 
     function renderMateriais(materiais) {
         materiaisBuffer = materiais.map(m => ({ ...m }));
@@ -658,44 +621,38 @@
     }
 
     function _redrawMateriais() {
+        if (!materiaisListEl) return;
         if (materiaisBuffer.length === 0) {
             materiaisListEl.innerHTML = '';
-            materiaisEmpty.classList.remove('hidden');
+            if (materiaisEmpty) materiaisEmpty.hidden = false;
             return;
         }
-        materiaisEmpty.classList.add('hidden');
+        if (materiaisEmpty) materiaisEmpty.hidden = true;
 
         materiaisListEl.innerHTML = materiaisBuffer.map((m, i) => `
-            <div class="material-row backdrop-blur-md bg-slate-950/60 border border-slate-800 rounded-xl p-4 transition-all hover:border-slate-700" data-mi="${i}">
-                <div class="flex items-start gap-3">
-                    <div class="flex-1 space-y-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título do Recurso</label>
-                            <input type="text" class="material-titulo admin-input w-full text-xs font-semibold text-white" value="${escAttr(m.titulo || '')}" placeholder="Ex: Provas Anteriores e Gabaritos Oficiais">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">URL de Destino</label>
-                            <input type="url" class="material-url admin-input w-full text-xs font-mono text-blue-300" value="${escAttr(m.url || '')}" placeholder="https://...">
-                        </div>
-                    </div>
-                    <button class="material-remove mt-5 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0" title="Remover material">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+            <div class="dynamic-item-card material-row" data-mi="${i}">
+                <div class="dynamic-item-head">
+                    <strong>Material #${i + 1}</strong>
+                    <button type="button" class="btn-secondary delete-btn material-remove">Remover</button>
+                </div>
+                <div class="field">
+                    <label>Título do Recurso:</label>
+                    <input type="text" class="material-titulo" value="${escAttr(m.titulo || '')}" placeholder="Ex: Provas Anteriores com Gabarito">
+                </div>
+                <div class="field">
+                    <label>Link / URL:</label>
+                    <input type="url" class="material-url" value="${escAttr(m.url || '')}" placeholder="https://...">
                 </div>
             </div>
         `).join('');
 
         materiaisListEl.querySelectorAll('.material-remove').forEach((btn, i) => {
-            btn.addEventListener('click', () => {
-                materiaisBuffer.splice(i, 1);
-                _redrawMateriais();
-            });
+            btn.addEventListener('click', () => { collectMateriaisFromDOM(); materiaisBuffer.splice(i, 1); _redrawMateriais(); });
         });
     }
 
     function collectMateriaisFromDOM() {
+        if (!materiaisListEl) return;
         materiaisListEl.querySelectorAll('.material-row').forEach((row, i) => {
             if (!materiaisBuffer[i]) return;
             materiaisBuffer[i].titulo = row.querySelector('.material-titulo').value.trim();
@@ -707,14 +664,7 @@
         collectMateriaisFromDOM();
         materiaisBuffer.push({ titulo: '', url: '' });
         _redrawMateriais();
-        const rows = materiaisListEl.querySelectorAll('.material-row');
-        if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-
-    // ═══════════════════════════════════════════════════════════
-    // Fontes Oficiais sub-editor
-    // ═══════════════════════════════════════════════════════════
-    let fontesBuffer = [];
 
     function renderFontes(fontes) {
         fontesBuffer = (fontes || []).map(f => ({ ...f }));
@@ -722,41 +672,38 @@
     }
 
     function _redrawFontes() {
+        if (!fontesListEl) return;
         if (fontesBuffer.length === 0) {
             fontesListEl.innerHTML = '';
-            fontesEmpty.classList.remove('hidden');
+            if (fontesEmpty) fontesEmpty.hidden = false;
             return;
         }
-        fontesEmpty.classList.add('hidden');
+        if (fontesEmpty) fontesEmpty.hidden = true;
 
         fontesListEl.innerHTML = fontesBuffer.map((f, i) => `
-            <div class="fonte-row backdrop-blur-md bg-slate-950/60 border border-blue-900/30 rounded-xl p-4 transition-all hover:border-blue-800/50" data-fi="${i}">
-                <div class="flex items-start gap-3">
-                    <div class="flex-1 space-y-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título da Fonte</label>
-                            <input type="text" class="fonte-titulo admin-input w-full text-xs font-semibold text-white" value="${escAttr(f.titulo || '')}" placeholder="Ex: Edital Oficial 2026">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">URL</label>
-                            <input type="url" class="fonte-url admin-input w-full text-xs font-mono text-blue-300" value="${escAttr(f.url || '')}" placeholder="https://...">
-                        </div>
-                    </div>
-                    <button class="fonte-remove mt-5 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0" title="Remover fonte">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+            <div class="dynamic-item-card fonte-row" data-fi="${i}">
+                <div class="dynamic-item-head">
+                    <strong>Fonte #${i + 1}</strong>
+                    <button type="button" class="btn-secondary delete-btn fonte-remove">Remover</button>
+                </div>
+                <div class="field">
+                    <label>Título / Regulamento:</label>
+                    <input type="text" class="fonte-titulo" value="${escAttr(f.titulo || '')}" placeholder="Ex: Edital Oficial 2026">
+                </div>
+                <div class="field">
+                    <label>Link / URL:</label>
+                    <input type="url" class="fonte-url" value="${escAttr(f.url || '')}" placeholder="https://...">
                 </div>
             </div>
         `).join('');
 
         fontesListEl.querySelectorAll('.fonte-remove').forEach((btn, i) => {
-            btn.addEventListener('click', () => { fontesBuffer.splice(i, 1); _redrawFontes(); });
+            btn.addEventListener('click', () => { collectFontesFromDOM(); fontesBuffer.splice(i, 1); _redrawFontes(); });
         });
     }
 
     function collectFontesFromDOM() {
+        if (!fontesListEl) return;
         fontesListEl.querySelectorAll('.fonte-row').forEach((row, i) => {
             if (!fontesBuffer[i]) return;
             fontesBuffer[i].titulo = row.querySelector('.fonte-titulo').value.trim();
@@ -768,12 +715,10 @@
         collectFontesFromDOM();
         fontesBuffer.push({ titulo: '', url: '' });
         _redrawFontes();
-        const rows = fontesListEl.querySelectorAll('.fonte-row');
-        if (rows.length > 0) rows[rows.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Save Modal
+    // Save Modal Data
     // ═══════════════════════════════════════════════════════════
     function saveModal() {
         if (!guardAdmin()) return;
@@ -783,12 +728,12 @@
         collectMateriaisFromDOM();
         collectFontesFromDOM();
 
-        const sigla      = fSigla.value.trim();
-        const id         = fId.value.trim();
-        const nome       = fNome.value.trim();
-        const modalidade = fModalidade.value;
-        const descricao  = fDescricao.value.trim();
-        const siteOficial = fSiteOficial.value.trim();
+        const sigla       = fSigla ? fSigla.value.trim() : '';
+        const id          = fId ? fId.value.trim() : '';
+        const nome        = fNome ? fNome.value.trim() : '';
+        const modalidade  = fModalidade ? fModalidade.value : '';
+        const descricao   = fDescricao ? fDescricao.value.trim() : '';
+        const siteOficial = fSiteOficial ? fSiteOficial.value.trim() : '';
 
         if (!sigla) {
             switchTab('tab-geral');
@@ -810,10 +755,10 @@
         const existingIdx = olimpiadas.findIndex(o => o.id === id);
         if (existingIdx !== -1 && existingIdx !== editingIndex) {
             switchTab('tab-geral');
-            return showModalError(`O ID "${id}" já se encontra em uso pela competição "${olimpiadas[existingIdx].sigla}".`);
+            return showModalError(`O ID "${id}" já está em uso pela competição "${olimpiadas[existingIdx].sigla}".`);
         }
 
-        const materias = fMaterias.value.split(',').map(s => s.trim()).filter(Boolean);
+        const materias = fMaterias ? fMaterias.value.split(',').map(s => s.trim()).filter(Boolean) : [];
         const niveis   = getSelectedNiveis();
 
         const knownKeys = new Set([
@@ -858,7 +803,7 @@
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Delete
+    // Delete Confirmation
     // ═══════════════════════════════════════════════════════════
     let deleteTargetIdx = null;
 
@@ -866,14 +811,12 @@
         if (!guardAdmin()) return;
         deleteTargetIdx = idx;
         const o = olimpiadas[idx];
-        confirmText.textContent = `Tem certeza de que deseja remover permanentemente "${o.nome}" (${o.sigla}) do sistema?`;
-        confirmDialog.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        if (confirmDeleteSigla) confirmDeleteSigla.textContent = `"${o.nome}" (${o.sigla})`;
+        if (confirmDialog) confirmDialog.hidden = false;
     }
 
     function closeConfirmDialog() {
-        confirmDialog.classList.add('hidden');
-        document.body.style.overflow = '';
+        if (confirmDialog) confirmDialog.hidden = true;
         deleteTargetIdx = null;
     }
 
@@ -883,7 +826,7 @@
         const removed = olimpiadas.splice(deleteTargetIdx, 1)[0];
         closeConfirmDialog();
         renderList();
-        showToast(`"${removed.sigla}" foi excluída.`, 'info');
+        showToast(`"${removed.sigla}" foi excluída com sucesso.`, 'info');
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -901,35 +844,29 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast('Arquivo exportado com sucesso. Substitua dados.json no repositório.', 'success');
+        showToast('Arquivo dados.json exportado! Substitua no repositório.', 'success');
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Toast
+    // Toast Messages
     // ═══════════════════════════════════════════════════════════
-    let toastTimer = null;
-    const toast    = document.getElementById('toast');
-    const toastMsg = document.getElementById('toast-msg');
-    const toastIcon = document.getElementById('toast-icon');
+    function showToast(msg, type = 'info') {
+        if (!toastContainer) return;
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast-message';
+        toastEl.innerHTML = `<p>${msg}</p>`;
+        toastContainer.appendChild(toastEl);
 
-    function showToast(msg, type) {
-        const icons = {
-            success: '✅',
-            error:   '❌',
-            info:    'ℹ️',
-        };
-        toastIcon.textContent = icons[type] || 'ℹ️';
-        toastMsg.textContent  = msg;
-        toast.classList.remove('hidden');
-        if (toastTimer) clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
+        setTimeout(() => {
+            toastEl.remove();
+        }, 3200);
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Utility
+    // Utilities
     // ═══════════════════════════════════════════════════════════
     function escHtml(str) {
-        return String(str)
+        return String(str || '')
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
@@ -937,47 +874,394 @@
     }
 
     function escAttr(str) {
-        return String(str).replace(/"/g, '&quot;');
+        return String(str || '').replace(/"/g, '&quot;');
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Event Bindings
+    // Bindings
     // ═══════════════════════════════════════════════════════════
-    loginForm.addEventListener('submit', handleLogin);
-    logoutBtn.addEventListener('click', handleLogout);
+    if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
-    addBtn.addEventListener('click', () => openModal());
-    exportBtn.addEventListener('click', exportJSON);
-    exportBtnMobile.addEventListener('click', exportJSON);
+    if (addBtn) addBtn.addEventListener('click', () => openModal());
+    if (exportBtn) exportBtn.addEventListener('click', exportJSON);
+    if (searchInput) searchInput.addEventListener('input', () => renderList());
 
-    searchInput.addEventListener('input', () => renderList());
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+    if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeModal);
+    if (modalSaveBtn) modalSaveBtn.addEventListener('click', (e) => { e.preventDefault(); saveModal(); });
+    if (modalForm) modalForm.addEventListener('submit', (e) => { e.preventDefault(); saveModal(); });
 
-    // Modal bindings
-    modalClose.addEventListener('click', closeModal);
-    modalCancel.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', closeModal);
-    modalSave.addEventListener('click', saveModal);
-    addEventoBtn.addEventListener('click', addEvento);
-    addMaterialBtn.addEventListener('click', addMaterial);
-    addFonteBtn.addEventListener('click', addFonte);
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    }
 
-    fId.addEventListener('input', () => { fId.dataset.manual = '1'; });
+    if (addEventoBtn) addEventoBtn.addEventListener('click', addEvento);
+    if (addMaterialBtn) addMaterialBtn.addEventListener('click', addMaterial);
+    if (addFonteBtn) addFonteBtn.addEventListener('click', addFonte);
 
-    // Confirm dialog bindings
-    confirmCancel.addEventListener('click', closeConfirmDialog);
-    confirmDelete.addEventListener('click', handleDelete);
+    if (fId) fId.addEventListener('input', () => { fId.dataset.manual = '1'; });
 
-    // Keyboard navigation shortcuts
+    if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeConfirmDialog);
+    if (confirmDeleteBtn) confirmDeleteBtn.addEventListener('click', handleDelete);
+    if (confirmDialog) {
+        confirmDialog.addEventListener('click', (e) => {
+            if (e.target === confirmDialog) closeConfirmDialog();
+        });
+    }
+
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
-            if (!confirmDialog.classList.contains('hidden')) closeConfirmDialog();
-            else if (!modal.classList.contains('hidden')) closeModal();
+            if (confirmDialog && !confirmDialog.hidden) closeConfirmDialog();
+            else if (modal && !modal.hidden) closeModal();
         }
     });
 
-    // ═══════════════════════════════════════════════════════════
-    // Init Boot
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    // Telemetry & Security Observatorio View
+    // ═══════════════════════════════════════════════════════
+    const tabNavOlimpiadas = document.getElementById('tab-nav-olimpiadas');
+    const tabNavTelemetria = document.getElementById('tab-nav-telemetria');
+    const viewOlimpiadas   = document.getElementById('view-olimpiadas');
+    const viewTelemetria   = document.getElementById('view-telemetria');
+
+    const statTelemStudents   = document.getElementById('stat-telem-students');
+    const statTelemSwitches   = document.getElementById('stat-telem-switches');
+    const statTelemSwitchRate = document.getElementById('stat-telem-switch-rate');
+    const statTelemBlocked    = document.getElementById('stat-telem-blocked');
+    const statTelemPasses     = document.getElementById('stat-telem-passes');
+
+    const tbodyRankingOlimpiadas = document.getElementById('tbody-ranking-olimpiadas');
+    const tbodyIdentitySwitches  = document.getElementById('tbody-identity-switches');
+    const tbodyBlockedAccess     = document.getElementById('tbody-blocked-access');
+
+    const listTopUfs       = document.getElementById('list-top-ufs');
+    const listRealIsps     = document.getElementById('list-real-isps');
+    const listVpnProviders = document.getElementById('list-vpn-providers');
+
+    const statDeviceDist = document.getElementById('stat-device-dist');
+    const statRamDist    = document.getElementById('stat-ram-dist');
+    const statNetDist    = document.getElementById('stat-net-dist');
+
+    const btnSeedTelemetry    = document.getElementById('btn-seed-telemetry');
+    const btnRefreshTelemetry = document.getElementById('btn-refresh-telemetry');
+    const btnExportTelemetry  = document.getElementById('btn-export-telemetry');
+    const btnClearTelemetry   = document.getElementById('btn-clear-telemetry');
+
+    const simBtnUs     = document.getElementById('sim-btn-us');
+    const simBtnVpn    = document.getElementById('sim-btn-vpn');
+    const simBtnBorder = document.getElementById('sim-btn-border');
+    const simBtnReset  = document.getElementById('sim-btn-reset');
+
+    function switchAdminView(viewName) {
+        if (viewName === 'telemetria') {
+            if (tabNavOlimpiadas) tabNavOlimpiadas.classList.remove('active');
+            if (tabNavTelemetria) tabNavTelemetria.classList.add('active');
+            if (viewOlimpiadas) viewOlimpiadas.hidden = true;
+            if (viewTelemetria) viewTelemetria.hidden = false;
+            renderTelemetryDashboard();
+        } else {
+            if (tabNavOlimpiadas) tabNavOlimpiadas.classList.add('active');
+            if (tabNavTelemetria) tabNavTelemetria.classList.remove('active');
+            if (viewOlimpiadas) viewOlimpiadas.hidden = false;
+            if (viewTelemetria) viewTelemetria.hidden = true;
+        }
+    }
+
+    function renderTelemetryDashboard() {
+        if (!window.CalendarioTelemetry) return;
+        const analytics = window.CalendarioTelemetry.getObservatoryAnalytics();
+        const kpi = analytics.kpi;
+
+        // 1. Executive KPIs
+        if (statTelemStudents) {
+            statTelemStudents.textContent = kpi.uniqueStudents >= 30 ? kpi.uniqueStudents : `${kpi.uniqueStudents} (Trava k ≥ 30)`;
+        }
+        if (statTelemSwitches) statTelemSwitches.textContent = kpi.identitySwitchesCount || 0;
+        if (statTelemSwitchRate && kpi.blockedAccessCount > 0) {
+            const rate = Math.min(100, Math.round((kpi.identitySwitchesCount / (kpi.blockedAccessCount || 1)) * 100));
+            statTelemSwitchRate.textContent = `Taxa de conversão: ${rate}%`;
+        }
+        if (statTelemBlocked) statTelemBlocked.textContent = kpi.blockedAccessCount || 0;
+        if (statTelemPasses) statTelemPasses.textContent = kpi.borderPassesCount || 0;
+
+        // 2. Ranking ao Vivo de Conteúdos & Olimpíadas
+        if (tbodyRankingOlimpiadas) {
+            const ranking = analytics.rankingList;
+            if (!ranking || ranking.length === 0) {
+                tbodyRankingOlimpiadas.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--label-3); padding: 1.5rem;">
+                            Nenhum registro de interação coletado ainda.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbodyRankingOlimpiadas.innerHTML = ranking.map(item => `
+                    <tr>
+                        <td>
+                            <strong>${item.sigla}</strong>
+                            <div style="font-size: var(--t-caption); color: var(--label-2);">${item.name}</div>
+                        </td>
+                        <td>
+                            <span class="${item.demandBadge}">
+                                ${item.demandLevel}
+                            </span>
+                        </td>
+                        <td><strong>${item.views}</strong></td>
+                        <td><span style="color: var(--accent); font-weight: 700;">${Math.floor(item.avgActiveSec / 60)}m ${item.avgActiveSec % 60}s</span></td>
+                        <td><small style="color: var(--label-2);">${Math.floor(item.avgBgSec / 60)}m ${item.avgBgSec % 60}s</small></td>
+                        <td><span style="color: ${parseInt(item.abandonRate) > 30 ? 'var(--urgent)' : 'var(--label)'}; font-weight: 600;">${item.abandonRate}</span></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                <div style="flex: 1; height: 6px; background: var(--fill); border-radius: 999px; overflow: hidden; min-width: 3rem;">
+                                    <div style="width: ${item.avgScrollPct}%; height: 100%; background: var(--accent);"></div>
+                                </div>
+                                <small>${item.avgScrollPct}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="pill-tipo pill-tipo--prova">${item.actions} ações</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // 3. Funil de Navegação (Sankey Steps)
+        const fn = analytics.funnel;
+        const base = Math.max(fn.step1_landing, 1);
+        const p2 = Math.round((fn.step2_calendario / base) * 100);
+        const p3 = Math.round((fn.step3_modal_details / base) * 100);
+        const p4 = Math.round((fn.step4_provas_anteriores / base) * 100);
+        const p5 = Math.round((fn.step5_download_action / base) * 100);
+
+        const b2 = document.getElementById('bar-funnel-2');
+        const b3 = document.getElementById('bar-funnel-3');
+        const b4 = document.getElementById('bar-funnel-4');
+        const b5 = document.getElementById('bar-funnel-5');
+
+        if (b2) b2.style.width = `${Math.min(100, p2)}%`;
+        if (b3) b3.style.width = `${Math.min(100, p3)}%`;
+        if (b4) b4.style.width = `${Math.min(100, p4)}%`;
+        if (b5) b5.style.width = `${Math.min(100, p5)}%`;
+
+        const pct2 = document.getElementById('pct-funnel-2');
+        const pct3 = document.getElementById('pct-funnel-3');
+        const pct4 = document.getElementById('pct-funnel-4');
+        const pct5 = document.getElementById('pct-funnel-5');
+
+        if (pct2) pct2.textContent = `${p2}% (${fn.step2_calendario} alunos)`;
+        if (pct3) pct3.textContent = `${p3}% (${fn.step3_modal_details} alunos)`;
+        if (pct4) pct4.textContent = `${p4}% (${fn.step4_provas_anteriores} alunos)`;
+        if (pct5) pct5.textContent = `${p5}% (${fn.step5_download_action} downloads)`;
+
+        // 4. Relatório Territorial & Provedores
+        if (listTopUfs) {
+            const ufs = Object.entries(analytics.ufDist).sort((a, b) => b[1] - a[1]);
+            if (ufs.length === 0) {
+                listTopUfs.innerHTML = '<li><span>Nenhum estado registrado</span></li>';
+            } else {
+                listTopUfs.innerHTML = ufs.slice(0, 6).map(([uf, count]) => `
+                    <li>
+                        <span>Estado / Região: <strong>${uf}</strong></span>
+                        <span class="val">${count} acessos</span>
+                    </li>
+                `).join('');
+            }
+        }
+
+        if (listRealIsps) {
+            const isps = Object.entries(analytics.realIsps).sort((a, b) => b[1] - a[1]);
+            if (isps.length === 0) {
+                listRealIsps.innerHTML = '<li><span>Nenhuma operadora registrada</span></li>';
+            } else {
+                listRealIsps.innerHTML = isps.slice(0, 5).map(([isp, count]) => `
+                    <li>
+                        <span><strong>${isp.length > 28 ? isp.substring(0, 28) + '…' : isp}</strong></span>
+                        <span class="val">${count}</span>
+                    </li>
+                `).join('');
+            }
+        }
+
+        if (listVpnProviders) {
+            const vpns = Object.entries(analytics.vpnAsns).sort((a, b) => b[1] - a[1]);
+            if (vpns.length === 0) {
+                listVpnProviders.innerHTML = '<li><span style="color: var(--open);">Nenhuma VPN detectada</span></li>';
+            } else {
+                listVpnProviders.innerHTML = vpns.slice(0, 5).map(([vpn, count]) => `
+                    <li>
+                        <span><strong>${vpn.length > 28 ? vpn.substring(0, 28) + '…' : vpn}</strong></span>
+                        <span class="val" style="color: var(--urgent);">${count} tentativas</span>
+                    </li>
+                `).join('');
+            }
+        }
+
+        // 5. Tabela de Trocas de Identidade
+        if (tbodyIdentitySwitches) {
+            if (analytics.identitySwitches.length === 0) {
+                tbodyIdentitySwitches.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--label-3); padding: 1.5rem;">
+                            Nenhuma troca de identidade (VPN desligada) registrada nesta sessão.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbodyIdentitySwitches.innerHTML = analytics.identitySwitches.map(ev => `
+                    <tr>
+                        <td><code>${ev.student_hash || 'estudante_anon'}</code></td>
+                        <td><strong style="color: var(--accent);">${ev.time_to_disable_vpn_sec}s</strong></td>
+                        <td><span class="pill-tipo pill-tipo--prova">${ev.fake_country}</span> <small>${ev.fake_isp_asn}</small></td>
+                        <td><span class="pill-tipo pill-tipo--inscricao">BR (${ev.real_uf || 'BR'})</span> <small>${ev.real_isp_asn}</small></td>
+                        <td>${ev.device_type || 'Desktop'}</td>
+                        <td><time>${ev.local_time || '—'}</time></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // 6. Tabela de Bloqueios e Fronteira
+        if (tbodyBlockedAccess) {
+            const combined = [...analytics.blockedList, ...analytics.borderReports].sort((a, b) => b.timestamp_utc.localeCompare(a.timestamp_utc));
+            if (combined.length === 0) {
+                tbodyBlockedAccess.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--label-3); padding: 1.5rem;">
+                            Nenhum bloqueio registrado recentemente.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbodyBlockedAccess.innerHTML = combined.map(ev => {
+                    const isReport = ev.type === 'border_false_positive_report';
+                    return `
+                        <tr>
+                            <td><code>${ev.student_hash || 'estudante_anon'}</code></td>
+                            <td>
+                                <span class="badge-status ${isReport ? 'badge-status--open' : 'badge-status--urgent'}">
+                                    ${isReport ? 'Falso-Positivo Fronteira' : (ev.block_reason || 'Bloqueio')}
+                                </span>
+                            </td>
+                            <td>${ev.blocked_country || ev.detected_country || '—'}</td>
+                            <td><small>${ev.blocked_isp_asn || ev.detected_isp_asn || '—'}</small></td>
+                            <td>${ev.user_claimed_city_uf || '—'}</td>
+                            <td>
+                                ${ev.temporary_pass_granted ? '<strong style="color: var(--open);">✓ Emitido (7d)</strong>' : '<span style="color: var(--label-3);">Não</span>'}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn--tinted btn--small btn-whitelist-asn" data-asn="${ev.blocked_isp_asn || ev.detected_isp_asn || ''}">
+                                    Homologar ASN
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Whitelist click handlers
+                tbodyBlockedAccess.querySelectorAll('.btn-whitelist-asn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const asn = btn.dataset.asn;
+                        showToast(`Provedor ${asn} homologado na Whitelist de Fronteira!`, 'success');
+                        btn.textContent = 'Homologado ✓';
+                        btn.disabled = true;
+                    });
+                });
+            }
+        }
+
+        // 7. Hardware & Desigualdade Digital
+        if (statDeviceDist) {
+            const d = analytics.devices;
+            statDeviceDist.innerHTML = `
+                Mobile: <strong>${d.Mobile || 0}</strong> • Desktop: <strong>${d.Desktop || 0}</strong> • Tablet: <strong>${d.Tablet || 0}</strong>
+            `;
+        }
+
+        if (statRamDist) {
+            const r = analytics.ramDist;
+            statRamDist.innerHTML = `
+                Entrada (&lt;4GB): <strong>${r['Menos de 4GB (Entrada)'] || 0}</strong> • 4GB-8GB: <strong>${r['4GB a 8GB (Intermediário)'] || 0}</strong> • &gt;8GB: <strong>${r['Mais de 8GB (Avançado)'] || 0}</strong>
+            `;
+        }
+
+        if (statNetDist) {
+            const n = analytics.netDist;
+            statNetDist.innerHTML = `
+                4G/5G: <strong>${n['4G / Rápida'] || 0}</strong> • 3G/Móvel: <strong>${n['3G / Móvel'] || 0}</strong> • Wi-Fi/Fibra: <strong>${n['Wi-Fi / Fibra'] || 0}</strong>
+            `;
+        }
+    }
+
+    if (tabNavOlimpiadas) tabNavOlimpiadas.addEventListener('click', () => switchAdminView('olimpiadas'));
+    if (tabNavTelemetria) tabNavTelemetria.addEventListener('click', () => switchAdminView('telemetria'));
+
+    if (btnSeedTelemetry) {
+        btnSeedTelemetry.addEventListener('click', () => {
+            if (window.CalendarioTelemetry) {
+                const count = window.CalendarioTelemetry.seedObservatoryDemonstrationData();
+                renderTelemetryDashboard();
+                showToast(`Base demonstrativa com ${count} registros reais carregada com sucesso!`, 'success');
+            }
+        });
+    }
+
+    if (btnRefreshTelemetry) {
+        btnRefreshTelemetry.addEventListener('click', () => {
+            renderTelemetryDashboard();
+            showToast('Dados do Observatório atualizados em tempo real.', 'info');
+        });
+    }
+
+    if (btnExportTelemetry) btnExportTelemetry.addEventListener('click', () => {
+        if (window.CalendarioTelemetry) window.CalendarioTelemetry.exportEventsJson();
+    });
+
+    if (btnClearTelemetry) btnClearTelemetry.addEventListener('click', () => {
+        if (confirm('Deseja limpar todos os registros de telemetria desta sessão?')) {
+            if (window.CalendarioTelemetry) window.CalendarioTelemetry.clearEvents();
+            renderTelemetryDashboard();
+            showToast('Histórico de telemetria limpo.', 'info');
+        }
+    });
+
+    // Simulators
+    if (simBtnUs) {
+        simBtnUs.addEventListener('click', () => {
+            if (window.CalendarioSecurity) {
+                window.CalendarioSecurity.simulateGeo({ country: 'US', region: 'CA', city: 'Los Angeles', asn: 15169, isp: 'Google LLC Datacenter' });
+            }
+        });
+    }
+    if (simBtnVpn) {
+        simBtnVpn.addEventListener('click', () => {
+            if (window.CalendarioSecurity) {
+                window.CalendarioSecurity.simulateGeo({ country: 'NL', region: 'NH', city: 'Amsterdam', asn: 9009, isp: 'M247 Ltd (ProtonVPN)' });
+            }
+        });
+    }
+    if (simBtnBorder) {
+        simBtnBorder.addEventListener('click', () => {
+            if (window.CalendarioSecurity) {
+                window.CalendarioSecurity.simulateGeo({ country: 'PY', region: 'ASU', city: 'Ciudad del Este / Foz', asn: 27653, isp: 'Personal Paraguay (Fronteira)' });
+            }
+        });
+    }
+    if (simBtnReset) {
+        simBtnReset.addEventListener('click', () => {
+            if (window.CalendarioSecurity) {
+                window.CalendarioSecurity.simulateGeo(null);
+            }
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Boot
+    // ═══════════════════════════════════════════════════════
     if (isAuthenticated()) {
         showAdminScreen();
         loadData();

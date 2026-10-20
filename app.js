@@ -1,60 +1,257 @@
-// ═══════════════════════════════════════════════════════════
-// Calendário Olímpico — app.js (Landing Page)
-// Fetch dados.json (new contract), render overview cards,
-// filter by nível escolar, curiosity engine
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// Calendário Olímpico — app.js (Apple HIG Redesign)
+// Dynamic data loading, multi-criteria filtering, search,
+// favorites engine, live countdowns, Apple Sheet modal, and curiosity engine.
+// ═══════════════════════════════════════════════════════════════
 
 (function () {
     'use strict';
 
     // ─── State ───────────────────────────────────────────
     let olimpiadas = [];
-    let filtroAtual = 'Todas';
+    let favoritos = [];
+    let currentSheetOlimpiadaId = null;
+    
+    const filters = {
+        nivel: 'Todas',
+        materia: 'Todas',
+        modalidade: 'Todas',
+        status: 'Todos',
+        ordem: 'prazo',
+        searchQuery: ''
+    };
+
+    // ─── Storage Keys ────────────────────────────────────
+    const STORAGE_FAVORITES = 'calolimpico_favoritos_v1';
+    const STORAGE_CURIOSITY = 'calolimpico_curiosidade_fila_v1';
+    const STORAGE_PAGE_LOADS = 'calolimpico_page_loads_v1';
 
     // ─── DOM References ──────────────────────────────────
     const listaEl = document.getElementById('lista-olimpiadas');
-    const filtrosContainer = document.getElementById('filtros');
+    const searchBar = document.getElementById('search-bar');
+    const nivelPillsContainer = document.getElementById('filtros-nivel');
+    const selectMateria = document.getElementById('select-materia');
+    const selectModalidade = document.getElementById('select-modalidade');
+    const selectStatus = document.getElementById('select-status');
+    const selectOrdem = document.getElementById('select-ordem');
+    const contagemEl = document.getElementById('contagem-resultados');
+    const btnQuickReset = document.getElementById('btn-quick-reset');
     const curiosidadeEl = document.getElementById('texto-curiosidade');
+    const btnNextCuriosity = document.getElementById('btn-next-curiosity');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
+    const savedCountBadge = document.getElementById('saved-count-badge');
+    const pillSavedCounter = document.getElementById('pill-saved-counter');
+    const btnShowSaved = document.getElementById('btn-show-saved');
+    const toastContainer = document.getElementById('toast-container');
+    const heroSpotlightText = document.getElementById('hero-spotlight-text');
 
-    // ─── Curiosidades (8 fatos reais) ────────────────────
+    // Sheet Modal References
+    const sheetModal = document.getElementById('olympic-sheet-modal');
+    const sheetCloseBtn = document.getElementById('sheet-close-btn');
+    const sheetTitle = document.getElementById('sheet-modal-title');
+    const sheetBody = document.getElementById('sheet-modal-body');
+    const sheetFavBtn = document.getElementById('sheet-fav-btn');
+    const sheetCatalogBtn = document.getElementById('sheet-catalog-btn');
+
+    // ─── Curated Curiosities Database ────────────────────
     const CURIOSIDADES = [
-        'A OBMEP é a maior olimpíada científica do mundo em número de participantes, com mais de 18 milhões de alunos inscritos anualmente.',
-        'O Brasil já conquistou mais de 300 medalhas em olimpíadas internacionais de ciências, incluindo ouro em Matemática, Física e Informática.',
-        'A Olimpíada Internacional de Matemática (IMO) existe desde 1959 e é a mais antiga olimpíada científica para estudantes do ensino médio.',
-        'Artur Avila, medalhista de ouro da IMO pelo Brasil em 1995, se tornou o primeiro latino-americano a ganhar a Medalha Fields em 2014.',
-        'A Olimpíada Brasileira de Astronomia (OBA) distribui foguetes de garrafa PET como atividade prática, incentivando a astronáutica desde cedo.',
-        'O Canguru de Matemática é aplicado em mais de 90 países simultaneamente, sendo a maior competição de matemática do planeta.',
-        'A Olimpíada Brasileira de Informática (OBI) aceita soluções em C, C++, Python e Java, preparando alunos para competições como a IOI.',
-        'Participar de olimpíadas científicas pode garantir vagas em universidades de ponta no Brasil e no exterior através de programas de seleção especiais.',
-        "Muitas universidades, como USP, Unicamp e Unesp, oferecem vagas dedicadas a medalhistas olímpicos, dispensando o vestibular tradicional.",
-        "O Brasil oficializou julho como o Mês Nacional das Olimpíadas Científicas para intensificar a divulgação científica.",
-        "Algumas olimpíadas exigem construção de materiais (foguetes na OBA, robôs na OBR) ou simulam debates acadêmicos (IYPT).",
-        "Diferente de provas focadas em apenas uma matéria, a Olimpíada Nacional de Ciências (ONC) integra Astronomia, Biologia, Física, Química e História em um único exame.",
-        "Medalhistas da OBMEP podem receber bolsas mensais de incentivo do CNPq.",
-        "A Olimpíada de Linguística te desafia a decifrar idiomas desconhecidos usando apenas a lógica.",
-        "A OBSAT permite que estudantes lancem pequenos satélites (picosatélites) ao espaço.",
-        "Na Olimpíada de **Informática (OBI)**, você resolve enigmas complexos criando seus próprios algoritmos.",
-        "Existe uma olimpiada focada em Inteligência Artificial e ela se chama ONIA.",
-        "A **OAgro** mostra como drones e sensores de ponta estão revolucionando a produção de alimentos.",
-        "Na **OBE**, você aprende a investir e entender como o dinheiro move o mundo digital.",
-        "Na **MOBFOG**, você projeta, constrói e lança seu próprio foguete usando materiais reciclados.",
-        "Olimpíadas de inovação premiam estudantes que desenvolvem aplicativos para ajudar suas comunidades.",
-        "Competir em olimpíadas de tecnologia abre portas para estágios em gigantes do Vale do Silício (Estados Unidos).",
-        "Na **Olimpíada de Design**, você projeta produtos que não agridem o meio ambiente.",
-        "Algumas olimpíadas de História te levam para explorar museus e casarões históricos reais."
+        'A OBMEP é a maior olimpíada científica do planeta em número de estudantes, reunindo mais de 18 milhões de participantes anualmente no Brasil.',
+        'O Brasil já conquistou centenas de medalhas em olimpíadas internacionais de ciências, incluindo ouros históricos na IMO (Matemática), IPhO (Física) e IOI (Informática).',
+        'Universidades públicas de ponta como USP, Unicamp e Unesp reservam centenas de vagas anuais de graduação exclusivas para medalhistas olímpicos sem precisar fazer o vestibular tradicional.',
+        'Artur Avila, que conquistou a medalha de ouro na IMO pelo Brasil em 1995, recebeu a Medalha Fields (o Nobel da Matemática) em 2014.',
+        'A Olimpíada Brasileira de Astronomia (OBA) e a MOBFOG ensinam estudantes a construírem foguetes com garrafas PET e propelentes de vinagre com bicarbonato que superam 200 metros de altitude.',
+        'O Concurso Canguru de Matemática é aplicado simultaneamente em mais de 90 países para mais de 6 milhões de alunos ao redor do mundo.',
+        'A Olimpíada Brasileira de Informática (OBI) qualifica os melhores programadores do país para a International Olympiad in Informatics (IOI), abrindo portas para grandes empresas de tecnologia.',
+        'Medalhistas de ouro, prata e bronze da OBMEP no Ensino Fundamental e Médio têm direito a bolsas mensais de incentivo à iniciação científica do CNPq através do Programa OBMEP na Escola (PIC).',
+        'A Olimpíada Brasileira de Linguística (OBL) desafia você a decifrar hieróglifos, línguas indígenas e sistemas de escrita ancestrais usando apenas dedução e lógica formal.',
+        'Diferente de exames tradicionais, a Olimpíada Nacional de Ciências (ONC) testa o raciocínio interdisciplinar integrando Astronomia, Biologia, Física, Química e História em um único exame.',
+        'No IYPT (International Young Physicists\' Tournament), a competição simula debates científicos internacionais com "Lutas Físicas" (Physics Fights) em inglês.',
+        'A Olimpíada Brasileira de Robótica (OBR) conta com desafios práticos de resgate autônomo com sensores e programação em arena e desafios teóricos de ponta.',
+        'A Olimpíada Nacional de Inteligência Artificial (ONIA) ensina modelos de aprendizado de máquina, redes neurais e processamento de linguagem natural desde a educação básica.'
     ];
 
     // ═══════════════════════════════════════════════════════
-    // Curiosity Engine — localStorage queue, no repeats
+    // Helpers & Date Formatting
     // ═══════════════════════════════════════════════════════
-    function exibirCuriosidade() {
-        const STORAGE_KEY = 'calolimpico_curiosidade_fila';
+    function getEventReferenceDate(ev) {
+        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
+    }
 
+    function getInscricaoEvent(o) {
+        return (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
+    }
+
+    function getInscricaoDate(o) {
+        const insc = getInscricaoEvent(o);
+        return getEventReferenceDate(insc);
+    }
+
+    function getEarliestEventDate(o) {
+        return (o.eventos || []).reduce((min, ev) => {
+            const d = getEventReferenceDate(ev);
+            if (!d) return min;
+            return !min || d < min ? d : min;
+        }, '');
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        try {
+            const [y, m, d] = dateStr.split('-');
+            const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        } catch (_) {
+            return dateStr;
+        }
+    }
+
+    function formatShortDate(dateStr) {
+        if (!dateStr) return '';
+        try {
+            const [y, m, d] = dateStr.split('-');
+            const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        } catch (_) {
+            return dateStr;
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast-message toast-${type}`;
+        const icon = type === 'success' ? 'i-star-fill' : 'i-star';
+        toast.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#${icon}"/></svg><span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 2700);
+    }
+
+    // ─── Spectrum helpers ────────────────────────────────
+    // The year is read as a visible spectrum: Jan = violet … Dez = red.
+    // Hue only ever encodes position in the year (always redundant with x).
+    const SPECTRUM_STOPS = [
+        [0.00, [138, 92, 255]],  // violet
+        [0.16, [74, 108, 255]],  // blue
+        [0.32, [34, 184, 232]],  // cyan
+        [0.48, [52, 211, 120]],  // green
+        [0.62, [214, 222, 64]],  // yellow
+        [0.76, [255, 168, 46]],  // orange
+        [0.88, [255, 98, 61]],   // red-orange
+        [1.00, [230, 40, 72]]    // deep red
+    ];
+
+    function parseDate(str) {
+        if (!str) return null;
+        const [y, m, d] = str.split('-').map(n => parseInt(n, 10));
+        if (!y || !m || !d) return null;
+        return new Date(y, m - 1, d);
+    }
+
+    function getToday() {
+        const t = new Date();
+        t.setHours(0, 0, 0, 0);
+        return t;
+    }
+
+    function daysBetween(from, to) {
+        return Math.round((to - from) / 86400000);
+    }
+
+    function yearFraction(date) {
+        const start = new Date(2026, 0, 1);
+        const end = new Date(2027, 0, 1);
+        return Math.min(1, Math.max(0, (date - start) / (end - start)));
+    }
+
+    function spectrumColor(t) {
+        for (let i = 1; i < SPECTRUM_STOPS.length; i++) {
+            const [p1, c1] = SPECTRUM_STOPS[i];
+            const [p0, c0] = SPECTRUM_STOPS[i - 1];
+            if (t <= p1) {
+                const k = (t - p0) / (p1 - p0);
+                const c = c0.map((v, j) => Math.round(v + (c1[j] - v) * k));
+                return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+            }
+        }
+        return 'rgb(230, 40, 72)';
+    }
+
+    function getSortedEvents(o) {
+        return (o.eventos || [])
+            .map(ev => ({ ev, date: parseDate(getEventReferenceDate(ev)) }))
+            .filter(x => x.date)
+            .sort((a, b) => a.date - b.date);
+    }
+
+    function eventLabel(ev) {
+        return ev.tipo === 'Inscrição' ? 'Fim das inscrições' : (ev.descricao || ev.tipo || 'Evento');
+    }
+
+    function stripHtml(o, extraClass = '') {
+        const hoje = getToday();
+        const ticks = getSortedEvents(o).map(({ ev, date }) => {
+            const t = yearFraction(date);
+            const cls = [ev.tipo === 'Inscrição' ? 'is-short' : '', date < hoje ? 'is-past' : ''].join(' ').trim();
+            return `<i class="${cls}" style="left:${(t * 100).toFixed(2)}%;--c:${spectrumColor(t)}"></i>`;
+        }).join('');
+        const todayLeft = (yearFraction(hoje) * 100).toFixed(2);
+        return `<div class="card__strip ${extraClass}" aria-hidden="true">${ticks}<span class="card__today" style="left:${todayLeft}%"></span></div>`;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Favorites Management
+    // ═══════════════════════════════════════════════════════
+    function loadFavorites() {
+        try {
+            const raw = localStorage.getItem(STORAGE_FAVORITES);
+            favoritos = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(favoritos)) favoritos = [];
+        } catch (_) {
+            favoritos = [];
+        }
+        updateFavoritesBadges();
+    }
+
+    function toggleFavorite(id, sigla) {
+        const idx = favoritos.indexOf(id);
+        const willBeFav = idx === -1;
+        if (idx > -1) {
+            favoritos.splice(idx, 1);
+            showToast(`${sigla} removida das salvas`, 'info');
+        } else {
+            favoritos.push(id);
+            showToast(`${sigla} salva`, 'success');
+        }
+        try {
+            localStorage.setItem(STORAGE_FAVORITES, JSON.stringify(favoritos));
+        } catch (_) {}
+        
+        updateFavoritesBadges();
+        renderCards();
+
+        // Update modal button if currently open for this id
+        if (currentSheetOlimpiadaId === id) {
+            setSheetFavLabel(willBeFav);
+        }
+    }
+
+    function updateFavoritesBadges() {
+        const count = favoritos.length;
+        if (savedCountBadge) savedCountBadge.textContent = count;
+        if (pillSavedCounter) pillSavedCounter.textContent = count;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Curiosity Engine
+    // ═══════════════════════════════════════════════════════
+    function getNextCuriosity() {
         let fila = [];
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = localStorage.getItem(STORAGE_CURIOSITY);
             if (saved) fila = JSON.parse(saved);
         } catch (_) {
             fila = [];
@@ -65,17 +262,17 @@
         }
 
         const idx = fila.pop();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(fila));
+        try {
+            localStorage.setItem(STORAGE_CURIOSITY, JSON.stringify(fila));
+        } catch (_) {}
 
-        curiosidadeEl.textContent = CURIOSIDADES[idx];
-
-        curiosidadeEl.style.opacity = '0';
-        curiosidadeEl.style.transform = 'translateY(8px)';
-        curiosidadeEl.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        requestAnimationFrame(() => {
-            curiosidadeEl.style.opacity = '1';
-            curiosidadeEl.style.transform = 'translateY(0)';
-        });
+        if (curiosidadeEl) {
+            curiosidadeEl.classList.add('updating');
+            setTimeout(() => {
+                curiosidadeEl.textContent = CURIOSIDADES[idx];
+                curiosidadeEl.classList.remove('updating');
+            }, 140);
+        }
     }
 
     function shuffleArray(array) {
@@ -87,428 +284,946 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // Fetch & Render Olympiad Cards
+    // Data Loading & Spotlight Metric Update
     // ═══════════════════════════════════════════════════════
     async function fetchOlimpiadas() {
         try {
-            const response = await fetch('./dados.json');
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            olimpiadas = await response.json();
+            if (window.OLIMPIADAS_DATA && Array.isArray(window.OLIMPIADAS_DATA) && window.OLIMPIADAS_DATA.length > 0) {
+                olimpiadas = JSON.parse(JSON.stringify(window.OLIMPIADAS_DATA));
+            } else {
+                const res = await fetch('./dados.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                olimpiadas = await res.json();
+            }
 
-            // Sort by earliest inscription deadline
-            olimpiadas.sort((a, b) => {
-                const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || 'z';
-                const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || 'z';
-                return aDate.localeCompare(bDate);
-            });
-
+            populateSubjectSelect();
+            updateHeroStats();
+            renderSpectrum();
             renderCards();
-        } catch (error) {
+        } catch (err) {
             listaEl.innerHTML = `
-                <div class="col-span-full text-center py-16">
-                    <svg class="w-12 h-12 mx-auto text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-                    </svg>
-                    <p class="text-slate-500 font-medium">Não foi possível carregar as olimpíadas.</p>
-                    <p class="text-slate-600 text-sm mt-1">Verifique se o arquivo dados.json está acessível.</p>
+                <div class="empty">
+                    <h3>Não foi possível carregar as competições</h3>
+                    <p>Verifique se o arquivo dados.js ou dados.json está na mesma pasta e recarregue a página.</p>
+                    <button type="button" class="btn btn--prominent" onclick="window.location.reload()">Recarregar</button>
                 </div>
             `;
-            console.error('Erro ao carregar dados:', error);
+            console.error('Erro ao carregar dados:', err);
         }
     }
 
-    function getEventReferenceDate(ev) {
-        return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
-    }
+    function updateHeroStats() {
+        const statComp = document.getElementById('stat-competicoes');
+        const statAreas = document.getElementById('stat-areas');
+        const statInsc = document.getElementById('stat-inscricoes-abertas');
+        const statMat = document.getElementById('stat-materiais');
 
-    function getEarliestEventDate(o) {
-        return (o.eventos || []).reduce((min, ev) => {
-            const date = getEventReferenceDate(ev);
-            if (!date) return min;
-            return !min || date < min ? date : min;
-        }, '');
-    }
+        if (!statComp) return;
 
-    function getInscricaoDate(o) {
-        const inscEv = (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
-        return getEventReferenceDate(inscEv);
-    }
-
-    function renderCards() {
-        const filtradas = filtroAtual === 'Todas'
-            ? olimpiadas
-            : olimpiadas.filter(o => (o.nivel_escolar || []).includes(filtroAtual));
-
-        if (filtradas.length === 0) {
-            listaEl.innerHTML = `
-                <div class="col-span-full text-center py-16">
-                    <p class="text-slate-500 font-medium">Nenhuma olimpíada encontrada para este filtro.</p>
-                </div>
-            `;
-            return;
-        }
-
-        listaEl.innerHTML = filtradas.map((o, i) => criarCard(o, i)).join('');
-    }
-
-    function criarCard(o, index) {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
-        // Find inscription event deadline
-        const inscDate = getInscricaoDate(o);
-        const inscricaoFim = inscDate ? new Date(inscDate + 'T00:00:00') : null;
-        const diffDias = inscricaoFim
-            ? Math.ceil((inscricaoFim - hoje) / (1000 * 60 * 60 * 24))
-            : null;
+        const areas = new Set();
+        let abertasCount = 0;
+        let totalMateriais = 0;
+        let closestUpcoming = null;
 
-        const expirado = diffDias !== null && diffDias < 0;
-        const urgente = diffDias !== null && diffDias >= 0 && diffDias <= 14;
+        olimpiadas.forEach(o => {
+            (o.materias || []).forEach(m => areas.add(m));
+            totalMateriais += (o.materiais_estudo || []).length;
+            
+            const inscDate = getInscricaoDate(o);
+            if (inscDate) {
+                const [y, m, d] = inscDate.split('-');
+                const deadLine = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                const diffDias = Math.ceil((deadLine - hoje) / (1000 * 60 * 60 * 24));
+                
+                if (diffDias >= 0) {
+                    abertasCount++;
+                    if (!closestUpcoming || diffDias < closestUpcoming.days) {
+                        closestUpcoming = {
+                            sigla: o.sigla,
+                            nome: o.nome,
+                            date: inscDate,
+                            days: diffDias,
+                            desc: 'Prazo final de inscrições'
+                        };
+                    }
+                }
+            }
+        });
 
-        // Date badge styling
-        let dateBadgeClass, dateText;
-        if (diffDias === null) {
-            dateBadgeClass = 'bg-slate-700 text-slate-400';
-            dateText = 'Cronograma pendente';
-        } else if (expirado) {
-            dateBadgeClass = 'bg-slate-700 text-slate-500';
-            dateText = 'Inscrições encerradas';
-        } else if (urgente) {
-            dateBadgeClass = 'bg-red-500/20 text-red-400 animate-pulse';
-            dateText = diffDias === 0 ? 'Último dia!' : `${diffDias} dia${diffDias > 1 ? 's' : ''} restante${diffDias > 1 ? 's' : ''}`;
-        } else {
-            dateBadgeClass = 'bg-emerald-500/15 text-emerald-400';
-            dateText = `${diffDias} dias restantes`;
+        statComp.textContent = olimpiadas.length;
+        if (statAreas) statAreas.textContent = areas.size;
+        if (statInsc) statInsc.textContent = abertasCount;
+        if (statMat) statMat.textContent = totalMateriais;
+
+        if (heroSpotlightText && closestUpcoming) {
+            const when = closestUpcoming.days === 0
+                ? '<strong>encerram hoje</strong>'
+                : `encerram em <strong>${closestUpcoming.days} dia${closestUpcoming.days !== 1 ? 's' : ''}</strong>`;
+            heroSpotlightText.innerHTML = `
+                <strong>Prazo em destaque:</strong>
+                as inscrições da ${closestUpcoming.sigla} ${when} (${formatDate(closestUpcoming.date)}).
+            `;
         }
+    }
 
-        // Modalidade badge
-        const modBadge = o.modalidade === 'Online'
-            ? 'bg-violet-500/20 text-violet-400 border-violet-500/30'
-            : 'bg-teal-500/20 text-teal-400 border-teal-500/30';
+    // ═══════════════════════════════════════════════════════
+    // Season Spectrum (signature element)
+    // ═══════════════════════════════════════════════════════
+    function renderSpectrum() {
+        const linesEl = document.getElementById('spectrum-lines');
+        const todayEl = document.getElementById('spectrum-today');
+        const tipEl = document.getElementById('spectrum-tip');
+        const bandEl = document.getElementById('spectrum-band');
+        const upcomingEl = document.getElementById('upcoming-list');
+        if (!linesEl) return;
 
-        // Level badges
-        const nivelHtml = (o.nivel_escolar || []).map(n => {
-            const cores = {
-                'Ensino Fundamental I': 'bg-purple-500/20 text-purple-400',
-                'Ensino Fundamental II': 'bg-amber-500/20 text-amber-400',
-                'Ensino Médio': 'bg-cyan-500/20 text-cyan-400',
-            };
-            return `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full ${cores[n] || 'bg-slate-700 text-slate-400'}">${n}</span>`;
+        const hoje = getToday();
+        const all = [];
+        olimpiadas.forEach(o => {
+            getSortedEvents(o).forEach(({ ev, date }) => {
+                if (date.getFullYear() !== 2026) return;
+                all.push({ o, ev, date, t: yearFraction(date) });
+            });
+        });
+        all.sort((a, b) => a.date - b.date);
+
+        linesEl.innerHTML = all.map((x, i) => {
+            const isDeadline = x.ev.tipo === 'Inscrição';
+            const h = isDeadline ? 52 : 100;
+            return `<button type="button" tabindex="-1" class="spectrum__line${x.date < hoje ? ' is-past' : ''}"
+                data-idx="${i}" data-id="${x.o.id}"
+                style="left:${(x.t * 100).toFixed(3)}%;--h:${h}%;--c:${spectrumColor(x.t)};--i:${i}"
+                aria-label="${x.o.sigla}: ${eventLabel(x.ev)}, ${formatDate(getEventReferenceDate(x.ev))}"></button>`;
         }).join('');
 
-        const formatDate = (dateStr) => new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR', {
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
-
-        // Matérias as pills
-        const materiasHtml = (o.materias || []).map(m =>
-            `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-slate-700 text-slate-300">${m}</span>`
-        ).join('');
-
-        // Next event
-        const nextEvent = (o.eventos || []).find(ev => {
-            const evDate = getEventReferenceDate(ev);
-            return evDate && new Date(evDate + 'T00:00:00') >= hoje;
-        });
-        
-        let nextEventHtml = '';
-        if (nextEvent) {
-            let dateStr = '';
-            if (nextEvent['data-i'] && nextEvent['data-f']) {
-                dateStr = `${formatDate(nextEvent['data-i'])} a ${formatDate(nextEvent['data-f'])}`;
-            } else {
-                dateStr = formatDate(getEventReferenceDate(nextEvent));
-            }
-            
-            nextEventHtml = `<div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Próximo: <span class="text-slate-300 font-medium">${nextEvent.descricao}</span> — ${dateStr}
-                </div>`;
+        if (bandEl) {
+            const upcomingCount = all.filter(x => x.date >= hoje).length;
+            bandEl.setAttribute('aria-label', `Espectro de 2026: ${all.length} datas oficiais ao longo do ano, ${upcomingCount} ainda por acontecer.`);
         }
 
-        const descricaoHtml = o.descricao
-            ? `<p class="mt-3 text-sm text-slate-400 leading-relaxed">${o.descricao}</p>`
-            : '';
+        if (todayEl && hoje.getFullYear() === 2026) {
+            todayEl.style.left = `${(yearFraction(hoje) * 100).toFixed(2)}%`;
+            todayEl.hidden = false;
+        }
 
-        const officialSiteHtml = o.site_oficial
-            ? `
-                <a href="${o.site_oficial}" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-semibold
-                          bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 hover:text-white transition-all duration-200"
-                   title="Abrir site oficial">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-1.5-6H21m0 0v4.5m0-4.5L10.5 15"/>
-                    </svg>
-                </a>`
-            : '';
+        // Tooltip + open sheet
+        const showTip = (btn) => {
+            const x = all[parseInt(btn.dataset.idx, 10)];
+            if (!x || !tipEl) return;
+            linesEl.querySelectorAll('.is-active').forEach(el => el.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            tipEl.innerHTML = `<b>${x.o.sigla}</b>${eventLabel(x.ev)}<br><time>${formatDate(getEventReferenceDate(x.ev))}</time>`;
+            const pct = Math.min(88, Math.max(12, x.t * 100));
+            tipEl.style.left = `${pct}%`;
+            tipEl.hidden = false;
+        };
+        const hideTip = () => {
+            if (tipEl) tipEl.hidden = true;
+            linesEl.querySelectorAll('.is-active').forEach(el => el.classList.remove('is-active'));
+        };
+        linesEl.querySelectorAll('.spectrum__line').forEach(btn => {
+            btn.addEventListener('pointerenter', () => showTip(btn));
+            btn.addEventListener('click', () => openOlympicSheet(btn.dataset.id, btn));
+        });
+        linesEl.addEventListener('pointerleave', hideTip);
 
-        const inscricaoHtml = inscDate
-            ? `
-                <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Inscrições até <span class="font-semibold text-slate-300">${formatDate(inscDate)}</span>
-                </div>`
-            : `
-                <div class="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Acompanhe o site oficial para o cronograma
-                </div>`;
+        // "A seguir" — the keyboard/screen-reader equivalent of the band
+        if (upcomingEl) {
+            const next = all.filter(x => x.date >= hoje).slice(0, 6);
+            if (next.length === 0) {
+                upcomingEl.innerHTML = '<li class="upcoming__placeholder">Todas as datas de 2026 já passaram. Novos cronogramas aparecem aqui quando forem publicados.</li>';
+            } else {
+                upcomingEl.innerHTML = next.map(x => {
+                    const d = daysBetween(hoje, x.date);
+                    const rel = d === 0 ? 'hoje' : d === 1 ? 'amanhã' : `em ${d} dias`;
+                    return `<li><button type="button" class="upcoming__item" data-id="${x.o.id}" style="--c:${spectrumColor(x.t)}">
+                        <span class="upcoming__swatch" aria-hidden="true"></span>
+                        <span class="upcoming__date">${formatShortDate(getEventReferenceDate(x.ev))}</span>
+                        <span class="upcoming__what"><b>${x.o.sigla}</b><span>${eventLabel(x.ev)} · ${rel}</span></span>
+                    </button></li>`;
+                }).join('');
+                upcomingEl.querySelectorAll('.upcoming__item').forEach(btn => {
+                    btn.addEventListener('click', () => openOlympicSheet(btn.dataset.id, btn));
+                });
+            }
+        }
 
-        const animDelay = `animation-delay: ${index * 60}ms`;
+        const section = linesEl.closest('.spectrum');
+        if (section) requestAnimationFrame(() => section.classList.add('is-ready'));
+    }
+
+    function populateSubjectSelect() {
+        if (!selectMateria) return;
+        const areas = new Set();
+        olimpiadas.forEach(o => (o.materias || []).forEach(m => areas.add(m)));
+        const sorted = [...areas].sort();
+
+        sorted.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            selectMateria.appendChild(opt);
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Filtering & Sorting Core
+    // ═══════════════════════════════════════════════════════
+    function getFilteredOlimpiadas() {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        return olimpiadas.filter(o => {
+            // Nível / Favoritas
+            if (filters.nivel === 'Favoritas') {
+                if (!favoritos.includes(o.id)) return false;
+            } else if (filters.nivel !== 'Todas') {
+                if (!(o.nivel_escolar || []).includes(filters.nivel)) return false;
+            }
+
+            // Matéria
+            if (filters.materia !== 'Todas') {
+                const target = filters.materia.toLowerCase();
+                const hasMatch = (o.materias || []).some(m => {
+                    const mLower = m.toLowerCase();
+                    if (mLower === target) return true;
+                    if (target === 'informática' && (mLower.includes('informática') || mLower.includes('computação') || mLower.includes('programação') || mLower.includes('robótica') || mLower.includes('inteligência artificial'))) return true;
+                    if (target === 'astronomia' && (mLower.includes('astronomia') || mLower.includes('astronáutica') || mLower.includes('aeroespacial'))) return true;
+                    if (target === 'física' && mLower.includes('física')) return true;
+                    if (target === 'matemática' && mLower.includes('matemática')) return true;
+                    if (target === 'química' && mLower.includes('química')) return true;
+                    if (target === 'biologia' && mLower.includes('biologia')) return true;
+                    if (target === 'linguística' && (mLower.includes('linguística') || mLower.includes('língua') || mLower.includes('letras'))) return true;
+                    return mLower.includes(target);
+                });
+                if (!hasMatch) return false;
+            }
+
+            // Modalidade
+            if (filters.modalidade !== 'Todas') {
+                if (o.modalidade !== filters.modalidade) return false;
+            }
+
+            // Status
+            if (filters.status !== 'Todos') {
+                const inscDate = getInscricaoDate(o);
+                if (!inscDate) {
+                    if (filters.status !== 'Pendente') return false;
+                } else {
+                    const [y, m, d] = inscDate.split('-');
+                    const deadLine = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                    const diffDias = Math.ceil((deadLine - hoje) / (1000 * 60 * 60 * 24));
+
+                    if (filters.status === 'Abertas' && diffDias < 0) return false;
+                    if (filters.status === 'Urgentes' && (diffDias < 0 || diffDias > 14)) return false;
+                    if (filters.status === 'Encerradas' && diffDias >= 0) return false;
+                }
+            }
+
+            // Search query
+            if (filters.searchQuery) {
+                const q = filters.searchQuery.toLowerCase();
+                const matchSigla = (o.sigla || '').toLowerCase().includes(q);
+                const matchNome = (o.nome || '').toLowerCase().includes(q);
+                const matchMaterias = (o.materias || []).some(m => m.toLowerCase().includes(q));
+                const matchNiveis = (o.nivel_escolar || []).some(n => n.toLowerCase().includes(q));
+                const matchModalidade = (o.modalidade || '').toLowerCase().includes(q);
+
+                if (!matchSigla && !matchNome && !matchMaterias && !matchNiveis && !matchModalidade) {
+                    return false;
+                }
+            }
+
+            return true;
+        }).sort((a, b) => {
+            if (filters.ordem === 'nome') {
+                return (a.sigla || '').localeCompare(b.sigla || '');
+            }
+            if (filters.ordem === 'materiais') {
+                return (b.materiais_estudo || []).length - (a.materiais_estudo || []).length;
+            }
+            // Default: Prazo mais próximo
+            const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || '9999-99-99';
+            const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || '9999-99-99';
+            return aDate.localeCompare(bDate);
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Discipline Themes & Olympic Prestige Helpers
+    // ═══════════════════════════════════════════════════════
+    const VAGAS_USP_SIGLAS = ['OBMEP', 'OBF', 'OBI', 'OBQ', 'OBB', 'OBA', 'OBM', 'ONC', 'OBR', 'IYPT', 'OBSP'];
+    const CNPQ_BOLSA_SIGLAS = ['OBMEP', 'OBM', 'OBF', 'OBI', 'OBQ', 'OBB'];
+
+    let viewMode = 'cards';
+    try {
+        viewMode = localStorage.getItem('calolimpico_view_mode') || 'cards';
+    } catch (_) {
+        viewMode = 'cards';
+    }
+
+    function getDisciplineTheme(o) {
+        const mats = (o.materias || []).map(m => m.toLowerCase());
+        if (mats.some(m => m.includes('matemática'))) return { key: 'matematica', label: 'Matemática', icon: 'i-sub-math' };
+        if (mats.some(m => m.includes('física'))) return { key: 'fisica', label: 'Física', icon: 'i-sub-physics' };
+        if (mats.some(m => m.includes('astronomia') || m.includes('aeroespacial') || m.includes('astronáutica'))) return { key: 'astronomia', label: 'Astronomia', icon: 'i-sub-astronomy' };
+        if (mats.some(m => m.includes('informática') || m.includes('robótica') || m.includes('inteligência artificial'))) return { key: 'informatica', label: 'Informática & IA', icon: 'i-sub-code' };
+        if (mats.some(m => m.includes('química'))) return { key: 'quimica', label: 'Química', icon: 'i-sub-chem' };
+        if (mats.some(m => m.includes('biologia') || m.includes('neurociência'))) return { key: 'biologia', label: 'Biologia', icon: 'i-sub-bio' };
+        if (mats.some(m => m.includes('linguística') || m.includes('história'))) return { key: 'linguistica', label: 'Linguística', icon: 'i-sub-ling' };
+        return { key: 'multi', label: 'Multidisciplinar', icon: 'i-sub-multi' };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Render Cards & Rows
+    // ═══════════════════════════════════════════════════════
+    function renderCards() {
+        const filtered = getFilteredOlimpiadas();
+
+        const hasActiveFilters = (
+            filters.nivel !== 'Todas' ||
+            filters.materia !== 'Todas' ||
+            filters.modalidade !== 'Todas' ||
+            filters.status !== 'Todos' ||
+            Boolean(filters.searchQuery)
+        );
+
+        if (btnQuickReset) {
+            btnQuickReset.hidden = !hasActiveFilters;
+        }
+
+        if (contagemEl) {
+            const count = filtered.length;
+            const plural = count !== 1;
+            contagemEl.textContent = `${count} olimpíada${plural ? 's' : ''} ${filters.nivel === 'Favoritas' ? 'salva' + (plural ? 's' : '') : 'encontrada' + (plural ? 's' : '')}`;
+        }
+
+        if (filtered.length === 0) {
+            const isSaved = filters.nivel === 'Favoritas' && favoritos.length === 0;
+            listaEl.classList.remove('is-list-view');
+            listaEl.innerHTML = isSaved ? `
+                <div class="empty">
+                    <h3>Nenhuma olimpíada salva ainda</h3>
+                    <p>Toque na estrela de uma competição para guardá-la aqui e acompanhar os prazos dela.</p>
+                    <button type="button" id="btn-reset-filters" class="btn btn--tinted">Ver todas as olimpíadas</button>
+                </div>
+            ` : `
+                <div class="empty">
+                    <h3>Nenhuma olimpíada encontrada</h3>
+                    <p>Nenhuma competição corresponde a esses filtros. Tente outra busca ou limpe os filtros.</p>
+                    <button type="button" id="btn-reset-filters" class="btn btn--tinted">Limpar filtros</button>
+                </div>
+            `;
+            const resetBtn = document.getElementById('btn-reset-filters');
+            if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+            return;
+        }
+
+        listaEl.classList.toggle('is-list-view', viewMode === 'list');
+        listaEl.innerHTML = filtered.map((o, idx) => {
+            return viewMode === 'list' ? createRowHtml(o, idx) : createCardHtml(o, idx);
+        }).join('');
+
+        // Favorite Toggle Buttons
+        listaEl.querySelectorAll('.btn-fav-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const sigla = btn.dataset.sigla;
+                toggleFavorite(id, sigla);
+            });
+        });
+
+        // Quick View Sheet Triggers
+        listaEl.querySelectorAll('.btn-quick-sheet').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = btn.dataset.id;
+                openOlympicSheet(id, btn);
+            });
+        });
+    }
+
+    function getStatusBadge(o) {
+        const hoje = getToday();
+        const inscDate = getInscricaoDate(o);
+        if (!inscDate) {
+            return `<span class="badge-tag badge-pending">Cronograma a publicar</span>`;
+        }
+        const diffDias = daysBetween(hoje, parseDate(inscDate));
+        if (diffDias < 0) {
+            return `<span class="badge-tag badge-expired">Inscrições encerradas</span>`;
+        } else if (diffDias === 0) {
+            return `<span class="badge-tag badge-urgent">Inscrições encerram hoje</span>`;
+        } else if (diffDias <= 14) {
+            return `<span class="badge-tag badge-urgent">Inscrições encerram em ${diffDias} dia${diffDias > 1 ? 's' : ''}</span>`;
+        }
+        return `<span class="badge-tag badge-active">Inscrições abertas até ${formatShortDate(inscDate)}</span>`;
+    }
+
+    function levelShort(n) {
+        return ({
+            'Ensino Fundamental I': 'EF I',
+            'Ensino Fundamental II': 'EF II',
+            'Ensino Médio': 'EM',
+            'Livre': 'Livre'
+        })[n] || n;
+    }
+
+    function createCardHtml(o, index) {
+        const hoje = getToday();
+        const isFav = favoritos.includes(o.id);
+        const statusBadgeHtml = getStatusBadge(o);
+        const theme = getDisciplineTheme(o);
+        const isUsp = VAGAS_USP_SIGLAS.includes(o.sigla);
+        const isCnpq = CNPQ_BOLSA_SIGLAS.includes(o.sigla);
+
+        const upcoming = getSortedEvents(o).find(x => x.date >= hoje);
+        let chipCountdownHtml = '';
+        let nextHtml;
+        if (upcoming) {
+            const d = daysBetween(hoje, upcoming.date);
+            const countText = d === 0 ? 'Hoje' : `${d}d`;
+            chipCountdownHtml = `<div class="card__countdown-chip" title="${eventLabel(upcoming.ev)}">⏳ <b>${countText}</b></div>`;
+            nextHtml = `<p class="card__next"><time datetime="${getEventReferenceDate(upcoming.ev)}">${formatShortDate(getEventReferenceDate(upcoming.ev))}</time>${eventLabel(upcoming.ev)}</p>`;
+        } else {
+            const hasEvents = getSortedEvents(o).length > 0;
+            chipCountdownHtml = `<div class="card__countdown-chip">🏁 <b>Fim</b></div>`;
+            nextHtml = `<p class="card__next">${hasEvents ? 'Temporada 2026 concluída.' : 'Aguardando cronograma oficial.'}</p>`;
+        }
+
+        const levels = (o.nivel_escolar || []).map(levelShort).join(' · ');
+        const matCount = (o.materiais_estudo || []).length;
 
         return `
-        <article class="card-surface group relative backdrop-blur-md bg-slate-900/60 rounded-2xl border border-slate-700/80 shadow-xl shadow-slate-950/50
-                        hover:border-yellow-500/40 hover:shadow-2xl hover:shadow-yellow-500/5 hover:-translate-y-1.5
-                        transition-all duration-300 flex flex-col overflow-hidden
-                        opacity-0 animate-[fadeInUp_0.4s_ease_forwards]"
-                 style="${animDelay}" role="region" aria-label="${o.nome}">
-            <!-- Efeito de linha luminosa superior no hover -->
-            <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-yellow-400/0 to-transparent group-hover:via-yellow-400 transition-all duration-300"></div>
+            <article class="olympic-card theme-${theme.key}${upcoming ? '' : ' is-past'}" data-id="${o.id}" style="--i:${Math.min(index, 16)}">
+                <div class="card__top">
+                    <div class="card__discipline-badge">
+                        <svg class="icon icon--sm" aria-hidden="true"><use href="#${theme.icon}"/></svg>
+                        <span>${theme.label}</span>
+                    </div>
+                    <div class="card__top-actions">
+                        ${isUsp ? `<span class="badge-perk badge-perk--usp" title="Vagas Olímpicas sem vestibular na USP, Unicamp e Unesp"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trophy"/></svg> Vaga USP</span>` : ''}
+                        ${isCnpq ? `<span class="badge-perk badge-perk--cnpq" title="Bolsa de Iniciação Científica Júnior CNPq"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-microscope"/></svg> CNPq</span>` : ''}
+                        <button type="button" class="btn-fav-toggle ${isFav ? 'favorited' : ''}" data-id="${o.id}" data-sigla="${o.sigla}"
+                            aria-pressed="${isFav}" aria-label="${isFav ? 'Remover dos favoritos' : 'Salvar'} ${o.sigla}">
+                            <svg class="icon" aria-hidden="true"><use href="#${isFav ? 'i-star-fill' : 'i-star'}"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card__header">
+                    <h3 class="card__symbol">
+                        <button type="button" class="card__open btn-quick-sheet" data-id="${o.id}" aria-label="${o.sigla} — ${o.nome}. Ver detalhes">${o.sigla}</button>
+                    </h3>
+                    ${chipCountdownHtml}
+                </div>
+                <p class="card__name">${o.nome}</p>
+                ${stripHtml(o)}
+                ${nextHtml}
+                <div class="card__meta">
+                    ${levels ? `<span class="tag">${levels}</span>` : ''}
+                    <span class="tag tag--mode">${o.modalidade || 'Nacional'}</span>
+                    ${matCount > 0 ? `<a href="provas.html?q=${encodeURIComponent(o.sigla)}" class="tag tag--action" title="Ver ${matCount} materiais de estudo e provas">📚 ${matCount} materiais</a>` : ''}
+                </div>
+                <div class="card__status">
+                    ${statusBadgeHtml}
+                    <button type="button" class="btn-card-more btn-quick-sheet" data-id="${o.id}" aria-label="Ver ficha completa de ${o.sigla}">Ficha Completa →</button>
+                </div>
+            </article>
+        `;
+    }
 
-            <!-- Card Header -->
-            <div class="p-5 pb-3 flex-1">
-                <!-- Badges Row -->
-                <div class="flex items-center gap-2 mb-3 flex-wrap">
-                    <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${modBadge}">${o.modalidade}</span>
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${dateBadgeClass}">
-                        ${dateText}
-                    </span>
+    function createRowHtml(o, index) {
+        const hoje = getToday();
+        const isFav = favoritos.includes(o.id);
+        const theme = getDisciplineTheme(o);
+        const isUsp = VAGAS_USP_SIGLAS.includes(o.sigla);
+        const statusBadgeHtml = getStatusBadge(o);
+
+        const upcoming = getSortedEvents(o).find(x => x.date >= hoje);
+        const nextDateShort = upcoming ? formatShortDate(getEventReferenceDate(upcoming.ev)) : '—';
+        const nextDesc = upcoming ? eventLabel(upcoming.ev) : 'Concluída';
+
+        return `
+            <article class="olympic-row theme-${theme.key}${upcoming ? '' : ' is-past'}" data-id="${o.id}" style="--i:${Math.min(index, 20)}">
+                <div class="row__left">
+                    <div class="row__icon" aria-hidden="true">
+                        <svg class="icon" aria-hidden="true"><use href="#${theme.icon}"/></svg>
+                    </div>
+                    <div class="row__info">
+                        <div class="row__sigla-line">
+                            <button type="button" class="row__sigla btn-quick-sheet" data-id="${o.id}">${o.sigla}</button>
+                            <span class="row__discipline">${theme.label}</span>
+                            ${isUsp ? `<span class="badge-perk badge-perk--usp badge-perk--mini" title="Vaga Olímpica sem vestibular">🏆 Vaga</span>` : ''}
+                        </div>
+                        <p class="row__name">${o.nome}</p>
+                    </div>
                 </div>
 
-                <!-- Title -->
-                <h3 class="text-lg font-bold text-slate-100 leading-snug group-hover:text-blue-400 transition-colors duration-200">
-                    ${o.sigla} <span class="text-slate-400 font-normal text-sm">— ${o.nome}</span>
-                </h3>
-
-                <!-- Levels & Matérias -->
-                <div class="mt-2 flex flex-wrap gap-1">
-                    ${nivelHtml}
-                    ${materiasHtml}
+                <div class="row__center">
+                    <div class="row__next-date">
+                        <span class="row__date-val">${nextDateShort}</span>
+                        <span class="row__date-desc">${nextDesc}</span>
+                    </div>
+                    <div class="row__status-badge">
+                        ${statusBadgeHtml}
+                    </div>
                 </div>
 
-                ${descricaoHtml}
-
-                <!-- Next event -->
-                ${nextEventHtml}
-
-                <!-- Inscription deadline -->
-                ${inscricaoHtml}
-            </div>
-
-            <!-- Card Footer -->
-            <div class="px-5 pb-5 pt-2 flex gap-2">
-                <a href="provas.html?id=${o.id}"
-                   class="flex-1 block text-center px-4 py-2.5 rounded-xl text-sm font-semibold
-                          bg-blue-600 text-white hover:bg-blue-500 hover:-translate-y-0.5 transition-all duration-200 shadow-md shadow-blue-600/20">
-                    Ver Detalhes
-                </a>
-                ${officialSiteHtml}
-                ${!expirado && nextEvent ? `
-                <a href="calendario.html"
-                   class="flex items-center justify-center px-3 py-2.5 rounded-xl text-sm font-semibold
-                          bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600 hover:text-white transition-all duration-200"
-                   title="Ver no Calendário">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                </a>` : ''}
-            </div>
-        </article>
+                <div class="row__right">
+                    <button type="button" class="btn-fav-toggle ${isFav ? 'favorited' : ''}" data-id="${o.id}" data-sigla="${o.sigla}"
+                        aria-pressed="${isFav}" aria-label="${isFav ? 'Remover' : 'Salvar'} ${o.sigla}">
+                        <svg class="icon" aria-hidden="true"><use href="#${isFav ? 'i-star-fill' : 'i-star'}"/></svg>
+                    </button>
+                    <button type="button" class="row__open-btn btn-quick-sheet" data-id="${o.id}" aria-label="Abrir detalhes de ${o.sigla}">
+                        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-chevron"/></svg>
+                    </button>
+                </div>
+            </article>
         `;
     }
 
     // ═══════════════════════════════════════════════════════
-    // Filter System
+    // Apple Quick View Sheet Modal Logic
     // ═══════════════════════════════════════════════════════
-    function initFiltros() {
-        const buttons = filtrosContainer.querySelectorAll('.filtro-btn');
+    let sheetReturnFocus = null;
 
-        function updateActiveStyles() {
-            buttons.forEach(btn => {
-                const isActive = btn.dataset.filtro === filtroAtual;
-                btn.setAttribute('aria-selected', isActive);
+    function setSheetFavLabel(isFav) {
+        if (!sheetFavBtn) return;
+        sheetFavBtn.innerHTML = `<svg class="icon" aria-hidden="true"><use href="#${isFav ? 'i-star-fill' : 'i-star'}"/></svg>${isFav ? 'Salva' : 'Salvar'}`;
+        sheetFavBtn.setAttribute('aria-pressed', String(isFav));
+    }
 
-                if (isActive) {
-                    btn.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/25');
-                    btn.classList.remove('bg-slate-800', 'text-slate-400', 'hover:text-white', 'hover:bg-slate-700', 'border', 'border-slate-700');
-                } else {
-                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-600/25');
-                    btn.classList.add('bg-slate-800', 'text-slate-400', 'hover:text-white', 'hover:bg-slate-700', 'border', 'border-slate-700');
+    function openOlympicSheet(id, trigger) {
+        const o = olimpiadas.find(item => item.id === id);
+        if (!o || !sheetModal || !sheetBody) return;
+
+        currentSheetOlimpiadaId = id;
+        sheetReturnFocus = trigger || document.activeElement;
+        const isFav = favoritos.includes(o.id);
+        const hoje = getToday();
+
+        if (sheetTitle) {
+            sheetTitle.textContent = `Edição 2026`;
+        }
+
+        const levels = (o.nivel_escolar || []).join(', ') || 'Não especificado';
+        const subjects = (o.materias || []).join(', ') || 'Geral';
+
+        // Timeline
+        const events = getSortedEvents(o);
+        const nextIdx = events.findIndex(x => x.date >= hoje);
+        let eventsHtml = '<p class="detail__desc">Nenhum cronograma oficial publicado até o momento.</p>';
+        if (events.length > 0) {
+            eventsHtml = '<ol class="group timeline">' + events.map(({ ev, date }, i) => {
+                const t = yearFraction(date);
+                const past = date < hoje;
+                const range = ev['data-i'] && ev['data-f']
+                    ? `<small>${formatShortDate(ev['data-i'])} – ${formatShortDate(ev['data-f'])}</small>` : '';
+                return `<li class="${past ? 'is-past' : ''}" style="--c:${spectrumColor(t)}">
+                    <span class="timeline__dot" aria-hidden="true"></span>
+                    <span class="timeline__text">
+                        <span>${ev.tipo === 'Inscrição' ? (ev.descricao || 'Inscrições') : (ev.descricao || ev.tipo)}</span>
+                        ${range}
+                        ${i === nextIdx ? '<span class="timeline__next">Próxima data</span>' : ''}
+                    </span>
+                    <time datetime="${getEventReferenceDate(ev)}">${formatShortDate(getEventReferenceDate(ev))}</time>
+                </li>`;
+            }).join('') + '</ol>';
+        }
+
+        // Study materials
+        let materialsHtml = '<p class="detail__desc">Nenhum material listado diretamente.</p>';
+        if (Array.isArray(o.materiais_estudo) && o.materiais_estudo.length > 0) {
+            materialsHtml = '<ul class="group links">' + o.materiais_estudo.map(mat => `
+                <li><a href="${mat.url}" target="_blank" rel="noopener noreferrer"><span>${mat.titulo}</span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a></li>
+            `).join('') + '</ul>';
+        }
+
+        sheetBody.innerHTML = `
+            <div class="detail__hero">
+                <p class="detail__symbol">${o.sigla}</p>
+                <p class="detail__name">${o.nome}</p>
+                ${o.descricao ? `<p class="detail__desc">${o.descricao}</p>` : ''}
+            </div>
+            ${stripHtml(o, 'detail__strip')}
+            <div>${getStatusBadge(o)}</div>
+
+            <h3 class="group-title">Informações</h3>
+            <ul class="group">
+                <li><strong>Modalidade</strong><span>${o.modalidade || 'Nacional'}</span></li>
+                <li><strong>Etapas</strong><span>${levels}</span></li>
+                <li><strong>Áreas</strong><span>${subjects}</span></li>
+            </ul>
+
+            <h3 class="group-title">Cronograma oficial</h3>
+            ${eventsHtml}
+
+            <h3 class="group-title">Provas e materiais de estudo</h3>
+            ${materialsHtml}
+
+            ${o.site_oficial ? `
+                <p style="margin-top:1rem"><a href="${o.site_oficial}" target="_blank" rel="noopener noreferrer">Site oficial da ${o.sigla}</a></p>
+            ` : ''}
+        `;
+
+        setSheetFavLabel(isFav);
+        if (sheetFavBtn) {
+            sheetFavBtn.onclick = () => {
+                toggleFavorite(o.id, o.sigla);
+            };
+        }
+
+        if (sheetCatalogBtn) {
+            sheetCatalogBtn.href = `provas.html?id=${o.id}`;
+        }
+
+        sheetModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        sheetBody.scrollTop = 0;
+        if (sheetCloseBtn) sheetCloseBtn.focus({ preventScroll: true });
+    }
+
+    function closeOlympicSheet() {
+        if (sheetModal) sheetModal.hidden = true;
+        document.body.style.overflow = '';
+        currentSheetOlimpiadaId = null;
+        if (sheetReturnFocus && document.contains(sheetReturnFocus)) {
+            sheetReturnFocus.focus({ preventScroll: true });
+        } else {
+            const card = listaEl.querySelector('.card__open');
+            if (card) card.focus({ preventScroll: true });
+        }
+        sheetReturnFocus = null;
+    }
+
+    function resetAllFilters() {
+        filters.nivel = 'Todas';
+        filters.materia = 'Todas';
+        filters.modalidade = 'Todas';
+        filters.status = 'Todos';
+        filters.ordem = 'prazo';
+        filters.searchQuery = '';
+
+        if (searchBar) searchBar.value = '';
+        if (selectMateria) selectMateria.value = 'Todas';
+        if (selectModalidade) selectModalidade.value = 'Todas';
+        if (selectStatus) selectStatus.value = 'Todos';
+        if (selectOrdem) selectOrdem.value = 'prazo';
+
+        if (nivelPillsContainer) {
+            nivelPillsContainer.querySelectorAll('.filter-pill-btn').forEach(btn => {
+                const isActive = btn.dataset.filtro === 'Todas';
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', String(isActive));
+            });
+        }
+
+        const subjectBar = document.querySelector('.subject-bar');
+        if (subjectBar) {
+            subjectBar.querySelectorAll('.subject-chip').forEach(c => {
+                const isActive = c.dataset.materia === 'Todas';
+                c.classList.toggle('active', isActive);
+            });
+        }
+
+        renderCards();
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Event Listeners Setup
+    // ═══════════════════════════════════════════════════════
+    function setupFilterListeners() {
+        // View Mode Switcher (Cards vs Compact List)
+        const btnViewCards = document.getElementById('btn-view-cards');
+        const btnViewList = document.getElementById('btn-view-list');
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            try { localStorage.setItem('calolimpico_view_mode', mode); } catch (_) {}
+            if (btnViewCards) {
+                const isActive = mode === 'cards';
+                btnViewCards.classList.toggle('active', isActive);
+                btnViewCards.setAttribute('aria-pressed', String(isActive));
+            }
+            if (btnViewList) {
+                const isActive = mode === 'list';
+                btnViewList.classList.toggle('active', isActive);
+                btnViewList.setAttribute('aria-pressed', String(isActive));
+            }
+            renderCards();
+        }
+
+        if (viewMode === 'list') {
+            if (btnViewCards) { btnViewCards.classList.remove('active'); btnViewCards.setAttribute('aria-pressed', 'false'); }
+            if (btnViewList) { btnViewList.classList.add('active'); btnViewList.setAttribute('aria-pressed', 'true'); }
+        }
+
+        if (btnViewCards) btnViewCards.addEventListener('click', () => setViewMode('cards'));
+        if (btnViewList) btnViewList.addEventListener('click', () => setViewMode('list'));
+
+        // Subject Chips Quick Filter
+        const subjectBar = document.querySelector('.subject-bar');
+        if (subjectBar) {
+            subjectBar.addEventListener('click', (e) => {
+                const chip = e.target.closest('.subject-chip');
+                if (!chip) return;
+                const mat = chip.dataset.materia;
+                filters.materia = mat;
+
+                if (selectMateria) {
+                    let matched = false;
+                    for (let i = 0; i < selectMateria.options.length; i++) {
+                        if (mat === 'Todas' && selectMateria.options[i].value === 'Todas') {
+                            selectMateria.selectedIndex = i;
+                            matched = true;
+                            break;
+                        } else if (mat !== 'Todas' && selectMateria.options[i].value.toLowerCase().includes(mat.toLowerCase())) {
+                            selectMateria.selectedIndex = i;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) selectMateria.value = 'Todas';
+                }
+
+                subjectBar.querySelectorAll('.subject-chip').forEach(c => {
+                    c.classList.toggle('active', c === chip);
+                });
+
+                renderCards();
+            });
+        }
+
+        let searchTimeout = null;
+        if (searchBar) {
+            searchBar.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filters.searchQuery = e.target.value.trim();
+                    renderCards();
+                }, 150);
+            });
+        }
+
+        if (nivelPillsContainer) {
+            nivelPillsContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.filter-pill-btn');
+                if (!btn) return;
+                filters.nivel = btn.dataset.filtro;
+
+                nivelPillsContainer.querySelectorAll('.filter-pill-btn').forEach(b => {
+                    const isActive = b === btn;
+                    b.classList.toggle('active', isActive);
+                    b.setAttribute('aria-pressed', String(isActive));
+                });
+
+                renderCards();
+            });
+        }
+
+        if (selectMateria) {
+            selectMateria.addEventListener('change', (e) => {
+                filters.materia = e.target.value;
+                if (subjectBar) {
+                    subjectBar.querySelectorAll('.subject-chip').forEach(c => {
+                        const cMat = c.dataset.materia;
+                        const isMatch = (cMat === 'Todas' && filters.materia === 'Todas') ||
+                            (filters.materia !== 'Todas' && cMat !== 'Todas' && filters.materia.toLowerCase().includes(cMat.toLowerCase()));
+                        c.classList.toggle('active', isMatch);
+                    });
+                }
+                renderCards();
+            });
+        }
+
+        if (selectModalidade) {
+            selectModalidade.addEventListener('change', (e) => {
+                filters.modalidade = e.target.value;
+                renderCards();
+            });
+        }
+
+        if (selectStatus) {
+            selectStatus.addEventListener('change', (e) => {
+                filters.status = e.target.value;
+                renderCards();
+            });
+        }
+
+        if (selectOrdem) {
+            selectOrdem.addEventListener('change', (e) => {
+                filters.ordem = e.target.value;
+                renderCards();
+            });
+        }
+
+        if (btnQuickReset) {
+            btnQuickReset.addEventListener('click', resetAllFilters);
+        }
+
+        if (btnShowSaved) {
+            btnShowSaved.addEventListener('click', () => {
+                const favPill = document.getElementById('filter-saved-pill');
+                if (favPill) {
+                    favPill.click();
+                    const section = document.getElementById('provas-section');
+                    if (section) section.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         }
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filtroAtual = btn.dataset.filtro;
-                updateActiveStyles();
-                renderCards();
-            });
-        });
+        if (btnNextCuriosity) {
+            btnNextCuriosity.addEventListener('click', getNextCuriosity);
+        }
 
-        updateActiveStyles();
+        // Sheet close listeners
+        if (sheetCloseBtn) {
+            sheetCloseBtn.addEventListener('click', closeOlympicSheet);
+        }
+        if (sheetModal) {
+            sheetModal.addEventListener('click', (e) => {
+                if (e.target === sheetModal) closeOlympicSheet();
+            });
+        }
+
+        // Keyboard Shortcut: / to focus search, Escape to close sheet or clear search
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (sheetModal && !sheetModal.hidden) {
+                    closeOlympicSheet();
+                    return;
+                }
+                if (searchBar && searchBar === document.activeElement) {
+                    searchBar.value = '';
+                    filters.searchQuery = '';
+                    searchBar.blur();
+                    renderCards();
+                }
+            } else if (e.key === '/' && document.activeElement !== searchBar && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                e.preventDefault();
+                if (searchBar) {
+                    searchBar.focus();
+                    searchBar.select();
+                }
+            }
+        });
     }
 
     // ═══════════════════════════════════════════════════════
-    // Mobile Menu Toggle
+    // Mobile Navigation Drawer
     // ═══════════════════════════════════════════════════════
-    function initMobileMenu() {
+    function setupMobileMenu() {
         if (!mobileMenuBtn || !mobileMenu) return;
 
         mobileMenuBtn.addEventListener('click', () => {
-            const isOpen = !mobileMenu.classList.contains('hidden');
-            mobileMenu.classList.toggle('hidden');
-            mobileMenuBtn.setAttribute('aria-expanded', !isOpen);
+            const isHidden = mobileMenu.hidden;
+            mobileMenu.hidden = !isHidden;
+            mobileMenuBtn.setAttribute('aria-expanded', String(isHidden));
         });
 
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
+                mobileMenu.hidden = true;
                 mobileMenuBtn.setAttribute('aria-expanded', 'false');
             });
         });
     }
 
     // ═══════════════════════════════════════════════════════
-    // Inject keyframes for card animation
+    // Modals (Dev Warning & GPL License)
     // ═══════════════════════════════════════════════════════
-    function injectAnimations() {
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(16px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            @keyframes marquee {
-                0% { transform: translateX(0%); }
-                100% { transform: translateX(-50%); }
-            }
-            .animate-marquee {
-                display: inline-block;
-                animation: marquee 35s linear infinite;
-            }
-        `;
-        document.head.appendChild(style);
-    }
+    function setupModals() {
+        // Dev Warning Modal
+        const devModal = document.getElementById('dev-warning-modal');
+        const devCloseBtn = document.getElementById('dev-warning-close-btn');
+        const devConfirmBtn = document.getElementById('dev-warning-confirm-btn');
 
-    // ═══════════════════════════════════════════════════════
-    // Development Warning Modal
-    // ═══════════════════════════════════════════════════════
-    function initDevWarningModal() {
-        const modal = document.getElementById('dev-warning-modal');
-        const closeBtn = document.getElementById('dev-warning-close-btn');
-        const content = document.getElementById('dev-warning-content');
-        
-        if (!modal || !closeBtn || !content) return;
-        
-        let loads = parseInt(localStorage.getItem('calolimpico_page_loads') || '0', 10);
-        loads++;
-        localStorage.setItem('calolimpico_page_loads', loads.toString());
-        
-        if (loads === 1 || (loads - 1) % 3 === 0) {
-            // Show modal
-            modal.classList.remove('hidden');
-            
-            // Trigger animation frame for transition
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.classList.add('opacity-100');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                });
-            });
-            
-            // Prevent scrolling
-            document.body.style.overflow = 'hidden';
-            
-            // Close logic
-            closeBtn.addEventListener('click', () => {
-                
-                // Animate out
-                modal.classList.remove('opacity-100');
-                modal.classList.add('opacity-0');
-                content.classList.remove('scale-100');
-                content.classList.add('scale-95');
-                
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }, 300);
+        if (devModal && devCloseBtn) {
+            let loads = parseInt(localStorage.getItem(STORAGE_PAGE_LOADS) || '0', 10);
+            loads++;
+            try { localStorage.setItem(STORAGE_PAGE_LOADS, loads.toString()); } catch (_) {}
+
+            if (loads === 1 || (loads - 1) % 5 === 0) {
+                devModal.hidden = false;
+            }
+
+            const closeDevModal = () => { devModal.hidden = true; };
+            devCloseBtn.addEventListener('click', closeDevModal);
+            if (devConfirmBtn) devConfirmBtn.addEventListener('click', closeDevModal);
+
+            devModal.addEventListener('click', (e) => {
+                if (e.target === devModal) closeDevModal();
             });
         }
-    }
 
-    // ═══════════════════════════════════════════════════════
-    // License Modal
-    // ═══════════════════════════════════════════════════════
-    function initLicenseModal() {
-        const modal = document.getElementById('license-modal');
-        const openBtn = document.getElementById('license-btn');
-        const closeBtn = document.getElementById('license-close-btn');
-        const content = document.getElementById('license-content');
+        // License Modal
+        const licModal = document.getElementById('license-modal');
+        const licBtn = document.getElementById('license-btn');
+        const licCloseBtn = document.getElementById('license-close-btn');
+        const licOkBtn = document.getElementById('license-ok-btn');
 
-        if (!modal || !openBtn || !closeBtn || !content) return;
+        if (licModal && licBtn) {
+            const openLic = () => { licModal.hidden = false; };
+            const closeLic = () => { licModal.hidden = true; };
 
-        const openModal = () => {
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.classList.add('opacity-100');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                });
+            licBtn.addEventListener('click', openLic);
+            if (licCloseBtn) licCloseBtn.addEventListener('click', closeLic);
+            if (licOkBtn) licOkBtn.addEventListener('click', closeLic);
+
+            licModal.addEventListener('click', (e) => {
+                if (e.target === licModal) closeLic();
             });
-            document.body.style.overflow = 'hidden';
-        };
+        }
 
-        const closeModal = () => {
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
-        };
-
-        openBtn.addEventListener('click', openModal);
-        closeBtn.addEventListener('click', closeModal);
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
-
+        // ESC Key handler for modals
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+            if (e.key === 'Escape') {
+                if (devModal && !devModal.hidden) devModal.hidden = true;
+                if (licModal && !licModal.hidden) licModal.hidden = true;
+            }
         });
     }
 
     // ═══════════════════════════════════════════════════════
-    // Init
+    // Navbar Scroll Transition
     // ═══════════════════════════════════════════════════════
+    function setupNavbarScroll() {
+        const navbar = document.getElementById('navbar');
+        if (!navbar) return;
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }, { passive: true });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Boot
+    // ═══════════════════════════════════════════════════════
+    function setupRefinePanel() {
+        const details = document.getElementById('more-filters');
+        if (!details) return;
+        const mq = window.matchMedia('(min-width: 1024px)');
+        details.open = mq.matches;
+        mq.addEventListener('change', (e) => { details.open = e.matches; });
+    }
+
     function init() {
-        injectAnimations();
-        initMobileMenu();
-        initFiltros();
-        exibirCuriosidade();
+        setupRefinePanel();
+        setupNavbarScroll();
+        setupMobileMenu();
+        loadFavorites();
+        setupFilterListeners();
+        setupModals();
+        getNextCuriosity();
         fetchOlimpiadas();
-        initDevWarningModal();
-        initLicenseModal();
     }
 
     if (document.readyState === 'loading') {

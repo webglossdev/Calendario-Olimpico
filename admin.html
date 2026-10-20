@@ -1,641 +1,636 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth overflow-x-hidden max-w-full">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Prevent search engines from indexing the admin page -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
-    <title>Admin — Calendário Olímpico</title>
-
-    <link rel="stylesheet" href="styles.css">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#F6F5F1" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0B0D11" media="(prefers-color-scheme: dark)">
+    <title>Console de Gestão & Observatório LGPD — Calendário Olímpico</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { inter: ['Inter', 'sans-serif'] },
-                    colors: {
-                        glass: {
-                            bg: 'rgba(15, 23, 42, 0.65)',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                        }
-                    }
-                },
-            },
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="admin-body bg-slate-950 font-inter text-slate-100 antialiased min-h-screen relative overflow-x-hidden w-full max-w-full m-0 p-0">
+<body class="admin-body">
+    <svg class="svg-sprite" aria-hidden="true" focusable="false">
+        <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-star-fill" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-house" viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4.75" cy="6.5" r="1.25" fill="currentColor"/><circle cx="4.75" cy="12" r="1.25" fill="currentColor"/><circle cx="4.75" cy="17.5" r="1.25" fill="currentColor"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-xmark" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M8 16L16 8M9.5 8H16v6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 2.1 5.9 6.5 6.5-4.4.6-5.9 2.1-6.5 6.5-.6-4.4-2.1-5.9-6.5-6.5 4.4-.6 5.9-2.1 6.5-6.5zM18.5 15.5c.3 1.9.9 2.5 2.8 2.8-1.9.3-2.5.9-2.8 2.8-.3-1.9-.9-2.5-2.8-2.8 1.9-.3 2.5-.9 2.8-2.8z" fill="currentColor"/></symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4.2h-4.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M17 6h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1M7 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1M12 14v4M9 20h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h12M10 21h4M10 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 9l4-4M17 2l3 3-3 3M9 14v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.8-3 8.9-7 10-4-1.1-7-5.2-7-10V6l7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 12l1.8 1.8 3.7-3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10.7 10.7 0 0 1 12 5c7 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.3M6.6 6.6C4.1 8.3 2 12 2 12s3 7 10 7a10.6 10.6 0 0 0 5.4-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 5.5v6.5c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V5.5M4.5 12v6.5c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V12" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 9.5L10.5 12l-3 2.5M12.5 14.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- Discipline Insignias -->
+        <symbol id="i-sub-math" viewBox="0 0 24 24"><path d="M4 6h16M8 6l4 12 4-12M6 18h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-physics" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(35 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(-35 12 12)"/></symbol>
+        <symbol id="i-sub-astronomy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 14.5c2.5-4 10.5-6.5 17-2M5.5 16.5c2.5 1.5 6 2 9 1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/></symbol>
+        <symbol id="i-sub-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-chem" viewBox="0 0 24 24"><path d="M9 3h6M10 3v5l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3.5L14 8V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="1" fill="currentColor"/><circle cx="14" cy="17" r="1" fill="currentColor"/></symbol>
+        <symbol id="i-sub-bio" viewBox="0 0 24 24"><path d="M5 4c4 0 7 3.5 7 8s3 8 7 8M19 4c-4 0-7 3.5-7 8s-3 8-7 8M6.5 7.5h11M6.5 16.5h11M9 12h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-sub-ling" viewBox="0 0 24 24"><path d="M4 6h8M8 6v12M13 18l4-12 4 12M14.5 14h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-multi" viewBox="0 0 24 24"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    </svg>
 
-    <!-- Ambient background gradient orbs for Premium Glassmorphism look (clipping seguro) -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/3 right-10 w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[100px]"></div>
-        <div class="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[120px]"></div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- LOGIN SCREEN                                        -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4 py-12">
-        <div class="w-full max-w-md relative">
-
-            <!-- Glow ring behind card -->
-            <div
-                class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-50">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-card__header">
+                <div class="login-card__icon" aria-hidden="true">
+                    <svg class="icon icon--lg"><use href="#i-lock"/></svg>
+                </div>
+                <span class="login-card__badge">CONSOLE · 2026</span>
             </div>
+            <h1>Área de Gestão</h1>
+            <p class="login-card__sub">Autenticação administrativa do Calendário Olímpico</p>
 
-            <!-- Main Login Glass Card -->
-            <div
-                class="relative backdrop-blur-xl bg-slate-900/80 border border-slate-800/80 rounded-3xl p-8 shadow-2xl">
-
-                <!-- Logo -->
-                <div class="flex flex-col items-center mb-8 text-center">
-                    <div
-                        class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-yellow-500/20 to-yellow-300/5 border border-yellow-500/30 flex items-center justify-center mb-4 shadow-inner">
-                        <svg class="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
+            <form id="login-form" novalidate>
+                <div class="field">
+                    <label for="password-input">Chave de Acesso Mestre</label>
+                    <div class="password-input-row">
+                        <input id="password-input" type="password" autocomplete="current-password"
+                            placeholder="Digite sua credencial administrativa…" required>
+                        <button type="button" id="toggle-password-btn" class="btn-eye" title="Mostrar ou ocultar senha" aria-label="Mostrar ou ocultar senha">
+                            <svg class="icon icon--sm"><use href="#i-eye"/></svg>
+                        </button>
                     </div>
-                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Área Administrativa</h1>
-                    <p class="text-xs text-slate-400 mt-1.5 font-medium tracking-wide uppercase">Calendário Olímpico —
-                        Web Gloss 2.0</p>
                 </div>
 
-                <!-- Login Form -->
-                <form id="login-form" novalidate>
-                    <div class="mb-5">
-                        <label for="password-input"
-                            class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Senha de
-                            Acesso</label>
-                        <div class="relative">
-                            <input id="password-input" type="password" autocomplete="current-password"
-                                placeholder="••••••••••••"
-                                class="w-full bg-slate-950/90 border border-slate-700/80 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400/60 transition-all shadow-inner">
-                            <div
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Error Message -->
+                <p id="login-error" class="login-alert login-alert--error" hidden>
+                    <strong id="login-error-text">Credencial incorreta. Tente novamente.</strong>
+                </p>
 
-                    <!-- Error message -->
-                    <div id="login-error"
-                        class="hidden mb-5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 backdrop-blur-sm flex items-center gap-2.5">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span id="login-error-text">Senha incorreta. Tente novamente.</span>
-                    </div>
+                <!-- Lockout Message -->
+                <p id="login-lockout" class="login-alert login-alert--lockout" hidden>
+                    <strong>Muitas tentativas incorretas. Aguarde <span id="lockout-countdown">60</span>s.</strong>
+                </p>
 
-                    <!-- Lockout message -->
-                    <div id="login-lockout"
-                        class="hidden mb-5 px-4 py-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-orange-300 backdrop-blur-sm flex items-center gap-2.5">
-                        <svg class="w-4 h-4 shrink-0 text-orange-400" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Muitas tentativas incorretas. Aguarde <strong id="lockout-countdown"
-                                class="font-bold text-orange-400">60</strong>s para tentar novamente.</span>
-                    </div>
+                <button id="login-btn" type="submit" class="btn btn--prominent btn--full">
+                    <span id="login-btn-text">Autenticar Sessão</span>
+                    <span id="login-spinner" hidden>(Verificando…)</span>
+                </button>
+            </form>
 
-                    <button id="login-btn" type="submit"
-                        class="w-full bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 font-bold text-sm py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/20 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99]">
-                        <span id="login-btn-text">Autenticar Sessão</span>
-                        <svg id="login-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 12 6.477 12 12h-4z"></path>
-                        </svg>
-                    </button>
-                </form>
-
-                <div class="mt-6 pt-5 border-t border-slate-800/80 text-center">
-                    <p class="text-[11px] text-slate-500">
-                        Acesso exclusivo para administradores da escola.<br>O hash seguro SHA-256 é verificado via <code
-                            class="text-slate-400 font-mono">admin.js</code>.
-                    </p>
-                </div>
-            </div>
+            <p class="login-card__back"><a href="index.html">&larr; Retornar ao portal público</a></p>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- ADMIN DASHBOARD (hidden until authenticated)       -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="admin-screen" class="hidden min-h-screen pb-20">
-
-        <!-- Translucent Navbar -->
-        <nav class="sticky top-0 z-40 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <a href="index.html" class="flex items-center gap-2.5 group" title="Voltar ao site do aluno">
-                        <div
-                            class="p-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 group-hover:bg-yellow-400/20 transition-colors">
-                            <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <span
-                            class="text-base font-bold text-white tracking-tight group-hover:text-yellow-300 transition-colors">Calendário
-                            Olímpico</span>
-                    </a>
-                    <span class="text-slate-700">|</span>
-                    <span
-                        class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 tracking-wide uppercase">Painel
-                        de Gestão</span>
-                </div>
-
-                <div class="flex items-center gap-2.5">
-                    <button id="export-btn"
-                        class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-bold transition-all duration-200 shadow-sm"
-                        title="Baixar dados.json atualizado">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
+    <!-- ADMIN DASHBOARD (Authenticated) -->
+    <div id="admin-screen" class="admin-wrapper" hidden>
+        <!-- Header -->
+        <header class="navbar navbar--admin">
+            <nav class="navbar__inner wrap" aria-label="Navegação Administrativa">
+                <a class="brand" href="index.html">
+                    <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                    <span class="brand__name">Console Administrativo</span>
+                </a>
+                <div class="admin-nav-actions">
+                    <a href="index.html" class="btn btn--tinted btn--small">Portal Público</a>
+                    <button type="button" id="export-btn" class="btn btn--tinted btn--small">
+                        <svg class="icon icon--sm"><use href="#i-download"/></svg>
                         Exportar JSON
                     </button>
-                    <button id="logout-btn"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs font-medium transition-all duration-200 border border-transparent hover:border-red-500/20"
-                        title="Encerrar sessão com segurança">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        <span class="hidden sm:inline">Desconectar</span>
-                    </button>
+                    <button type="button" id="logout-btn" class="btn btn--plain btn--small">Encerrar Sessão</button>
                 </div>
+            </nav>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="wrap admin-main">
+            <!-- View Selector Tabs -->
+            <div class="admin-view-tabs" role="tablist" aria-label="Visualizações Administrativas">
+                <button type="button" class="admin-view-tab active" id="tab-nav-olimpiadas" data-view="olimpiadas">
+                    <svg class="icon icon--sm" aria-hidden="true"><use href="#i-list"/></svg>
+                    Catálogo de Olimpíadas
+                </button>
+                <button type="button" class="admin-view-tab" id="tab-nav-telemetria" data-view="telemetria">
+                    <svg class="icon icon--sm" aria-hidden="true"><use href="#i-shield"/></svg>
+                    Segurança Territorial & Telemetria LGPD
+                </button>
             </div>
-        </nav>
 
-        <!-- Main Content -->
-        <main class="pt-8 px-4 sm:px-6 max-w-7xl mx-auto space-y-6">
+            <!-- VIEW 1: OLIMPÍADAS CRUD -->
+            <div id="view-olimpiadas" class="admin-view-panel">
+                <!-- Stats Dashboard -->
+                <section class="admin-stats-grid" aria-label="Estatísticas do Catálogo">
+                    <div class="stat-card">
+                        <span class="stat-card__label">Total Cadastradas</span>
+                        <strong id="stat-total" class="stat-card__val">—</strong>
+                        <span class="stat-card__sub">Competições ativas na base</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Inscrições Abertas</span>
+                        <strong id="stat-inscricao" class="stat-card__val stat-card__val--open">—</strong>
+                        <span class="stat-card__sub stat-card__sub--open">Prazo vigente hoje</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Sem Descrição</span>
+                        <strong id="stat-sem-desc" class="stat-card__val">—</strong>
+                        <span class="stat-card__sub">Fichas pendentes de resumo</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Sem Eventos</span>
+                        <strong id="stat-sem-evento" class="stat-card__val">—</strong>
+                        <span class="stat-card__sub">Aguardando edital 2026</span>
+                    </div>
+                </section>
 
-            <!-- Title & Actions Header -->
-            <div
-                class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xl">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Catálogo de Olimpíadas</h1>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Gerencie de forma centralizada todas as
-                        competições que aparecem para os estudantes.</p>
-                </div>
-                <div class="flex items-center gap-2.5 shrink-0">
-                    <!-- Mobile export button -->
-                    <button id="export-btn-mobile"
-                        class="sm:hidden flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        JSON
-                    </button>
-                    <button id="add-btn"
-                        class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 text-xs font-bold transition-all duration-200 shadow-lg shadow-yellow-400/10 hover:shadow-yellow-400/20 transform active:scale-95">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
+                <!-- Persistence Notice -->
+                <aside class="notice notice--admin" aria-label="Aviso de persistência">
+                    <p>
+                        <strong>Persistência de Sessão:</strong> As edições atualizam o estado local em tempo real. Ao concluir, utilize
+                        <strong>Exportar JSON</strong> para baixar o arquivo <code>dados.json</code> consolidado para versionamento.
+                    </p>
+                </aside>
+
+                <!-- Toolbar: Search + Action -->
+                <section class="admin-toolbar" aria-label="Gerenciamento de Olimpíadas">
+                    <div class="search-field">
+                        <svg class="icon search-field__icon"><use href="#i-search"/></svg>
+                        <input id="search-input" type="search" placeholder="Filtrar por sigla, nome ou área científica…">
+                    </div>
+                    <span id="count-label" class="count-badge"></span>
+                    <button type="button" id="add-btn" class="btn btn--prominent">
+                        <svg class="icon icon--sm"><use href="#i-plus"/></svg>
                         Nova Olimpíada
                     </button>
-                </div>
-            </div>
-
-            <!-- Stats Dashboard -->
-            <div id="stats-panel" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 text-center">
-                    <p class="text-2xl font-extrabold text-white" id="stat-total">—</p>
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Total Cadastradas</p>
-                </div>
-                <div class="backdrop-blur-md bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-4 text-center">
-                    <p class="text-2xl font-extrabold text-emerald-400" id="stat-inscricao">—</p>
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Inscrição Aberta</p>
-                </div>
-                <div class="backdrop-blur-md bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 text-center">
-                    <p class="text-2xl font-extrabold text-amber-400" id="stat-sem-desc">—</p>
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Sem Descrição</p>
-                </div>
-                <div class="backdrop-blur-md bg-red-500/5 border border-red-500/20 rounded-xl p-4 text-center">
-                    <p class="text-2xl font-extrabold text-red-400" id="stat-sem-evento">—</p>
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">Sem Eventos</p>
-                </div>
-            </div>
-
-            <!-- Export Persistence Banner -->
-            <div
-                class="px-5 py-3.5 rounded-xl backdrop-blur-md bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 flex items-start gap-3 shadow-sm">
-                <svg class="w-4 h-4 mt-0.5 shrink-0 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div class="leading-relaxed">
-                    <strong class="text-blue-200">Atenção à persistência:</strong> As alterações criadas ou editadas
-                    nesta sessão são mantidas na memória do navegador. Para efetivar as mudanças permanentemente,
-                    lembre-se de clicar em <strong>Exportar JSON</strong> e substituir o arquivo <code
-                        class="bg-blue-950 px-1 py-0.5 rounded border border-blue-800 text-blue-300 font-mono">dados.json</code>
-                    no seu repositório fonte.
-                </div>
-            </div>
-
-            <!-- Toolbar: Search + Count -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="relative flex-1 max-w-md">
-                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input id="search-input" type="search" placeholder="Pesquisar por sigla, nome, matéria ou nível..."
-                        class="w-full backdrop-blur-md bg-slate-900/60 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400/40 focus:border-yellow-400/60 transition-all shadow-inner">
-                </div>
-                <div class="shrink-0">
-                    <span id="count-label"
-                        class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 inline-block"></span>
-                </div>
-            </div>
-
-            <!-- Olimpíadas Table / List Grid -->
-            <div
-                class="backdrop-blur-md bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
-                <div id="olimpiadas-list" class="divide-y divide-slate-800/60">
-                    <!-- Rows injected dynamically by JS -->
-                </div>
+                </section>
 
                 <!-- Empty State -->
-                <div id="empty-state" class="hidden py-20 text-center px-4">
-                    <div
-                        class="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-500">
-                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                        </svg>
-                    </div>
-                    <p class="text-base font-bold text-slate-300">Nenhuma competição corresponde à sua busca</p>
-                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Verifique se digitou corretamente ou
-                        adicione uma nova olimpíada ao sistema utilizando o botão superior.</p>
+                <div id="empty-state" class="empty" hidden>
+                    <h3>Nenhuma olimpíada encontrada</h3>
+                    <p>Nenhuma competição coincide com os termos pesquisados.</p>
                 </div>
+
+                <!-- Olympic List Container -->
+                <div id="olimpiadas-list" class="admin-list"></div>
+            </div>
+
+            <!-- VIEW 2: TELEMETRIA & SEGURANÇA TERRITORIAL (LGPD) -->
+            <div id="view-telemetria" class="admin-view-panel telemetry-panel" hidden>
+                <!-- Serverless & Storage Status Bar -->
+                <aside class="server-status-bar" aria-label="Status do Backend Vercel">
+                    <div class="server-status-tags">
+                        <span class="server-tag server-tag--active">
+                            <i class="server-tag__dot" aria-hidden="true"></i> Vercel Edge Serverless: Ativo
+                        </span>
+                        <span class="server-tag" id="tag-storage-status">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-database"/></svg>
+                            Armazenamento: Vercel KV / Edge Sync
+                        </span>
+                        <span class="server-tag k-anon-pill">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-shield"/></svg>
+                            Descarte de IP na Borda (Art. 12 LGPD)
+                        </span>
+                    </div>
+
+                    <div class="server-status-actions">
+                        <button type="button" id="btn-seed-telemetry" class="btn btn--tinted btn--small">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-sparkle"/></svg>
+                            Carregar Base Demonstrativa (60+ Registros)
+                        </button>
+                        <button type="button" id="btn-refresh-telemetry" class="btn btn--plain btn--small">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-refresh"/></svg>
+                            Atualizar
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Executive Telemetry KPIs Grid -->
+                <section class="admin-stats-grid" aria-label="Estatísticas Principais de Telemetria">
+                    <div class="stat-card">
+                        <span class="stat-card__label">Estudantes Únicos</span>
+                        <strong id="stat-telem-students" class="stat-card__val">0</strong>
+                        <span class="stat-card__sub stat-card__sub--accent">Trava de k-anonimato (N &ge; 30)</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Trocas de VPN Detectadas</span>
+                        <strong id="stat-telem-switches" class="stat-card__val stat-card__val--accent">0</strong>
+                        <span id="stat-telem-switch-rate" class="stat-card__sub">Taxa de conversão: 100%</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Tentativas Bloqueadas</span>
+                        <strong id="stat-telem-blocked" class="stat-card__val stat-card__val--urgent">0</strong>
+                        <span class="stat-card__sub">Datacenters & Exterior</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__label">Passes de Fronteira</span>
+                        <strong id="stat-telem-passes" class="stat-card__val stat-card__val--open">0</strong>
+                        <span class="stat-card__sub stat-card__sub--open">Acesso legítimo 7 dias</span>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 1: Ranking ao Vivo de Conteúdos e Olimpíadas -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Ranking ao Vivo de Olimpíadas & Conteúdos (Mais e Menos Acessados)</h3>
+                            <p class="telemetry-table-sub">
+                                Identifica picos de demanda em vésperas de provas e conteúdos com hesitação ou abandono prematuro (&lt;15s).
+                            </p>
+                        </div>
+                    </div>
+
+                    <table class="telemetry-table">
+                        <thead>
+                            <tr>
+                                <th>Olimpíada / Conteúdo</th>
+                                <th>Demanda / Tendência</th>
+                                <th>Visualizações</th>
+                                <th>Estudo Ativo Médio</th>
+                                <th>Aba em 2º Plano</th>
+                                <th>Taxa de Abandono</th>
+                                <th>Rolagem Média</th>
+                                <th>Engajamento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-ranking-olimpiadas">
+                            <tr>
+                                <td colspan="8" class="telemetry-table__empty">Carregando dados do observatório…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- SEÇÃO 2: Diagrama de Fluxo & Funil de Conversão -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Fluxograma de Rotas & Funil de Navegação dos Estudantes</h3>
+                            <p class="telemetry-table-sub">
+                                Mapeamento completo do caminho: entrada na página inicial, filtragem no calendário e download de materiais.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="funnel-container" id="funnel-container">
+                        <div class="funnel-step">
+                            <div class="funnel-label"><span>1. Início / Landing</span></div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="bar-funnel-1" style="width: 100%;"></div></div>
+                            <div class="funnel-pct" id="pct-funnel-1">100% (Base)</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label"><span>2. Calendário de Datas</span></div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="bar-funnel-2" style="width: 78%;"></div></div>
+                            <div class="funnel-pct" id="pct-funnel-2">78%</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label"><span>3. Detalhes de Olimpíada</span></div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="bar-funnel-3" style="width: 58%;"></div></div>
+                            <div class="funnel-pct" id="pct-funnel-3">58%</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label"><span>4. Provas Anteriores</span></div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="bar-funnel-4" style="width: 42%;"></div></div>
+                            <div class="funnel-pct" id="pct-funnel-4">42%</div>
+                        </div>
+                        <div class="funnel-step">
+                            <div class="funnel-label"><span>5. Download .ics / PDF</span></div>
+                            <div class="funnel-bar-bg"><div class="funnel-bar-fill" id="bar-funnel-5" style="width: 28%;"></div></div>
+                            <div class="funnel-pct" id="pct-funnel-5">28% (Conversão)</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 3: Relatório Territorial (UFs) & Análise de Provedores de Rede -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Relatório Territorial de Acessos & Análise de Provedoras (ISP / ASN)</h3>
+                            <p class="telemetry-table-sub">
+                                Cruzamento entre origens territoriais legítimas no Brasil e serviços de datacenter/VPN bloqueados.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="geo-grid">
+                        <div class="geo-card">
+                            <h4 class="geo-card__title">DISTRIBUIÇÃO POR ESTADO (TOP UFs)</h4>
+                            <ul class="geo-list" id="list-top-ufs">
+                                <li><span>Carregando dados territoriais…</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="geo-card">
+                            <h4 class="geo-card__title">PROVEDORES NACIONAIS LEGÍTIMOS (ISPs)</h4>
+                            <ul class="geo-list" id="list-real-isps">
+                                <li><span>Carregando provedores nacionais…</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="geo-card">
+                            <h4 class="geo-card__title">SERVIÇOS DE VPN BLOQUEADOS (ASNs)</h4>
+                            <ul class="geo-list" id="list-vpn-providers">
+                                <li><span>Carregando provedores de VPN…</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 4: Auditoria de "Trocas de Identidade" (identity_switch) -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Auditoria de Reconexão Nacional (identity_switch)</h3>
+                            <p class="telemetry-table-sub">
+                                Rastreia quando o estudante atinge o bloqueio com VPN ativa, desativa o túnel e reconecta via operadora brasileira.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-export-telemetry" class="btn btn--tinted btn--small">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-download"/></svg>
+                            Exportar Telemetria (.json)
+                        </button>
+                    </div>
+
+                    <table class="telemetry-table">
+                        <thead>
+                            <tr>
+                                <th>Estudante (Hash Pseudonimizado)</th>
+                                <th>Tempo para Desligar VPN</th>
+                                <th>Origem da VPN (País / Provedor)</th>
+                                <th>Destino Real (Brasil / Operadora)</th>
+                                <th>Dispositivo</th>
+                                <th>Horário</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-identity-switches">
+                            <tr>
+                                <td colspan="6" class="telemetry-table__empty">Nenhuma troca de conexão registrada nesta sessão.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- SEÇÃO 5: Tentativas Bloqueadas & Reportes de Fronteira -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Tentativas Bloqueadas & Passes de Fronteira</h3>
+                            <p class="telemetry-table-sub">
+                                Histórico de bloqueios de borda e passes temporários emitidos para municípios fronteiriços.
+                            </p>
+                        </div>
+                        <button type="button" id="btn-clear-telemetry" class="btn btn--plain btn--small btn--urgent-text">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg>
+                            Limpar Histórico
+                        </button>
+                    </div>
+
+                    <table class="telemetry-table">
+                        <thead>
+                            <tr>
+                                <th>Estudante</th>
+                                <th>Motivo do Bloqueio</th>
+                                <th>Origem Detectada</th>
+                                <th>Provedor / ASN</th>
+                                <th>Cidade Reportada</th>
+                                <th>Passe de Fronteira</th>
+                                <th>Ação do Administrador</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-blocked-access">
+                            <tr>
+                                <td colspan="7" class="telemetry-table__empty">Nenhum bloqueio registrado recentemente.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- SEÇÃO 6: Perfil de Hardware e Desigualdade Digital (Art. 7º, IV da LGPD) -->
+                <section class="telemetry-table-wrapper">
+                    <div class="telemetry-table-head">
+                        <div>
+                            <h3>Perfil de Hardware e Desigualdade Digital (Art. 7º, IV da LGPD)</h3>
+                            <p class="telemetry-table-sub">
+                                Métricas de inclusão digital sem vínculo nominativo para dimensionar a leveza das páginas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="hardware-grid">
+                        <div class="hardware-card">
+                            <span class="hardware-card__label">CLASSE DE APARELHOS</span>
+                            <div id="stat-device-dist" class="hardware-card__val">Calculando distribuição…</div>
+                        </div>
+                        <div class="hardware-card">
+                            <span class="hardware-card__label">MEMÓRIA RAM (ENTRADA VS INTERMEDIÁRIO)</span>
+                            <div id="stat-ram-dist" class="hardware-card__val">Calculando faixas de memória…</div>
+                        </div>
+                        <div class="hardware-card">
+                            <span class="hardware-card__label">TIPO DE CONEXÃO</span>
+                            <div id="stat-net-dist" class="hardware-card__val">Calculando redes…</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SEÇÃO 7: Network Simulation Testing Box -->
+                <section class="sim-box">
+                    <div>
+                        <h3 class="sim-box__title">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-terminal"/></svg>
+                            Simulador de Auditoria de Rede (Controle Geográfico & VPN)
+                        </h3>
+                        <p class="telemetry-table-sub">
+                            Simule em tempo real a resposta da borda a conexões estrangeiras, túneis VPN comerciais e reconexão nacional:
+                        </p>
+                    </div>
+
+                    <div class="sim-grid">
+                        <button type="button" class="sim-btn" id="sim-btn-us">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-globe"/></svg>
+                            Simular Conexão EUA (Bloqueio)
+                        </button>
+                        <button type="button" class="sim-btn" id="sim-btn-vpn">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-shield"/></svg>
+                            Simular ProtonVPN (AS9009)
+                        </button>
+                        <button type="button" class="sim-btn" id="sim-btn-border">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-globe"/></svg>
+                            Simular Fronteira Paraguai
+                        </button>
+                        <button type="button" class="sim-btn sim-btn--reset" id="sim-btn-reset">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-refresh"/></svg>
+                            Restaurar Conexão Real do Brasil
+                        </button>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- PREMIUM TABBED MODAL (ADD / EDIT)                   -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <!-- Blurred Frosted Backdrop -->
-        <div id="modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"></div>
-
-        <!-- Dialog Panel -->
-        <div
-            class="relative w-full max-w-3xl backdrop-blur-xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto animate-[fadeInUp_0.2s_ease_forwards]">
-
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/40">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
-                    <h2 id="modal-title" class="text-base font-extrabold text-white tracking-tight">Gerenciar Olimpíada
-                    </h2>
-                </div>
-                <button id="modal-close"
-                    class="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+    <!-- MODAL: ADD / EDIT OLIMPÍADA -->
+    <div id="modal" class="scrim" hidden>
+        <div class="sheet sheet--admin" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+            <span class="sheet__grabber" aria-hidden="true"></span>
+            <header class="sheet__header">
+                <h2 id="modal-title">Cadastrar Olimpíada</h2>
+                <button type="button" id="close-modal-btn" class="btn-close" aria-label="Fechar">
+                    <svg class="icon"><use href="#i-xmark"/></svg>
                 </button>
-            </div>
+            </header>
 
-            <!-- Glass Tabs Navigation -->
-            <div class="px-6 pt-3 bg-slate-950/20 border-b border-slate-800/80 flex gap-2 overflow-x-auto select-none">
-                <button type="button" data-tab="tab-geral"
-                    class="modal-tab-btn active px-4 py-2 text-xs font-bold border-b-2 border-yellow-400 text-yellow-400 flex items-center gap-1.5 transition-colors whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Informações Gerais
-                </button>
-                <button type="button" data-tab="tab-eventos"
-                    class="modal-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Cronograma & Eventos
-                </button>
-                <button type="button" data-tab="tab-materiais"
-                    class="modal-tab-btn px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    Materiais de Estudo
-                </button>
-            </div>
+            <nav id="modal-tabs" class="modal-tabs" aria-label="Abas do Formulário">
+                <button type="button" class="tab-btn active" data-tab="tab-geral">Geral</button>
+                <button type="button" class="tab-btn" data-tab="tab-niveis">Níveis</button>
+                <button type="button" class="tab-btn" data-tab="tab-eventos">Eventos</button>
+                <button type="button" class="tab-btn" data-tab="tab-materiais">Materiais</button>
+                <button type="button" class="tab-btn" data-tab="tab-fontes">Fontes</button>
+            </nav>
 
-            <!-- Modal Body Panels -->
-            <div class="flex-1 p-6 overflow-y-auto space-y-5 custom-scrollbar">
-
-                <!-- ─── TAB 1: GERAL ─── -->
-                <div id="tab-geral" class="modal-tab-panel block space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label
-                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Sigla
-                                <span class="text-red-400">*</span></label>
-                            <input id="f-sigla" type="text" placeholder="Ex: OBMEP" class="admin-input w-full">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Identificador
-                                (ID) <span class="text-red-400">*</span></label>
-                            <input id="f-id" type="text" placeholder="Ex: obmep2026" class="admin-input w-full">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Modalidade
-                                <span class="text-red-400">*</span></label>
-                            <select id="f-modalidade" class="admin-input w-full">
-                                <option value="">Selecione...</option>
-                                <option value="Presencial">Presencial</option>
-                                <option value="Online">Online</option>
-                                <option value="Híbrida">Híbrida</option>
-                            </select>
-                        </div>
+            <form id="modal-form" class="modal-form" novalidate>
+                <!-- TAB GERAL -->
+                <div id="tab-geral" class="tab-panel">
+                    <div class="field">
+                        <label for="f-sigla">Sigla *</label>
+                        <input id="f-sigla" type="text" placeholder="Ex: OBMEP" required>
                     </div>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Nome
-                            Completo <span class="text-red-400">*</span></label>
-                        <input id="f-nome" type="text"
-                            placeholder="Ex: Olimpíada Brasileira de Matemática das Escolas Públicas"
-                            class="admin-input w-full">
+                    <div class="field">
+                        <label for="f-id">ID Único (slug) *</label>
+                        <input id="f-id" type="text" placeholder="Ex: obmep2026" required>
                     </div>
-
-                    <!-- Nível Escolar -->
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Níveis
-                            Escolares Suportados</label>
-                        <div class="flex flex-wrap gap-2" id="nivel-checkboxes">
-                            <!-- Checkboxes injected by JS -->
-                        </div>
+                    <div class="field">
+                        <label for="f-nome">Nome Completo *</label>
+                        <input id="f-nome" type="text" placeholder="Ex: Olimpíada Brasileira de Matemática…" required>
                     </div>
-
-                    <!-- Matérias -->
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Matérias
-                            Cobertas</label>
-                        <input id="f-materias" type="text"
-                            placeholder="Ex: Matemática, Lógica, Informática (separadas por vírgula)"
-                            class="admin-input w-full">
-                        <p class="text-[10px] text-slate-500 mt-1">Separe múltiplas matérias utilizando vírgulas.</p>
+                    <div class="field">
+                        <label for="f-modalidade">Modalidade</label>
+                        <select id="f-modalidade">
+                            <option value="">Selecione…</option>
+                            <option value="Presencial">Presencial</option>
+                            <option value="Online">Online</option>
+                            <option value="Híbrida">Híbrida</option>
+                        </select>
                     </div>
-
-                    <!-- NEW FIELDS: Descrição e Site Oficial -->
-                    <div class="pt-2 border-t border-slate-800/80 space-y-3">
-                        <div>
-                            <label
-                                class="block text-[11px] font-bold text-yellow-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                Descrição Geral
-                                <span
-                                    class="text-[9px] px-1.5 py-0.2 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
-                            </label>
-                            <textarea id="f-descricao" rows="3"
-                                placeholder="Insira uma descrição resumida sobre o objetivo e formato desta olimpíada..."
-                                class="admin-input w-full resize-none leading-relaxed"></textarea>
-                        </div>
-
-                        <div>
-                            <label
-                                class="block text-[11px] font-bold text-yellow-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                                Site Oficial
-                                <span
-                                    class="text-[9px] px-1.5 py-0.2 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
-                            </label>
-                            <input id="f-site-oficial" type="url" placeholder="https://www.exemplo.org.br"
-                                class="admin-input w-full">
-                        </div>
+                    <div class="field">
+                        <label for="f-materias">Matérias (separadas por vírgula)</label>
+                        <input id="f-materias" type="text" placeholder="Ex: Matemática, Raciocínio Lógico">
+                    </div>
+                    <div class="field">
+                        <label for="f-descricao">Descrição Resumida</label>
+                        <textarea id="f-descricao" rows="3" placeholder="Breve resumo da competição…"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="f-site-oficial">Site Oficial</label>
+                        <input id="f-site-oficial" type="url" placeholder="https://…">
                     </div>
                 </div>
 
-                <!-- ─── TAB 2: EVENTOS ─── -->
-                <div id="tab-eventos" class="modal-tab-panel hidden space-y-3">
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <div>
-                            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Linha do Tempo Cronológica
-                            </h3>
-                            <p class="text-[11px] text-slate-400">Adicione datas de inscrição, fases, exames ou
-                                premiações.</p>
-                        </div>
-                        <button id="add-evento-btn" type="button"
-                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 text-yellow-400 text-xs font-bold transition-all shrink-0">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Novo Evento
-                        </button>
-                    </div>
-
-                    <div id="eventos-list" class="space-y-3"></div>
-                    <p id="eventos-empty"
-                        class="text-xs text-slate-500 text-center py-8 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
-                        Nenhum evento configurado. Clique em "Novo Evento" para estabelecer os prazos.
-                    </p>
+                <!-- TAB NÍVEIS -->
+                <div id="tab-niveis" class="tab-panel" hidden>
+                    <p class="field-hint">Selecione as etapas escolares elegíveis:</p>
+                    <div id="nivel-checkboxes" class="checkbox-group"></div>
                 </div>
 
-                <!-- ─── TAB 3: MATERIAIS & FONTES ─── -->
-                <div id="tab-materiais" class="modal-tab-panel hidden space-y-5">
-                    <!-- Materiais de Estudo -->
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                            <div>
-                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Materiais de Estudo</h3>
-                                <p class="text-[11px] text-slate-400">Links de portais, apostilas ou bancos de questões.</p>
-                            </div>
-                            <button id="add-material-btn" type="button"
-                                class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/20 text-yellow-400 text-xs font-bold transition-all shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                </svg>
-                                Novo Material
-                            </button>
-                        </div>
-                        <div id="materiais-list" class="space-y-3"></div>
-                        <p id="materiais-empty"
-                            class="text-xs text-slate-500 text-center py-6 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
-                            Nenhum material de estudo vinculado.
-                        </p>
+                <!-- TAB EVENTOS -->
+                <div id="tab-eventos" class="tab-panel" hidden>
+                    <div class="panel-header">
+                        <p class="field-hint">Marcos do cronograma oficial:</p>
+                        <button type="button" id="add-evento-btn" class="btn btn--tinted btn--small">+ Adicionar Evento</button>
                     </div>
-
-                    <!-- Fontes Oficiais -->
-                    <div class="space-y-3 pt-3 border-t border-slate-800/60">
-                        <div class="flex items-center justify-between pb-2">
-                            <div>
-                                <h3 class="text-xs font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-1">
-                                    Fontes Oficiais
-                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400/10 border border-yellow-400/20 text-yellow-300 font-normal">Novo</span>
-                                </h3>
-                                <p class="text-[11px] text-slate-400">URLs de editais, regulamentos e páginas oficiais.</p>
-                            </div>
-                            <button id="add-fonte-btn" type="button"
-                                class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 text-xs font-bold transition-all shrink-0">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                    stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                                </svg>
-                                Nova Fonte
-                            </button>
-                        </div>
-                        <div id="fontes-list" class="space-y-3"></div>
-                        <p id="fontes-empty"
-                            class="text-xs text-slate-500 text-center py-6 border border-dashed border-slate-800 rounded-xl bg-slate-950/30 font-medium">
-                            Nenhuma fonte oficial vinculada.
-                        </p>
-                    </div>
+                    <div id="eventos-empty" class="field-hint" hidden>Nenhum evento adicionado ainda. Clique em "+ Adicionar Evento".</div>
+                    <div id="eventos-container" class="dynamic-list"></div>
                 </div>
 
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-slate-800 bg-slate-950/40">
-                <div id="modal-error"
-                    class="hidden flex-1 text-xs text-red-400 flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                        stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span id="modal-error-text"></span>
+                <!-- TAB MATERIAIS -->
+                <div id="tab-materiais" class="tab-panel" hidden>
+                    <div class="panel-header">
+                        <p class="field-hint">Bancos de provas e materiais de estudo:</p>
+                        <button type="button" id="add-material-btn" class="btn btn--tinted btn--small">+ Adicionar Material</button>
+                    </div>
+                    <div id="materiais-empty" class="field-hint" hidden>Nenhum material adicionado ainda. Clique em "+ Adicionar Material".</div>
+                    <div id="materiais-container" class="dynamic-list"></div>
                 </div>
-                <button id="modal-cancel" type="button"
-                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                    Cancelar
-                </button>
-                <button id="modal-save" type="button"
-                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-400 hover:from-yellow-300 hover:to-amber-300 text-slate-950 text-xs font-bold transition-all shadow-md shadow-yellow-400/10">
-                    Salvar Alterações
-                </button>
-            </div>
+
+                <!-- TAB FONTES -->
+                <div id="tab-fontes" class="tab-panel" hidden>
+                    <div class="panel-header">
+                        <p class="field-hint">Fontes oficiais e editais:</p>
+                        <button type="button" id="add-fonte-btn" class="btn btn--tinted btn--small">+ Adicionar Fonte</button>
+                    </div>
+                    <div id="fontes-empty" class="field-hint" hidden>Nenhuma fonte oficial adicionada ainda. Clique em "+ Adicionar Fonte".</div>
+                    <div id="fontes-container" class="dynamic-list"></div>
+                </div>
+
+                <div id="modal-error" class="login-alert login-alert--error" hidden>
+                    <strong id="modal-error-text"></strong>
+                </div>
+
+                <footer class="sheet__footer">
+                    <button type="button" id="cancel-btn" class="btn btn--tinted">Cancelar</button>
+                    <button type="submit" id="save-btn" class="btn btn--prominent">Salvar Alterações</button>
+                </footer>
+            </form>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- DELETE CONFIRMATION DIALOG                         -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="confirm-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md"></div>
-        <div
-            class="relative w-full max-w-sm backdrop-blur-xl bg-slate-900/95 border border-slate-700/80 rounded-2xl shadow-2xl p-6 text-center animate-[fadeInUp_0.15s_ease_forwards]">
-            <div
-                class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-                <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+    <!-- CONFIRM DELETE DIALOG -->
+    <div id="confirm-dialog" class="scrim" hidden>
+        <div class="sheet sheet--compact" role="alertdialog" aria-labelledby="confirm-dialog-title" aria-modal="true">
+            <span class="sheet__grabber" aria-hidden="true"></span>
+            <header class="sheet__header">
+                <h2 id="confirm-dialog-title">Excluir Olimpíada</h2>
+            </header>
+            <div class="sheet__body">
+                <p>Tem certeza de que deseja excluir permanentemente <strong id="confirm-delete-sigla"></strong>?</p>
+                <p class="field-hint">Esta ação atualiza os dados em memória. Lembre-se de exportar o JSON para persistir no repositório.</p>
             </div>
-            <h3 class="text-base font-bold text-white mb-1">Excluir Competição</h3>
-            <p id="confirm-text" class="text-xs text-slate-400 mb-6 leading-relaxed"></p>
-            <div class="flex gap-2.5">
-                <button id="confirm-cancel"
-                    class="flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/80">
-                    Cancelar
-                </button>
-                <button id="confirm-delete"
-                    class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md shadow-red-600/20">
-                    Remover
-                </button>
-            </div>
+            <footer class="sheet__footer">
+                <button type="button" id="cancel-delete-btn" class="btn btn--tinted">Cancelar</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn--urgent">Excluir Definitivamente</button>
+            </footer>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- TOAST NOTIFICATION                                  -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <div id="toast"
-        class="hidden fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-xl bg-slate-800/90 border border-slate-700 shadow-2xl text-xs font-semibold text-slate-100 transition-all animate-[fadeInUp_0.2s_ease_forwards]">
-        <span id="toast-icon" class="text-sm"></span>
-        <span id="toast-msg"></span>
-    </div>
+    <!-- Mobile Tabbar -->
+    <nav class="tabbar" aria-label="Navegação principal">
+        <a href="index.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-house"/></svg><span>Início</span>
+        </a>
+        <a href="calendario.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg><span>Linha do Tempo</span>
+        </a>
+        <a href="provas.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Catálogo</span>
+        </a>
+        <a href="programas.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg><span>Programas</span>
+        </a>
+        <a href="admin.html" aria-current="page">
+            <svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span>Gestão</span>
+        </a>
+    </nav>
 
-    <!-- Custom CSS Base Helpers for Glass Inputs -->
-    <style>
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+    <!-- Toast Container -->
+    <div id="toast-container" class="toasts" aria-live="polite"></div>
 
-        .admin-input {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(100, 116, 139, 0.4);
-            border-radius: 0.75rem;
-            padding: 0.6rem 0.85rem;
-            font-size: 0.75rem;
-            color: rgb(241, 245, 249);
-            transition: all 0.2s ease;
-        }
-
-        .admin-input::placeholder {
-            color: rgba(100, 116, 139, 0.8);
-        }
-
-        .admin-input:focus {
-            outline: none;
-            background: rgba(15, 23, 42, 0.9);
-            border-color: rgba(250, 204, 21, 0.6);
-            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
-        }
-
-        .admin-input option {
-            background: rgb(15, 23, 42);
-            color: #fff;
-        }
-
-        .nivel-checkbox:checked+.nivel-label {
-            background: rgba(250, 204, 21, 0.15) !important;
-            border-color: rgba(250, 204, 21, 0.5) !important;
-            color: rgb(253, 224, 71) !important;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.2);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.4);
-            border-radius: 3px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(100, 116, 139, 0.6);
-        }
-    </style>
-
+    <script src="dados.js"></script>
+    <script src="telemetry.js"></script>
+    <script src="security.js"></script>
     <script src="admin.js"></script>
 </body>
 

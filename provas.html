@@ -1,205 +1,308 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth overflow-x-hidden max-w-full">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Calendário Olímpico — Diretório completo de provas com filtros avançados e materiais de estudo.">
-    <title>Provas — Calendário Olímpico</title>
-
-    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description"
+        content="Catálogo e Diretório de Provas das Olimpíadas Científicas 2026. Acesse fichas técnicas, provas anteriores, cronogramas de fases, editais e materiais de estudo.">
+    <meta name="keywords" content="provas obmep, banco de provas oba, provas antigas obf, gabarito obi, materiais de estudo olimpiadas">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#F6F5F1" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0B0D11" media="(prefers-color-scheme: dark)">
+    <title>Catálogo de Provas & Estudos — Calendário Olímpico 2026</title>
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="author" content="Calendário Olímpico — Central Nacional de Competições Científicas">
+    <link rel="canonical" href="https://calendarioolimpico.com.br/provas.html">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Calendário Olímpico 2026">
+    <meta property="og:title" content="Catálogo de Provas Anteriores & Estudos — Calendário Olímpico 2026">
+    <meta property="og:description" content="Diretório técnico de olimpíadas científicas com acesso a provas anteriores, gabaritos oficiais, apostilas de preparação (POTI, NOIC) e regulamentos 2026.">
+    <meta property="og:url" content="https://calendarioolimpico.com.br/provas.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Catálogo de Provas Anteriores & Estudos — Calendário Olímpico 2026">
+    <meta name="twitter:description" content="Diretório técnico de olimpíadas científicas com acesso a provas anteriores, gabaritos oficiais, apostilas de preparação (POTI, NOIC) e regulamentos 2026.">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://calendarioolimpico.com.br/provas.html",
+      "url": "https://calendarioolimpico.com.br/provas.html",
+      "name": "Catálogo de Provas Anteriores & Estudos — Calendário Olímpico 2026",
+      "inLanguage": "pt-BR",
+      "dateModified": "2026-10-19"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Início",
+          "item": "https://calendarioolimpico.com.br/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Catálogo de Provas",
+          "item": "https://calendarioolimpico.com.br/provas.html"
+        }
+      ]
+    }
+  ]
+}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { inter: ['Inter', 'sans-serif'] },
-                },
-            },
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="antialiased relative overflow-x-hidden w-full max-w-full m-0 p-0">
 
-    <!-- Ambient background orbs (clipping seguro) -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px]"></div>
-        <div class="absolute top-1/2 right-10 w-[400px] h-[400px] bg-purple-600/8 rounded-full blur-[100px]"></div>
-    </div>
+<body>
+    <svg class="svg-sprite" aria-hidden="true" focusable="false">
+        <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-star-fill" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.8z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-house" viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="4.75" cy="6.5" r="1.25" fill="currentColor"/><circle cx="4.75" cy="12" r="1.25" fill="currentColor"/><circle cx="4.75" cy="17.5" r="1.25" fill="currentColor"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-xmark" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><path d="M8 16L16 8M9.5 8H16v6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="7" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="17" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 2.1 5.9 6.5 6.5-4.4.6-5.9 2.1-6.5 6.5-.6-4.4-2.1-5.9-6.5-6.5 4.4-.6 5.9-2.1 6.5-6.5zM18.5 15.5c.3 1.9.9 2.5 2.8 2.8-1.9.3-2.5.9-2.8 2.8-.3-1.9-.9-2.5-2.8-2.8 1.9-.3 2.5-.9 2.8-2.8z" fill="currentColor"/></symbol>
+        <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4.2h-4.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M17 6h3a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1M7 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1M12 14v4M9 20h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h12M10 21h4M10 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 9l4-4M17 2l3 3-3 3M9 14v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.8-3 8.9-7 10-4-1.1-7-5.2-7-10V6l7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 12l1.8 1.8 3.7-3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10.7 10.7 0 0 1 12 5c7 0 10 7 10 7a18.2 18.2 0 0 1-3.2 4.3M6.6 6.6C4.1 8.3 2 12 2 12s3 7 10 7a10.6 10.6 0 0 0 5.4-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 5.5v6.5c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V5.5M4.5 12v6.5c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8V12" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+        <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.5 9.5L10.5 12l-3 2.5M12.5 14.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- Discipline Insignias -->
+        <symbol id="i-sub-math" viewBox="0 0 24 24"><path d="M4 6h16M8 6l4 12 4-12M6 18h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-physics" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.4" fill="currentColor"/><ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(35 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(-35 12 12)"/></symbol>
+        <symbol id="i-sub-astronomy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 14.5c2.5-4 10.5-6.5 17-2M5.5 16.5c2.5 1.5 6 2 9 1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/></symbol>
+        <symbol id="i-sub-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-chem" viewBox="0 0 24 24"><path d="M9 3h6M10 3v5l-5.5 9.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3.5L14 8V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="15" r="1" fill="currentColor"/><circle cx="14" cy="17" r="1" fill="currentColor"/></symbol>
+        <symbol id="i-sub-bio" viewBox="0 0 24 24"><path d="M5 4c4 0 7 3.5 7 8s3 8 7 8M19 4c-4 0-7 3.5-7 8s-3 8-7 8M6.5 7.5h11M6.5 16.5h11M9 12h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+        <symbol id="i-sub-ling" viewBox="0 0 24 24"><path d="M4 6h8M8 6v12M13 18l4-12 4 12M14.5 14h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="i-sub-multi" viewBox="0 0 24 24"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    </svg>
 
-    <!-- NAVBAR -->
-    <nav class="site-nav fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-2 group">
-                <svg class="site-logo-mark w-7 h-7 group-hover:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <span class="text-lg font-bold tracking-tight">Calendário <span class="site-logo-dot">/</span> Olímpico</span>
+    <!-- Skip Link -->
+    <a class="skip-link" href="#provas-catalog-section">Pular para o catálogo de provas</a>
+
+    <!-- Navigation Header -->
+    <header id="navbar" class="navbar">
+        <nav class="navbar__inner" aria-label="Navegação Principal">
+            <a class="brand" href="index.html" aria-label="Calendário Olímpico — Início">
+                <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                <span class="brand__name">Calendário Olímpico</span>
             </a>
-            <div class="hidden md:flex items-center gap-1">
-                <a href="index.html" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Início</a>
-                <a href="calendario.html" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-200">Calendário</a>
-                <a href="provas.html" class="active px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Provas</a>
-                <span class="relative px-4 py-2 rounded-lg text-sm font-medium text-slate-500 cursor-default select-none">
-                    Internacionais
-                    <span class="absolute -top-1 -right-1 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full leading-none">Em Breve</span>
-                </span>
-                <span class="relative px-4 py-2 rounded-lg text-sm font-medium text-slate-500 cursor-default select-none">
-                    Eventos Menores
-                    <span class="absolute -top-1 -right-1 text-[10px] font-bold bg-blue-600/80 text-blue-100 px-1.5 py-0.5 rounded-full leading-none">Em Breve</span>
-                </span>
-            </div>
-            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" aria-label="Abrir menu" aria-expanded="false">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </button>
-        </div>
-        <div id="mobile-menu" class="md:hidden hidden border-t">
-            <div class="px-4 py-3 space-y-1">
-                <a href="index.html" class="block px-4 py-2.5 text-sm font-semibold">Início</a>
-                <a href="calendario.html" class="block px-4 py-2.5 text-sm font-semibold">Calendário</a>
-                <a href="provas.html" class="active block px-4 py-2.5 text-sm font-semibold">Provas</a>
-                <div class="pt-2 border-t mt-2">
-                    <span class="block px-4 py-2 text-sm">Internacionais <span class="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">Em Breve</span></span>
-                    <span class="block px-4 py-2 text-sm">Eventos Menores <span class="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">Em Breve</span></span>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- HEADER -->
-    <header class="inner-hero directory-hero pt-32 pb-12 px-4">
-        <div class="inner-hero-grid max-w-6xl mx-auto">
-            <div>
-                <p class="eyebrow mb-4">Catálogo de competição / 2026</p>
-                <h1 class="display-title text-4xl sm:text-6xl">Encontre<br><span>sua arena.</span></h1>
-                <p class="mt-6 text-base sm:text-lg muted max-w-xl">
-                    Compare áreas, modalidades e níveis. Abra uma ficha para descobrir o que estudar e onde começar.
-                </p>
-            </div>
-            <div class="hero-index directory-index">
-                <span>DIR / 03</span>
-                <strong>∞</strong>
-                <small>possibilidades<br>para explorar</small>
-            </div>
-        </div>
+            <ul class="navbar__links">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="calendario.html">Linha do Tempo</a></li>
+                <li><a href="programas.html">Programas &amp; Bolsas</a></li>
+                <li><a href="provas.html" aria-current="page">Catálogo de Provas</a></li>
+                <li><a href="privacidade.html">Privacidade</a></li>
+                <li><a href="admin.html">Administração</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <!-- FILTERS -->
-    <section class="directory-layout max-w-6xl mx-auto px-4 sm:px-6 mb-8">
-        <aside class="inner-aside">
-            <p class="eyebrow">Modo catálogo</p>
-            <h2>Menos rolagem.<br>Mais escolha.</h2>
-            <p>Use os filtros como uma lente: cada combinação revela uma rota de estudo diferente.</p>
-            <div class="aside-rule"></div>
-            <span class="aside-note">O que você procura?</span>
-            <p class="aside-tip">Uma matéria favorita, uma prova online ou um desafio para sua série.</p>
-        </aside>
-        <div class="filter-panel bg-slate-800 rounded-2xl border border-slate-700 p-4 sm:p-5 shadow-lg shadow-slate-900/50">
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <label for="filtro-serie" class="text-xs font-semibold uppercase tracking-wider text-slate-500">Série</label>
-                    <select id="filtro-serie" class="bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-                        <option value="Todas">Todas</option>
-                        <option value="Ensino Fundamental I">Fundamental I</option>
-                        <option value="Ensino Fundamental II">Fundamental II</option>
-                        <option value="Ensino Médio">Ensino Médio</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label for="filtro-materia" class="text-xs font-semibold uppercase tracking-wider text-slate-500">Matéria</label>
-                    <select id="filtro-materia" class="bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-                        <option value="Todas">Todas</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label for="filtro-mes" class="text-xs font-semibold uppercase tracking-wider text-slate-500">Mês</label>
-                    <select id="filtro-mes" class="bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-                        <option value="Todos">Todos</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label for="filtro-modalidade" class="text-xs font-semibold uppercase tracking-wider text-slate-500">Modalidade</label>
-                    <select id="filtro-modalidade" class="bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-                        <option value="Todas">Todas</option>
-                        <option value="Presencial">Presencial</option>
-                        <option value="Online">Online</option>
-                    </select>
-                </div>
-                <div class="ml-auto">
-                    <span id="contagem-provas" class="text-xs text-slate-500 font-medium"></span>
-                </div>
+    <!-- Catalog Sub-Hero with Study Archive Overview -->
+    <section class="hero hero--sub" aria-labelledby="catalog-title">
+        <div class="hero__aura hero__aura--2" aria-hidden="true"></div>
+        <div class="hero__grid wrap">
+            <div class="hero__copy">
+                <p class="eyebrow"><span class="eyebrow__pulse"></span>Arquivo Técnico & Acervo de Preparação · 2026</p>
+                <h1 id="catalog-title">Estude pelas <em>provas reais</em> e editais oficiais.</h1>
+                <p class="hero__lede">
+                    Consulte fichas técnicas completas de cada olimpíada, compare modalidades de aplicação e acesse diretamente bancos de provas anteriores, gabaritos comentados e apostilas de preparação.
+                </p>
+            </div>
+            <div class="hero__actions">
+                <a class="btn btn--tinted" href="calendario.html">
+                    <svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>
+                    Ver Cronograma 2026
+                </a>
+            </div>
+        </div>
+
+        <!-- Study Archive Context Ribbon -->
+        <div class="subhero-ribbon wrap" aria-label="Estrutura dos dossiês de estudo">
+            <div class="subhero-step">
+                <span class="subhero-step__idx">ACERVO 01 · CADERNOS</span>
+                <strong class="subhero-step__title">Provas & Gabaritos</strong>
+                <span class="subhero-step__meta">Acesso direto aos repositórios históricos de exames das fases 1, 2 e seletivas.</span>
+            </div>
+            <div class="subhero-step">
+                <span class="subhero-step__idx">ACERVO 02 · DIRETRIZES</span>
+                <strong class="subhero-step__title">Editais & Regulamentos</strong>
+                <span class="subhero-step__meta">Critérios de elegibilidade por série, formato de prova e regras de desempate.</span>
+            </div>
+            <div class="subhero-step">
+                <span class="subhero-step__idx">ACERVO 03 · PREPARAÇÃO</span>
+                <strong class="subhero-step__title">Apostilas & Guias</strong>
+                <span class="subhero-step__meta">Materiais didáticos gratuitos (POTI, Portal da Matemática, NOIC e clubes).</span>
+            </div>
+            <div class="subhero-step">
+                <span class="subhero-step__idx">ACERVO 04 · RECONHECIMENTO</span>
+                <strong class="subhero-step__title">Bolsas & Vagas Olímpicas</strong>
+                <span class="subhero-step__meta">Competições elegíveis a bolsas de Iniciação Científica Jr. (CNPq) e ingresso universitário.</span>
             </div>
         </div>
     </section>
 
-    <!-- ACCORDIONS LIST -->
-    <main class="directory-main max-w-6xl mx-auto px-4 sm:px-6 pb-16">
-        <div id="lista-provas" class="space-y-4">
-            <div class="flex items-center justify-center py-20">
-                <div class="flex items-center gap-3 text-slate-500">
-                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                    Carregando provas…
+    <!-- Main Section: Search, Filters and Catalog Dossiers -->
+    <main id="provas-catalog-section" class="catalog-page wrap" tabindex="-1">
+        <form class="timeline-filters-bar" role="search" onsubmit="event.preventDefault();">
+            <div class="search-field">
+                <label for="provas-search" class="visually-hidden">Pesquisar catálogo</label>
+                <svg class="icon search-field__icon" aria-hidden="true"><use href="#i-search"/></svg>
+                <input id="provas-search" type="search"
+                    placeholder="Pesquise por sigla (OBMEP, OBA, OBI), matéria, regulamento ou material de estudo…"
+                    aria-label="Pesquisar catálogo">
+                <kbd class="search-field__kbd" title="Atalho de busca">/</kbd>
+            </div>
+
+            <div class="filters-grid">
+                <div class="field">
+                    <label for="filtro-serie">Nível escolar</label>
+                    <select id="filtro-serie">
+                        <option value="Todas">Todas as séries</option>
+                        <option value="Ensino Fundamental I">Fundamental I</option>
+                        <option value="Ensino Fundamental II">Fundamental II</option>
+                        <option value="Ensino Médio">Ensino Médio</option>
+                        <option value="Livre">Superior & Livre</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="filtro-materia">Área científica</label>
+                    <select id="filtro-materia">
+                        <option value="Todas">Todas as matérias</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="filtro-mes">Mês de atividade</label>
+                    <select id="filtro-mes">
+                        <option value="Todos">Todos os meses</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="filtro-modalidade">Formato de aplicação</label>
+                    <select id="filtro-modalidade">
+                        <option value="Todas">Todas as modalidades</option>
+                        <option value="Presencial">Presencial</option>
+                        <option value="Online">Online</option>
+                        <option value="Híbrida">Híbrida</option>
+                    </select>
                 </div>
             </div>
-        </div>
+
+            <div class="provas-toolbar">
+                <div class="results-bar">
+                    <span id="contagem-provas" aria-live="polite">Carregando fichas técnicas…</span>
+                    <button type="button" id="btn-reset-provas" class="btn-plain" hidden>Limpar filtros</button>
+                </div>
+                <div class="provas-toolbar__actions">
+                    <button type="button" id="btn-expand-all" class="btn btn--tinted btn--small">Expandir Dossiês</button>
+                    <button type="button" id="btn-collapse-all" class="btn btn--tinted btn--small">Recolher Todos</button>
+                </div>
+            </div>
+        </form>
+
+        <section class="accordions-container" aria-label="Dossiês técnicos das olimpíadas">
+            <h2 class="visually-hidden">Lista de Fichas Técnicas</h2>
+            <div id="lista-provas" class="provas-accordion-list">
+                <p class="cards__loading">Carregando catálogo de provas…</p>
+            </div>
+        </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="max-w-5xl mx-auto px-4 sm:px-6 pb-8">
-        <div class="text-center text-sm text-slate-600 space-y-2">
-            <p>&copy; 2026 Calendário Olímpico — Feito com 💙 para estudantes de alta performance.</p>
-            <p>
-                <a href="https://linktr.ee/webglossdev" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 transition-colors">@webglossdev</a>
-                <span class="mx-2 text-slate-800">|</span>
-                <button id="license-btn" class="text-blue-400 hover:text-blue-300 transition-colors">⚖️ Licenciado sob GNU GPLv3</button>
-            </p>
-        </div>
+    <!-- Footer -->
+    <footer class="footer wrap">
+        <p>&copy; 2026 Calendário Olímpico — Central Nacional de Competições Científicas.</p>
+        <ul>
+            <li><a href="index.html">Início</a></li>
+            <li><a href="calendario.html">Linha do Tempo</a></li>
+            <li><a href="programas.html">Programas &amp; Bolsas Científicas</a></li>
+            <li><a href="privacidade.html">Privacidade &amp; LGPD</a></li>
+            <li><a href="https://github.com/webglossdev/calend-olimp" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+            <li><button type="button" id="license-btn" class="btn-plain">Licença GNU AGPLv3</button></li>
+            <li><a href="admin.html">Administração</a></li>
+        </ul>
     </footer>
 
-    <!-- LICENSE MODAL -->
-    <div id="license-modal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-        <div id="license-content" class="bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 transform scale-95 transition-transform duration-300">
-            <div class="flex items-start gap-4 mb-6">
-                <div class="flex-shrink-0 bg-blue-500/20 p-3 rounded-full">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-slate-100 mb-2">Sobre a Licença GNU GPL v3</h3>
-                    <div class="text-sm text-slate-300 leading-relaxed space-y-4">
-                        <p>Este é um projeto de <strong>Software Livre</strong>. Isso significa que você tem quatro liberdades essenciais:</p>
-                        <ul class="list-disc pl-5 text-slate-400 space-y-2">
-                            <li><strong>Usar:</strong> Você pode usar o programa para qualquer propósito.</li>
-                            <li><strong>Estudar:</strong> Você pode acessar o código-fonte e entender como ele funciona.</li>
-                            <li><strong>Modificar:</strong> Você pode fazer alterações para adaptá-lo às suas necessidades.</li>
-                            <li><strong>Distribuir:</strong> Você pode compartilhar o programa (original ou modificado) com outras pessoas.</li>
-                        </ul>
-                        
-                        <div class="bg-blue-500/10 border-l-4 border-blue-500 p-3 mt-4">
-                            <p class="text-xs text-blue-300 uppercase font-bold mb-1">Proteção de Créditos</p>
-                            <p class="text-slate-300">A GPLv3 exige que os <strong>avisos de direitos autorais originais sejam preservados</strong>. Se você usar este código, deve dar o devido crédito ao autor original e manter esta mesma licença.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-6 flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-700">
-                <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer" 
-                   class="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-slate-700 text-slate-200 font-semibold rounded-xl hover:bg-slate-600 transition-colors border border-slate-600 outline-none focus:ring-2 focus:ring-slate-500">
-                    Ler Licença Completa
-                </a>
-                <button id="license-close-btn" 
-                        class="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20 outline-none focus:ring-2 focus:ring-blue-400">
-                    Fechar
+    <!-- Mobile Tabbar -->
+    <nav class="tabbar" aria-label="Navegação principal">
+        <a href="index.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-house"/></svg><span>Início</span>
+        </a>
+        <a href="calendario.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg><span>Linha do Tempo</span>
+        </a>
+        <a href="provas.html" aria-current="page">
+            <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Catálogo</span>
+        </a>
+        <a href="programas.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-trophy"/></svg><span>Programas</span>
+        </a>
+        <a href="admin.html">
+            <svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg><span>Gestão</span>
+        </a>
+    </nav>
+
+    <!-- License Modal -->
+    <div id="license-modal" class="scrim" hidden>
+        <div id="license-content" class="sheet sheet--compact" role="dialog" aria-labelledby="license-title" aria-modal="true">
+            <span class="sheet__grabber" aria-hidden="true"></span>
+            <header class="sheet__header">
+                <h2 id="license-title">Licença Livre GNU AGPLv3</h2>
+                <button type="button" id="license-close-btn" class="btn-close" aria-label="Fechar licença">
+                    <svg class="icon" aria-hidden="true"><use href="#i-xmark"/></svg>
                 </button>
+            </header>
+            <div class="sheet__body">
+                <p>Este é um projeto de <strong>Software Livre</strong>, regido pela <strong>GNU Affero General Public License v3.0 (AGPLv3)</strong>.</p>
+                <h3 class="group-title">Copyleft de Rede e Liberdades Essenciais</h3>
+                <ol class="group">
+                    <li><strong>Usar</strong><span>Livre para qualquer propósito educacional, escolar ou pessoal.</span></li>
+                    <li><strong>Estudar & Modificar</strong><span>Acesso integral ao código-fonte aberto e auditável.</span></li>
+                    <li><strong>Copyleft de Rede (Seção 13)</strong><span>Qualquer serviço online derivado deste código deve disponibilizar seu código-fonte completo sob a mesma licença.</span></li>
+                    <li><strong>Compartilhar</strong><span>Distribua melhorias com a comunidade sob os termos da AGPLv3.</span></li>
+                </ol>
             </div>
+            <footer class="sheet__footer">
+                <a class="btn btn--tinted" href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">Texto Oficial</a>
+                <button type="button" id="license-ok-btn" class="btn btn--prominent">Fechar</button>
+            </footer>
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toast-container" class="toasts" aria-live="polite"></div>
+
+    <script src="dados.js"></script>
+    <script src="telemetry.js"></script>
+    <script src="security.js"></script>
     <script src="provas.js"></script>
 </body>
+
 </html>

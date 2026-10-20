@@ -1,9 +1,8 @@
-// ═══════════════════════════════════════════════════════════
-// provas.js — Accordion directory page logic
-// Fetch dados.json, render <details>/<summary> accordions,
-// cross-filters (Série, Matéria, Mês, Modalidade),
-// auto-open from URL ?id= param
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// Calendário Olímpico — provas.js (Directory & Study Library)
+// Cross-filtering, search, deep-linking, accordion expansion,
+// and study materials catalogue with copy link support.
+// ═══════════════════════════════════════════════════════════════
 
 (function () {
     'use strict';
@@ -17,67 +16,65 @@
     const filtroMateria = document.getElementById('filtro-materia');
     const filtroMes = document.getElementById('filtro-mes');
     const filtroModalidade = document.getElementById('filtro-modalidade');
+    const searchInput = document.getElementById('provas-search');
     const contagemEl = document.getElementById('contagem-provas');
+    const btnResetProvas = document.getElementById('btn-reset-provas');
+    const btnExpandAll = document.getElementById('btn-expand-all');
+    const btnCollapseAll = document.getElementById('btn-collapse-all');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
+    const toastContainer = document.getElementById('toast-container');
 
-    // ─── Month names ─────────────────────────────────────
     const MESES = [
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
 
+    // ═══════════════════════════════════════════════════════
+    // Helpers
+    // ═══════════════════════════════════════════════════════
     function getEventReferenceDate(ev) {
         return ev?.data || ev?.['data-f'] || ev?.['data-i'] || '';
     }
 
     function getInscricaoDate(o) {
-        const inscricao = (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
-        return getEventReferenceDate(inscricao);
+        const insc = (o.eventos || []).find(ev => ev.tipo === 'Inscrição');
+        return getEventReferenceDate(insc);
     }
 
     function getEarliestEventDate(o) {
         return (o.eventos || []).reduce((min, ev) => {
-            const date = getEventReferenceDate(ev);
-            if (!date) return min;
-            return !min || date < min ? date : min;
+            const d = getEventReferenceDate(ev);
+            if (!d) return min;
+            return !min || d < min ? d : min;
         }, '');
     }
 
-    // ─── Init ────────────────────────────────────────────
-    async function init() {
-        initMobileMenu();
-        initLicenseModal();
-        injectStyles();
-
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
         try {
-            const res = await fetch('./dados.json');
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            olimpiadas = await res.json();
-
-            populateFilters();
-            renderAccordions();
-
-            // Listeners
-            filtroSerie.addEventListener('change', renderAccordions);
-            filtroMateria.addEventListener('change', renderAccordions);
-            filtroMes.addEventListener('change', renderAccordions);
-            filtroModalidade.addEventListener('change', renderAccordions);
-
-            // Auto-open from URL params
-            handleDeepLink();
-
-        } catch (err) {
-            listaEl.innerHTML = `
-                <div class="text-center py-16">
-                    <p class="text-slate-500 font-medium">Não foi possível carregar os dados.</p>
-                    <p class="text-slate-600 text-sm mt-1">${err.message}</p>
-                </div>`;
-            console.error(err);
+            const [y, m, d] = dateStr.split('-');
+            return new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        } catch (_) {
+            return dateStr;
         }
     }
 
-    // ─── Populate filters dynamically ────────────────────
+    function showToast(message, type = 'info') {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.innerHTML = `<p>[${type.toUpperCase()}] ${message}</p>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Populate Dynamic Filters
+    // ═══════════════════════════════════════════════════════
     function populateFilters() {
         // Matérias
         const materias = new Set();
@@ -89,7 +86,7 @@
             filtroMateria.appendChild(opt);
         });
 
-        // Meses (extract from events)
+        // Meses
         const meses = new Set();
         olimpiadas.forEach(o => {
             (o.eventos || []).forEach(ev => {
@@ -108,17 +105,21 @@
         });
     }
 
-    // ─── Filter logic ────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // Filter Logic
+    // ═══════════════════════════════════════════════════════
     function getFiltered() {
-        const serie = filtroSerie.value;
-        const materia = filtroMateria.value;
-        const mes = filtroMes.value;
-        const modalidade = filtroModalidade.value;
+        const serie = filtroSerie ? filtroSerie.value : 'Todas';
+        const materia = filtroMateria ? filtroMateria.value : 'Todas';
+        const mes = filtroMes ? filtroMes.value : 'Todos';
+        const modalidade = filtroModalidade ? filtroModalidade.value : 'Todas';
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
         return olimpiadas.filter(o => {
             if (serie !== 'Todas' && !(o.nivel_escolar || []).includes(serie)) return false;
             if (materia !== 'Todas' && !(o.materias || []).includes(materia)) return false;
             if (modalidade !== 'Todas' && o.modalidade !== modalidade) return false;
+
             if (mes !== 'Todos') {
                 const mesNum = parseInt(mes, 10);
                 const hasMonth = (o.eventos || []).some(ev => {
@@ -127,240 +128,218 @@
                 });
                 if (!hasMonth) return false;
             }
+
+            if (query) {
+                const matchSigla = (o.sigla || '').toLowerCase().includes(query);
+                const matchNome = (o.nome || '').toLowerCase().includes(query);
+                const matchDesc = (o.descricao || '').toLowerCase().includes(query);
+                const matchMat = (o.materias || []).some(m => m.toLowerCase().includes(query));
+                const matchNiv = (o.nivel_escolar || []).some(n => n.toLowerCase().includes(query));
+                if (!matchSigla && !matchNome && !matchDesc && !matchMat && !matchNiv) {
+                    return false;
+                }
+            }
+
             return true;
+        }).sort((a, b) => {
+            const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || '9999-99-99';
+            const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || '9999-99-99';
+            return aDate.localeCompare(bDate);
         });
     }
 
-    // ─── Render accordions ───────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // Render Accordions
+    // ═══════════════════════════════════════════════════════
     function renderAccordions() {
         const filtered = getFiltered();
 
-        contagemEl.textContent = `${filtered.length} olimpíada${filtered.length !== 1 ? 's' : ''}`;
+        const isFiltered = (filtroSerie && filtroSerie.value !== 'Todas') ||
+                           (filtroMateria && filtroMateria.value !== 'Todas') ||
+                           (filtroMes && filtroMes.value !== 'Todos') ||
+                           (filtroModalidade && filtroModalidade.value !== 'Todas') ||
+                           (searchInput && searchInput.value.trim() !== '');
+
+        if (btnResetProvas) {
+            btnResetProvas.hidden = !isFiltered;
+        }
+
+        if (contagemEl) {
+            const count = filtered.length;
+            contagemEl.textContent = `Exibindo ${count} olimpíada${count !== 1 ? 's' : ''} catalogada${count !== 1 ? 's' : ''}`;
+        }
 
         if (filtered.length === 0) {
             listaEl.innerHTML = `
-                <div class="text-center py-16">
-                    <p class="text-slate-500 font-medium">Nenhuma olimpíada encontrada para os filtros selecionados.</p>
-                </div>`;
+                <div class="empty-state">
+                    <div class="empty-state__icon">
+                        <svg class="icon icon--lg" aria-hidden="true"><use href="#i-search"/></svg>
+                    </div>
+                    <h3>Nenhuma ficha encontrada</h3>
+                    <p>Tente alterar ou limpar os filtros de série, matéria, mês ou termo de busca.</p>
+                    <button type="button" id="btn-empty-reset-provas" class="btn btn--tinted" style="margin-top: 1rem;">Limpar Filtros</button>
+                </div>
+            `;
+
+            const emptyResetBtn = document.getElementById('btn-empty-reset-provas');
+            if (emptyResetBtn) {
+                emptyResetBtn.addEventListener('click', resetAllProvasFilters);
+            }
             return;
         }
 
-        // Sort by earliest event date
-        filtered.sort((a, b) => {
-            const aDate = getInscricaoDate(a) || getEarliestEventDate(a) || 'z';
-            const bDate = getInscricaoDate(b) || getEarliestEventDate(b) || 'z';
-            return aDate.localeCompare(bDate);
-        });
+        listaEl.innerHTML = filtered.map((o, i) => createAccordionHtml(o, i)).join('');
 
-        listaEl.innerHTML = filtered.map((o, i) => criarAccordion(o, i)).join('');
+        // Attach copy link listeners
+        listaEl.querySelectorAll('.btn-copy-link').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.dataset.id;
+                const sigla = btn.dataset.sigla;
+                const url = `${window.location.origin}${window.location.pathname}?id=${id}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast(`Link direto da ${sigla} copiado para a área de transferência!`, 'success');
+                }).catch(() => {
+                    showToast(`URL: ${url}`, 'info');
+                });
+            });
+        });
     }
 
-    function criarAccordion(o, index) {
+    function resetAllProvasFilters() {
+        if (filtroSerie) filtroSerie.value = 'Todas';
+        if (filtroMateria) filtroMateria.value = 'Todas';
+        if (filtroMes) filtroMes.value = 'Todos';
+        if (filtroModalidade) filtroModalidade.value = 'Todas';
+        if (searchInput) searchInput.value = '';
+        if (btnResetProvas) btnResetProvas.hidden = true;
+        renderAccordions();
+    }
+
+    function createAccordionHtml(o, index) {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
-        // Find earliest inscription deadline
-        const inscricaoDate = getInscricaoDate(o);
+        const inscDate = getInscricaoDate(o);
         let statusBadge = '';
-        if (inscricaoDate) {
-            const inscDate = new Date(inscricaoDate + 'T00:00:00');
-            const diff = Math.ceil((inscDate - hoje) / (1000 * 60 * 60 * 24));
+        let statusClass = '';
+        if (inscDate) {
+            const [y, m, d] = inscDate.split('-');
+            const deadLine = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            const diff = Math.ceil((deadLine - hoje) / (1000 * 60 * 60 * 24));
             if (diff < 0) {
-                statusBadge = '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-500">Inscrições encerradas</span>';
+                statusBadge = 'Inscrições encerradas';
+                statusClass = 'badge-status--closed';
             } else if (diff <= 14) {
-                statusBadge = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400">${diff === 0 ? 'Último dia!' : diff + ' dias restantes'}</span>`;
+                statusBadge = diff === 0 ? 'Último dia de inscrição!' : `${diff} dias restantes`;
+                statusClass = 'badge-status--urgent';
             } else {
-                statusBadge = `<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">${diff} dias restantes</span>`;
+                statusBadge = `Inscrições abertas (${diff}d)`;
+                statusClass = 'badge-status--open';
             }
         } else {
-            statusBadge = '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">Cronograma pendente</span>';
+            statusBadge = 'Cronograma pendente';
+            statusClass = 'badge-status--pending';
         }
 
-        // Modalidade badge
-        const modBadge = o.modalidade === 'Online'
-            ? 'bg-violet-500/20 text-violet-400 border-violet-500/30'
-            : 'bg-teal-500/20 text-teal-400 border-teal-500/30';
+        // Levels & Matérias badges
+        const levelsBadges = (o.nivel_escolar || []).map(n => `<span class="badge-tag">${n}</span>`).join('');
+        const materiasBadges = (o.materias || []).map(m => `<span class="badge-tag">${m}</span>`).join('');
 
-        // Nivel badges
-        const nivelHtml = (o.nivel_escolar || []).map(n => {
-            const cores = {
-                'Ensino Fundamental I': 'bg-purple-500/20 text-purple-400',
-                'Ensino Fundamental II': 'bg-amber-500/20 text-amber-400',
-                'Ensino Médio': 'bg-cyan-500/20 text-cyan-400',
-            };
-            return `<span class="text-xs font-medium px-2 py-0.5 rounded-full ${cores[n] || 'bg-slate-700 text-slate-400'}">${n}</span>`;
-        }).join('');
-
-        // Events HTML
+        // Events list
         const eventosHtml = (o.eventos || []).length > 0
-            ? (o.eventos || []).map(ev => {
-            const refDate = getEventReferenceDate(ev);
-            const evDate = refDate ? new Date(refDate + 'T00:00:00') : null;
-            const passado = evDate ? evDate < hoje : false;
-            
-            let dateStr = '';
-            if (ev['data-i'] && ev['data-f']) {
-                const di = new Date(ev['data-i'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                const df = new Date(ev['data-f'] + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                dateStr = `${di} a ${df}`;
-            } else if (refDate) {
-                dateStr = evDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-            } else {
-                dateStr = 'Data não publicada';
-            }
-            
-            const tipoCor = ev.tipo === 'Inscrição' ? 'text-blue-400' : 'text-amber-400';
-            return `
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 py-2 ${passado ? 'opacity-40' : ''}">
-                    <div class="flex items-start sm:items-center gap-2 flex-1 min-w-0">
-                        <div class="w-2 h-2 rounded-full ${ev.tipo === 'Inscrição' ? 'bg-blue-500' : 'bg-amber-500'} flex-shrink-0 mt-1.5 sm:mt-0"></div>
-                        <div class="min-w-0">
-                            <span class="text-sm ${tipoCor} font-semibold">${ev.tipo}</span>
-                            <span class="text-sm text-slate-400 ml-1 break-words">— ${ev.descricao}</span>
+            ? `<ul class="provas-eventos-list">` + (o.eventos || []).map(ev => {
+                const ref = getEventReferenceDate(ev);
+                let dateStr = '';
+                if (ev['data-i'] && ev['data-f']) {
+                    dateStr = `${formatDate(ev['data-i'])} a ${formatDate(ev['data-f'])}`;
+                } else if (ref) {
+                    dateStr = formatDate(ref);
+                } else {
+                    dateStr = 'A definir';
+                }
+
+                return `
+                    <li>
+                        <div>
+                            <strong>${ev.tipo}:</strong> <span>${ev.descricao}</span>
                         </div>
-                    </div>
-                    <span class="text-xs text-slate-500 font-medium pl-4 sm:pl-0 sm:whitespace-nowrap ${passado ? 'line-through' : ''}">${dateStr}</span>
-                </div>`;
-        }).join('')
-            : '<p class="text-sm text-slate-500">Cronograma ainda não publicado.</p>';
-
-        // Matérias pills
-        const materiasHtml = (o.materias || []).map(m =>
-            `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 border border-slate-600">${m}</span>`
-        ).join('');
-
-        const descricaoHtml = o.descricao
-            ? `
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Descrição</h4>
-                    <p class="text-sm text-slate-300 leading-relaxed">${o.descricao}</p>
-                </div>`
-            : '';
-
-        const siteOficialHtml = o.site_oficial
-            ? `
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Site Oficial</h4>
-                    <a href="${o.site_oficial}" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
-                        ${o.site_oficial}
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                        </svg>
-                    </a>
-                </div>`
-            : '';
-
-        const fontes = Array.isArray(o.fontes_oficiais) ? o.fontes_oficiais : [];
-        const fontesHtml = fontes.length > 0
-            ? `
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Fontes Oficiais</h4>
-                    <div class="space-y-2">
-                        ${fontes.map(fonte => {
-                            const titulo = typeof fonte === 'string' ? fonte : (fonte.titulo || fonte.url);
-                            const url = typeof fonte === 'string' ? fonte : fonte.url;
-                            if (!url) return '';
-                            return `
-                                <a href="${url}" target="_blank" rel="noopener noreferrer"
-                                   class="flex items-center gap-2 text-sm text-slate-300 hover:text-blue-300 transition-colors">
-                                    <span>${titulo}</span>
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                    </svg>
-                                </a>`;
-                        }).join('')}
-                    </div>
-                </div>`
-            : '';
+                        <time>${dateStr}</time>
+                    </li>
+                `;
+            }).join('') + `</ul>`
+            : '<p>Cronograma oficial detalhado a ser publicado pela comissão organizadora.</p>';
 
         // Study materials
-        const materiaisHtml = o.materiais_estudo && o.materiais_estudo.length > 0
-            ? o.materiais_estudo.map(mat => `
-                <a href="${mat.url}" target="_blank" rel="noopener noreferrer"
-                   class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-900 transition-all duration-200 group">
-                    <svg class="w-4 h-4 text-blue-400 flex-shrink-0 group-hover:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                    <span class="text-sm text-slate-300 group-hover:text-blue-300 transition-colors">${mat.titulo}</span>
-                    <svg class="w-3.5 h-3.5 text-slate-600 ml-auto group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                </a>`).join('')
-            : '<p class="text-sm text-slate-600">Nenhum material disponível.</p>';
-
-        const animDelay = `animation-delay: ${index * 60}ms`;
+        const materiais = o.materiais_estudo || [];
+        const materiaisHtml = materiais.length > 0
+            ? `<ul class="provas-materiais-list">` + materiais.map(mat => `
+                <li>
+                    <a href="${mat.url}" target="_blank" rel="noopener noreferrer">
+                        <span>${mat.titulo}</span>
+                        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+                    </a>
+                </li>
+            `).join('') + `</ul>`
+            : '<p>Consulte o portal oficial da competição para guias de provas e ementas.</p>';
 
         return `
-        <details id="prova-${o.id}" class="group bg-slate-800 rounded-2xl border border-slate-700 shadow-lg shadow-slate-900/50
-                        hover:border-slate-600 transition-all duration-200
-                        opacity-0 animate-[fadeInUp_0.4s_ease_forwards] overflow-hidden"
-                 style="${animDelay}">
-            <summary class="flex flex-wrap items-center gap-3 p-5 cursor-pointer select-none list-none
-                           [&::-webkit-details-marker]:hidden">
-                <!-- Arrow -->
-                <svg class="w-5 h-5 text-slate-500 transition-transform duration-200 group-open:rotate-90 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                </svg>
-
-                <!-- Title area -->
-                <div class="flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center gap-2 mb-1">
-                        <h3 class="text-lg font-bold text-slate-100">${o.sigla}</h3>
-                        <span class="text-sm text-slate-400">— ${o.nome}</span>
+            <details id="prova-${o.id}" class="provas-card">
+                <summary>
+                    <div class="provas-summary__header">
+                        <span class="provas-summary__sigla">${o.sigla}</span>
+                        <span class="badge-modality">${o.modalidade}</span>
+                        <span class="badge-status ${statusClass}">${statusBadge}</span>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-bold px-2 py-0.5 rounded-full border ${modBadge}">${o.modalidade}</span>
-                        ${statusBadge}
+                    <p class="provas-summary__name">${o.nome}</p>
+                    <div class="provas-summary__tags">
+                        ${levelsBadges}
+                        ${materiasBadges}
+                    </div>
+                </summary>
+
+                <div class="provas-card__body">
+                    ${o.descricao ? `<p>${o.descricao}</p>` : ''}
+
+                    <div>
+                        <h4 class="provas-section-title">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>
+                            Cronograma de Inscrições & Fases
+                        </h4>
+                        ${eventosHtml}
+                    </div>
+
+                    <div>
+                        <h4 class="provas-section-title">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-star"/></svg>
+                            Materiais de Estudo & Bancos de Provas
+                        </h4>
+                        ${materiaisHtml}
+                    </div>
+
+                    <div class="provas-card__actions">
+                        ${o.site_oficial ? `
+                        <a class="btn btn--tinted" href="${o.site_oficial}" target="_blank" rel="noopener noreferrer">
+                            Portal Oficial
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+                        </a>` : ''}
+                        <a class="btn btn--tinted" href="calendario.html">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>
+                            Ver na Linha do Tempo
+                        </a>
+                        <button type="button" class="btn-copy-link" data-id="${o.id}" data-sigla="${o.sigla}">
+                            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-link"/></svg>
+                            Copiar Link Direto
+                        </button>
                     </div>
                 </div>
-            </summary>
-
-            <!-- Expanded content -->
-            <div class="border-t border-slate-700 p-5 space-y-5">
-                <!-- Níveis -->
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Níveis Escolares</h4>
-                    <div class="flex flex-wrap gap-2">${nivelHtml}</div>
-                </div>
-
-                ${descricaoHtml}
-
-                <!-- Matérias -->
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Matérias</h4>
-                    <div class="flex flex-wrap gap-2">${materiasHtml}</div>
-                </div>
-
-                <!-- Eventos / Datas -->
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Datas Importantes</h4>
-                    <div class="divide-y divide-slate-700/50">${eventosHtml}</div>
-                </div>
-
-                <!-- Materiais de Estudo -->
-                <div>
-                    <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Materiais de Estudo</h4>
-                    <div class="space-y-2">${materiaisHtml}</div>
-                </div>
-
-                ${siteOficialHtml}
-                ${fontesHtml}
-
-                <!-- Link to calendar -->
-                <div class="pt-2">
-                    <a href="calendario.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Ver no Calendário
-                    </a>
-                </div>
-            </div>
-        </details>`;
+            </details>
+        `;
     }
 
-    // ─── Deep link: ?id= param ───────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // Deep Linking (?id=...)
+    // ═══════════════════════════════════════════════════════
     function handleDeepLink() {
         const params = new URLSearchParams(window.location.search);
         const targetId = params.get('id');
@@ -369,94 +348,117 @@
         const el = document.getElementById('prova-' + targetId);
         if (!el) return;
 
-        // Open the accordion
         el.setAttribute('open', '');
-
-        // Scroll into view after a short delay for render
         setTimeout(() => {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Flash highlight
-            el.classList.add('ring-2', 'ring-blue-500/50');
-            setTimeout(() => el.classList.remove('ring-2', 'ring-blue-500/50'), 2000);
         }, 300);
     }
 
-    // ─── Mobile menu ─────────────────────────────────────
-    function initMobileMenu() {
+    // ═══════════════════════════════════════════════════════
+    // Mobile Nav & Modals
+    // ═══════════════════════════════════════════════════════
+    function setupMobileMenu() {
         if (!mobileMenuBtn || !mobileMenu) return;
         mobileMenuBtn.addEventListener('click', () => {
-            const isOpen = !mobileMenu.classList.contains('hidden');
-            mobileMenu.classList.toggle('hidden');
-            mobileMenuBtn.setAttribute('aria-expanded', !isOpen);
+            const isHidden = mobileMenu.hidden;
+            mobileMenu.hidden = !isHidden;
+            mobileMenuBtn.setAttribute('aria-expanded', String(isHidden));
         });
+
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
+                mobileMenu.hidden = true;
                 mobileMenuBtn.setAttribute('aria-expanded', 'false');
             });
         });
     }
 
-    // ─── License Modal ───────────────────────────────────
-    function initLicenseModal() {
+    function setupLicenseModal() {
         const modal = document.getElementById('license-modal');
         const openBtn = document.getElementById('license-btn');
         const closeBtn = document.getElementById('license-close-btn');
-        const content = document.getElementById('license-content');
+        const okBtn = document.getElementById('license-ok-btn');
 
-        if (!modal || !openBtn || !closeBtn || !content) return;
+        if (!modal || !openBtn) return;
 
-        const openModal = () => {
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.classList.add('opacity-100');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                });
-            });
-            document.body.style.overflow = 'hidden';
-        };
+        const open = () => { modal.hidden = false; };
+        const close = () => { modal.hidden = true; };
 
-        const closeModal = () => {
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
-        };
-
-        openBtn.addEventListener('click', openModal);
-        closeBtn.addEventListener('click', closeModal);
+        openBtn.addEventListener('click', open);
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (okBtn) okBtn.addEventListener('click', close);
 
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            if (e.target === modal) close();
         });
 
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+            if (e.key === 'Escape' && !modal.hidden) close();
         });
     }
 
-    // ─── Inject styles ───────────────────────────────────
-    function injectStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(12px); }
-                to   { opacity: 1; transform: translateY(0); }
+    // ═══════════════════════════════════════════════════════
+    // Init
+    // ═══════════════════════════════════════════════════════
+    async function init() {
+        setupMobileMenu();
+        setupLicenseModal();
+
+        try {
+            if (window.OLIMPIADAS_DATA && Array.isArray(window.OLIMPIADAS_DATA) && window.OLIMPIADAS_DATA.length > 0) {
+                olimpiadas = JSON.parse(JSON.stringify(window.OLIMPIADAS_DATA));
+            } else {
+                const res = await fetch('./dados.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                olimpiadas = await res.json();
             }
-            details summary::-webkit-details-marker { display: none; }
-            details summary::marker { display: none; }
-        `;
-        document.head.appendChild(style);
+
+            populateFilters();
+            renderAccordions();
+
+            // Filter listeners
+            if (filtroSerie) filtroSerie.addEventListener('change', renderAccordions);
+            if (filtroMateria) filtroMateria.addEventListener('change', renderAccordions);
+            if (filtroMes) filtroMes.addEventListener('change', renderAccordions);
+            if (filtroModalidade) filtroModalidade.addEventListener('change', renderAccordions);
+
+            if (searchInput) {
+                let timeout = null;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(renderAccordions, 150);
+                });
+            }
+
+            if (btnResetProvas) {
+                btnResetProvas.addEventListener('click', resetAllProvasFilters);
+            }
+
+            if (btnExpandAll) {
+                btnExpandAll.addEventListener('click', () => {
+                    listaEl.querySelectorAll('details').forEach(d => d.setAttribute('open', ''));
+                });
+            }
+
+            if (btnCollapseAll) {
+                btnCollapseAll.addEventListener('click', () => {
+                    listaEl.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
+                });
+            }
+
+            handleDeepLink();
+
+        } catch (err) {
+            listaEl.innerHTML = `
+                <div>
+                    <h3>Falha ao carregar catálogo</h3>
+                    <p>${err.message}</p>
+                </div>
+            `;
+            console.error(err);
+        }
     }
 
-    // ─── Boot ────────────────────────────────────────────
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
