@@ -66,7 +66,7 @@ Uma API aberta e rápida para desenvolvedores, escolas, secretarias de educaçã
 
 ---
 
-### 4. Segurança Territorial & Detecção de VPN (`security.js` e `middleware.js`)
+### 4. Segurança Territorial & Detecção de VPN (`security.js` e `api/geo.js`)
 O site é exclusivo para estudantes em território nacional brasileiro, implementando proteção na borda a custo zero:
 - 🛡️ **Filtro Duplo na Borda:**
   - **Regra 1 (País):** Bloqueia conexões com `cf-ipcountry !== 'BR'` ou `x-vercel-ip-country !== 'BR'`.
@@ -108,7 +108,6 @@ Telemetria voltada exclusivamente para a ciência aberta e melhoria do ensino p�
 ├── admin.js                # Lógica do Painel Administrativo, CRUD e Observatório
 ├── security.js             # Motor de segurança territorial, anti-VPN e passes de fronteira
 ├── telemetry.js            # Motor de telemetria educacional pseudonimizada
-├── middleware.js           # Vercel Edge Middleware (inspeção de cabeçalhos na borda)
 ├── vercel.json             # Configurações de deploy e cabeçalhos de segurança na Vercel
 └── api/                    # Rotas Serverless na Vercel
     ├── olimpiadas.js       # API REST Pública para consulta de competições
