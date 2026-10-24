@@ -2753,5 +2753,102 @@
         ]
       }
     ]
+  },
+  {
+    "id": "obsust2026",
+    "sigla": "OBSUST",
+    "nome": "Olimpíada Brasileira de Sustentabilidade",
+    "nivel_escolar": [
+      "Ensino Fundamental I",
+      "Ensino Fundamental II",
+      "Ensino Médio",
+      "Livre"
+    ],
+    "materias": [
+      "Sustentabilidade",
+      "Ciências da Natureza",
+      "Biologia",
+      "Geografia",
+      "Multidisciplinar"
+    ],
+    "modalidade": "Online",
+    "eventos": [
+      {
+        "tipo": "Inscrição",
+        "data-i": "2026-10-05",
+        "data-f": "2026-11-08",
+        "descricao": "Período de inscrições gratuitas (estudantes, professores e escolas)"
+      },
+      {
+        "tipo": "Prova",
+        "data-i": "2026-10-26",
+        "data-f": "2026-11-08",
+        "descricao": "1ª Fase — Prova online classificatória (com consulta)"
+      },
+      {
+        "tipo": "Prova",
+        "data-i": "2026-11-30",
+        "data-f": "2026-12-04",
+        "descricao": "2ª Fase — Prova online individual (sem consulta)"
+      },
+      {
+        "tipo": "Premiação",
+        "data": "2026-12-15",
+        "descricao": "Divulgação dos resultados oficiais e emissão de certificados/medalhas digitais"
+      }
+    ],
+    "materiais_estudo": [
+      {
+        "titulo": "Site Oficial OBSustentabilidade",
+        "url": "https://www.obsustentabilidade.com.br/"
+      },
+      {
+        "titulo": "Regulamento Oficial 1ª OBSustentabilidade 2026 (PDF)",
+        "url": "https://www.obsustentabilidade.com.br/regulamento.pdf"
+      },
+      {
+        "titulo": "Portal de Inscrições e Acesso EduSpace",
+        "url": "https://olimpico.eduspace.com.br/users/sign_in"
+      },
+      {
+        "titulo": "Canal Oficial no WhatsApp da OBSustentabilidade",
+        "url": "https://whatsapp.com/channel/0029Vb8ePivHrDZfsGByhB3Q"
+      }
+    ],
+    "site_oficial": "https://www.obsustentabilidade.com.br/",
+    "descricao": "A Olimpíada Brasileira de Sustentabilidade (OBSUST), realizada pela EduSpace com apoio estratégico da FGV EAESP Earth, Ministério do Meio Ambiente e Mudança do Clima (MMA) e CMPC, é uma competição nacional 100% online, gratuita e voluntária para estudantes do 3º ano do Fundamental à 3ª série do Ensino Médio (além de Categoria Aberta para universitários e educadores). Estruturada em 5 verticais temáticas (Recursos Hídricos, Uso do Solo, Mudanças Climáticas, Saúde e Ambiente e Biodiversidade), conecta os 17 ODS da ONU e o ODS 18 brasileiro (Igualdade Étnico-Racial) às competências da BNCC.",
+    "incentivo": "A sustentabilidade é o maior desafio e a maior oportunidade profissional do século XXI! A OBSUST é 100% gratuita, online e inclusiva: na 1ª Fase você pode consultar materiais para aprender enquanto responde; na 2ª Fase você testa seu domínio e conquista certificações de Ouro, Prata e Bronze nacionais, com embaixadores globais como o cientista Dr. Carlos Nobre (Guardião Planetário) e Claudia Vergueiro Massei (Young Global Leader WEF).",
+    "como_funciona": {
+      "inscricao": "100% gratuita pelo portal EduSpace (estudantes, professores e escolas, de 5 de outubro a 8 de novembro de 2026)",
+      "formato": "2 fases 100% online (1ª Fase com consulta; 2ª Fase individual sem consulta via web e app)",
+      "custo": "100% gratuita para todas as redes e categorias",
+      "seletiva_internacional": "Conexão pedagógica com a Agenda 2030 (ONU), ODS 18 e redes de liderança socioambiental"
+    },
+    "premiacoes_resumo": [
+      "Certificado Oficial de Participação (Todos os concluintes)",
+      "Certificados e Medalhas Digitais de Ouro, Prata e Bronze",
+      "Reconhecimento para Professores Orientadores e Escolas Engajadas",
+      "Chancela de Embaixadores Planetários (Dr. Carlos Nobre & Claudia Massei)"
+    ],
+    "premiacoes_fases": [
+      {
+        "etapa": "1ª Fase Online Classificatória (com consulta)",
+        "titulo": "Certificado Oficial de Participação e Classificação",
+        "icone": "certificado",
+        "premios": [
+          "Certificado digital de participação para todos os estudantes que concluem a prova objetiva online na plataforma EduSpace.",
+          "Classificação dos melhores desempenhos de cada categoria escolar para a 2ª Fase decisiva."
+        ]
+      },
+      {
+        "etapa": "2ª Fase Online Final (sem consulta)",
+        "titulo": "Medalhas Digitais de Ouro, Prata e Bronze + Mérito Nacional",
+        "icone": "medalha",
+        "premios": [
+          "Emissão de certificados oficiais e medalhas digitais de Ouro, Prata e Bronze para os melhores estudantes do Brasil em cada uma das 4 categorias.",
+          "Destaque e menções honrosas para professores orientadores e escolas com alto engajamento em projetos e formação socioambiental."
+        ]
+      }
+    ]
   }
 ]

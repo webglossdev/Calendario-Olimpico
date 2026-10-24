@@ -74,6 +74,11 @@
     --ling-tint: rgba(91, 63, 166, 0.09);
     --ling-glow: rgba(91, 63, 166, 0.16);
 
+    --eco: #1E7E34;
+    --eco-grad: linear-gradient(90deg, #1E7E34, #2E8540);
+    --eco-tint: rgba(30, 126, 52, 0.09);
+    --eco-glow: rgba(30, 126, 52, 0.16);
+
     --multi: #334E68;
     --multi-grad: linear-gradient(90deg, #334E68, #486581);
     --multi-tint: rgba(51, 78, 104, 0.09);
@@ -193,6 +198,8 @@
         --bio-tint: rgba(244, 114, 182, 0.14);
         --ling: #A78BFA;
         --ling-tint: rgba(167, 139, 250, 0.14);
+        --eco: #4ADE80;
+        --eco-tint: rgba(74, 222, 128, 0.14);
         --multi: #94A3B8;
         --multi-tint: rgba(148, 163, 184, 0.14);
 
@@ -1184,6 +1191,7 @@ button { cursor: pointer; }
 .subject-chip--chemistry.active { background: var(--chem); color: #FFF; border-color: var(--chem); }
 .subject-chip--biology.active { background: var(--bio); color: #FFF; border-color: var(--bio); }
 .subject-chip--linguistics.active { background: var(--ling); color: #FFF; border-color: var(--ling); }
+.subject-chip--eco.active { background: var(--eco); color: #FFF; border-color: var(--eco); }
 
 .directory__layout {
     display: grid;
@@ -1433,7 +1441,8 @@ button { cursor: pointer; }
 .theme-quimica { --discipline-color: var(--chem); --discipline-grad: var(--chem-grad); --discipline-tint: var(--chem-tint); --discipline-glow: var(--chem-glow); }
 .theme-biologia { --discipline-color: var(--bio); --discipline-grad: var(--bio-grad); --discipline-tint: var(--bio-tint); --discipline-glow: var(--bio-glow); }
 .theme-linguistica { --discipline-color: var(--ling); --discipline-grad: var(--ling-grad); --discipline-tint: var(--ling-tint); --discipline-glow: var(--ling-glow); }
-.theme-multi { --discipline-color: var(--multi); --discipline-grad: var(--multi-grad); --discipline-tint: var(--multi-tint); --discipline-glow: var(--multi-glow); }
+.theme-sustentabilidade { --discipline-color: var(--eco); --discipline-grad: var(--eco-grad); --discipline-tint: var(--eco-tint); --discipline-glow: var(--eco-glow); }
+.theme-multi, .theme-multidisciplinar { --discipline-color: var(--multi); --discipline-grad: var(--multi-grad); --discipline-tint: var(--multi-tint); --discipline-glow: var(--multi-glow); }
 
 .card__top {
     display: flex;

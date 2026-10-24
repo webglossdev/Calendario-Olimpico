@@ -68,7 +68,8 @@
         'Diferente de exames tradicionais, a Olimpíada Nacional de Ciências (ONC) testa o raciocínio interdisciplinar integrando Astronomia, Biologia, Física, Química e História em um único exame.',
         'No IYPT (International Young Physicists\' Tournament), a competição simula debates científicos internacionais com "Lutas Físicas" (Physics Fights) em inglês.',
         'A Olimpíada Brasileira de Robótica (OBR) conta com desafios práticos de resgate autônomo com sensores e programação em arena e desafios teóricos de ponta.',
-        'A Olimpíada Nacional de Inteligência Artificial (ONIA) ensina modelos de aprendizado de máquina, redes neurais e processamento de linguagem natural desde a educação básica.'
+        'A Olimpíada Nacional de Inteligência Artificial (ONIA) ensina modelos de aprendizado de máquina, redes neurais e processamento de linguagem natural desde a educação básica.',
+        'A Olimpíada Brasileira de Sustentabilidade (OBSUST), promovida com a FGV EAESP Earth e o Ministério do Meio Ambiente, conecta os 17 ODS da ONU e o ODS 18 de igualdade étnico-racial em desafios 100% online e gratuitos.'
     ];
 
     // ═══════════════════════════════════════════════════════
@@ -497,6 +498,7 @@
                     if (target === 'química' && mLower.includes('química')) return true;
                     if (target === 'biologia' && mLower.includes('biologia')) return true;
                     if (target === 'linguística' && (mLower.includes('linguística') || mLower.includes('língua') || mLower.includes('letras'))) return true;
+                    if (target === 'sustentabilidade' && (mLower.includes('sustent') || mLower.includes('ecolog') || mLower.includes('ambiente'))) return true;
                     return mLower.includes(target);
                 });
                 if (!hasMatch) return false;
@@ -584,6 +586,7 @@
         if (mats.some(m => m.includes('astronomia') || m.includes('aeroespacial') || m.includes('astronáutica'))) return { key: 'astronomia', label: 'Astronomia', icon: 'i-sub-astronomy' };
         if (mats.some(m => m.includes('informática') || m.includes('robótica') || m.includes('inteligência artificial'))) return { key: 'informatica', label: 'Informática & IA', icon: 'i-sub-code' };
         if (mats.some(m => m.includes('química'))) return { key: 'quimica', label: 'Química', icon: 'i-sub-chem' };
+        if (mats.some(m => m.includes('sustent') || m.includes('ecolog') || m.includes('meio ambiente'))) return { key: 'sustentabilidade', label: 'Sustentabilidade', icon: 'i-sub-eco' };
         if (mats.some(m => m.includes('biologia') || m.includes('neurociência'))) return { key: 'biologia', label: 'Biologia', icon: 'i-sub-bio' };
         if (mats.some(m => m.includes('linguística') || m.includes('história'))) return { key: 'linguistica', label: 'Linguística', icon: 'i-sub-ling' };
         return { key: 'multi', label: 'Multidisciplinar', icon: 'i-sub-multi' };
